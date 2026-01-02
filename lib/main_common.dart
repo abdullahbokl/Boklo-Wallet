@@ -1,7 +1,7 @@
 import 'package:boklo/core/config/app_config.dart';
 import 'package:boklo/core/di/dependency_injection.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:boklo/core/presentation/widgets/atoms/app_text.dart';
+import 'package:boklo/shared/widgets/atoms/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:boklo/l10n/generated/app_localizations.dart';

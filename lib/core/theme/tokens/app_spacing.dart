@@ -1,4 +1,4 @@
-import 'package:boklo/core/presentation/responsive/screen_info.dart';
+import 'package:boklo/shared/responsive/screen_info.dart';
 
 class AppSpacing {
   static const double xxs = 2;

@@ -1,4 +1,4 @@
-import 'package:boklo/core/presentation/responsive/device_type.dart';
+import 'package:boklo/shared/responsive/device_type.dart';
 import 'package:flutter/material.dart';
 
 class ScreenInfo {

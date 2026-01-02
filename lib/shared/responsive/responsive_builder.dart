@@ -1,6 +1,6 @@
-import 'package:boklo/core/presentation/responsive/app_breakpoints.dart';
-import 'package:boklo/core/presentation/responsive/device_type.dart';
-import 'package:boklo/core/presentation/responsive/screen_info.dart';
+import 'package:boklo/shared/responsive/app_breakpoints.dart';
+import 'package:boklo/shared/responsive/device_type.dart';
+import 'package:boklo/shared/responsive/screen_info.dart';
 import 'package:flutter/material.dart';
 
 typedef ResponsiveWidgetBuilder =
