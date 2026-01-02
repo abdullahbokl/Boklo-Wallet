@@ -1,10 +1,10 @@
 import 'package:boklo/core/config/app_config.dart';
 import 'package:boklo/core/di/di_initializer.dart';
-import 'package:boklo/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:boklo/l10n/generated/app_localizations.dart';
 import 'package:boklo/shared/widgets/atoms/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:boklo/l10n/generated/app_localizations.dart';
 
 Future<void> bootstrap(AppConfig config) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +12,7 @@ Future<void> bootstrap(AppConfig config) async {
   // Register AppConfig before other dependencies
   // We can't use @LazySingleton for AppConfig because it's dynamic
   // So we register it manually
-  configureDependencies();
+  await configureDependencies();
   getIt.registerSingleton<AppConfig>(config);
 
   runApp(const MyApp());
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AuthBloc>(create: (_) => getIt<AuthBloc>()),
+        BlocProvider<AuthCubit>(create: (_) => getIt<AuthCubit>()),
       ],
       child: MaterialApp(
         title: 'Boklo',
