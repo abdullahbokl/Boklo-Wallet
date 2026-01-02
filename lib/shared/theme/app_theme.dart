@@ -1,4 +1,4 @@
-import 'package:boklo/core/theme/tokens/app_typography.dart';
+import 'package:boklo/shared/theme/tokens/app_typography.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {

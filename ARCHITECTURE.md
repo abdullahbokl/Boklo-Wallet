@@ -22,7 +22,7 @@ Boklo follows **Clean Architecture** combined with a **Feature-First** directory
 
 ```
 lib/
-├── config/             # Environment, Routing, Theme
+├── config/             # Environment, Routing
 ├── core/               # Shared logic reusable across features
 │   ├── base/           # Base classes (BaseCubit, BaseState)
 │   ├── di/             # Dependency Injection (GetIt/Injectable)
@@ -46,7 +46,7 @@ lib/
 - **`BaseCubit`**: The foundation for all Cubits. Provides simpler APIs (`emitSuccess`, `emitError`) and `runBlocCatching` for safe async operations.
 - **`BaseState`**: A sealed class (`Initial`, `Loading`, `Success`, `Error`) ensuring exhaustive state handling.
 
-### Design System (`core/presentation/widgets`)
+### Design System (`shared/widgets`)
 
 We follow **Atomic Design** principles for shared widgets:
 
