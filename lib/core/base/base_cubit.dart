@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/error/app_error.dart';
-import 'package:boklo/core/utils/result.dart';
+import 'package:boklo/core/base/result.dart';
 
 /// A generic base class for Cubits that adhere to Clean Architecture.
 ///

@@ -1,5 +1,5 @@
 import 'package:boklo/core/config/app_config.dart';
-import 'package:boklo/core/di/dependency_injection.dart';
+import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:boklo/shared/widgets/atoms/app_text.dart';
 import 'package:flutter/material.dart';

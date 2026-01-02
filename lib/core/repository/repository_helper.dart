@@ -1,5 +1,5 @@
 import 'package:boklo/core/error/app_error.dart';
-import 'package:boklo/core/utils/result.dart';
+import 'package:boklo/core/base/result.dart';
 
 Future<Result<T>> performNetworkOperation<T>({
   required Future<bool> Function() isConnected,

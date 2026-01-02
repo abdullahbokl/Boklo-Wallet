@@ -1,5 +1,5 @@
 import 'package:boklo/core/error/app_error.dart';
-import 'package:boklo/core/utils/result.dart';
+import 'package:boklo/core/base/result.dart';
 import 'package:boklo/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:boklo/core/config/app_config.dart';
-import 'package:boklo/core/di/dependency_injection.dart';
+import 'package:boklo/core/di/di_initializer.dart';
 import 'package:flutter/widgets.dart';
 
 /// Centralized application initialization logic.

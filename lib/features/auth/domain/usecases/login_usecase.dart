@@ -1,4 +1,4 @@
-import 'package:boklo/core/utils/result.dart';
+import 'package:boklo/core/base/result.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:injectable/injectable.dart';

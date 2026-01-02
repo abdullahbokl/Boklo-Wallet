@@ -1,4 +1,4 @@
-import 'package:boklo/core/di/dependency_injection.config.dart';
+import 'package:boklo/core/di/di_initializer.config.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
