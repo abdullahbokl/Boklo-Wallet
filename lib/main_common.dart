@@ -2,7 +2,7 @@ import 'package:boklo/core/config/app_config.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/l10n/generated/app_localizations.dart';
-import 'package:boklo/shared/widgets/atoms/app_text.dart';
+import 'package:boklo/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -35,11 +35,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: Scaffold(
-          body: Center(
-            child: AppText.headlineLarge('Boklo FinTech App Initialized'),
-          ),
-        ),
+        home: const LoginPage(),
       ),
     );
   }
