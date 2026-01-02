@@ -14,9 +14,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<User>> login(String email, String password) async {
     try {
-      // TODO(dev): Map result to User
-      await remoteDataSource.login(email, password);
-      return const Success(User(id: '1', email: 'test@example.com'));
+      final user = await remoteDataSource.login(email, password);
+      return Success(user);
     } on Object catch (e) {
       if (e is AppError) return Failure(e);
       return Failure(UnknownError(e.toString()));
@@ -37,9 +36,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<User?>> getCurrentUser() async {
     try {
-      await remoteDataSource.getCurrentUser();
-      // Placeholder: Return null explicitly until we implement storage
-      return const Success(null);
+      final user = await remoteDataSource.getCurrentUser();
+      return Success(user);
     } on Object catch (e) {
       if (e is AppError) return Failure(e);
       return Failure(UnknownError(e.toString()));

@@ -1,5 +1,4 @@
-sealed class AppError {
-
+sealed class AppError implements Exception {
   const AppError(this.message, [this.cause]);
   final String message;
   final dynamic cause;
