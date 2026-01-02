@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:boklo/core/error/app_error.dart';
-import 'package:dartz/dartz.dart';
+import 'package:boklo/core/utils/result.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'base_bloc.freezed.dart';
@@ -23,7 +23,7 @@ abstract class BaseCubit<T> extends Cubit<BaseState<T>> {
   }
 
   Future<void> runBlocCatching<R>({
-    required Future<Either<AppError, T>> Function() action,
+    required Future<Result<T>> Function() action,
     void Function(T data)? onSuccess,
     void Function(AppError error)? onError,
     bool doOnSuccessOrError = true,
