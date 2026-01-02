@@ -12,8 +12,8 @@ Future<void> bootstrap(AppConfig config) async {
   // Register AppConfig before other dependencies
   // We can't use @LazySingleton for AppConfig because it's dynamic
   // So we register it manually
-  await configureDependencies();
   getIt.registerSingleton<AppConfig>(config);
+  await configureDependencies();
 
   runApp(const MyApp());
 }
