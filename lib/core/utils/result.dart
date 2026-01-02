@@ -10,8 +10,9 @@ sealed class Result<T> {
 }
 
 class Success<T> extends Result<T> {
-  final T data;
   const Success(this.data);
+
+  final T data;
 
   @override
   R fold<R>(
@@ -23,8 +24,9 @@ class Success<T> extends Result<T> {
 }
 
 class Failure<T> extends Result<T> {
-  final AppError error;
   const Failure(this.error);
+
+  final AppError error;
 
   @override
   R fold<R>(

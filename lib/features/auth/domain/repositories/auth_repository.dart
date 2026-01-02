@@ -1,7 +1,7 @@
 import 'package:boklo/core/utils/result.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 
-// ignore: one_member_abstracts
+// ignore: one_member_abstracts, justification: "Interfaces usually have few members."
 abstract class AuthRepository {
   Future<Result<User>> login(String email, String password);
 }
