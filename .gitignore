@@ -42,6 +42,11 @@ pubspec.lock
 **/generated_plugins.cmake
 **/GeneratedPluginRegistrant.swift
 
+# Generated code (build_runner)
+*.g.dart
+*.freezed.dart
+*.config.dart
+
 # Symbolication related
 app.*.symbols
 
