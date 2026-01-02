@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "778167433894",
+    "project_id": "boklo-wallet",
+    "storage_bucket": "boklo-wallet.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778167433894:android:a8472437a8e43f0ead5267",
+        "android_client_info": {
+          "package_name": "com.example.boklo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVAHn8COd9QE3_vHs7aCzadv3Y6cPFQyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778167433894:android:fdda273da3b47341ad5267",
+        "android_client_info": {
+          "package_name": "com.example.boklo.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVAHn8COd9QE3_vHs7aCzadv3Y6cPFQyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
