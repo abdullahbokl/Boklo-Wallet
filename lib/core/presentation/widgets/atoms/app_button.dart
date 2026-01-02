@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// A standardized button atom.
+///
+/// Rules:
+/// - [Theme-Aware]: Inherits colors/shapes from [Theme] and [AppRadius].
+/// - [Localization]: [text] must be localized.
+/// - [Responsiveness]: Sizing should be handled by the parent or strict constraints, no [MediaQuery].
+/// - [No Business Logic]: Callbacks only.
 class AppButton extends StatelessWidget {
   const AppButton({
     required this.text,

@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// A theme-aware text widget that enforces typographic consistency.
+///
+/// Rules:
+/// - [Theme-Aware]: Uses [Theme.of(context).textTheme] by default.
+/// - [Localization]: Enforce [text] is localized using [AppLocalizations].
+/// - [No Business Logic]: Should only display data, no complex calculations.
+/// - [Responsiveness]: Avoid direct [MediaQuery] usage.
 class AppText extends StatelessWidget {
   const AppText(
     this.text, {
