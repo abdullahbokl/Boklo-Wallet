@@ -25,7 +25,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
@@ -52,7 +55,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDVAHn8COd9QE3_vHs7aCzadv3Y6cPFQyM',
-    appId: '1:778167433894:android:fdda273da3b47341ad5267',
+    appId: '1:778167433894:android:45554ec9c6cbfb78ad5267',
     messagingSenderId: '778167433894',
     projectId: 'boklo-wallet',
     storageBucket: 'boklo-wallet.firebasestorage.app',
@@ -60,20 +63,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCVIAbYfwl0YhPnCyJH3rIgzxqSwx9sUk4',
-    appId: '1:778167433894:ios:9590e7ed468bf39fad5267',
+    appId: '1:778167433894:ios:9261b9c8718a3ef8ad5267',
     messagingSenderId: '778167433894',
     projectId: 'boklo-wallet',
     storageBucket: 'boklo-wallet.firebasestorage.app',
-    iosBundleId: 'com.example.boklo',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCVIAbYfwl0YhPnCyJH3rIgzxqSwx9sUk4',
-    appId: '1:778167433894:ios:9590e7ed468bf39fad5267',
-    messagingSenderId: '778167433894',
-    projectId: 'boklo-wallet',
-    storageBucket: 'boklo-wallet.firebasestorage.app',
-    iosBundleId: 'com.example.boklo',
+    iosBundleId: 'com.boklo.wallet',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

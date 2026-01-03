@@ -1,7 +1,6 @@
+import 'package:boklo/core/config/app_bootstrap.dart';
 import 'package:boklo/core/config/app_config.dart';
 import 'package:boklo/core/config/feature_flags.dart';
-import 'package:boklo/main_common.dart';
-
 import 'package:boklo/firebase_options_dev.dart';
 
 void main() async {
@@ -15,5 +14,8 @@ void main() async {
     ),
   );
 
-  await bootstrap(devConfig, DefaultFirebaseOptions.currentPlatform);
+  await AppBootstrap.bootstrap(
+    config: devConfig,
+    firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+  );
 }

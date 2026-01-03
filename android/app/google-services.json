@@ -7,6 +7,44 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:778167433894:android:9f65454df2a5faebad5267",
+        "android_client_info": {
+          "package_name": "com.boklo.wallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVAHn8COd9QE3_vHs7aCzadv3Y6cPFQyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778167433894:android:45554ec9c6cbfb78ad5267",
+        "android_client_info": {
+          "package_name": "com.boklo.wallet.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVAHn8COd9QE3_vHs7aCzadv3Y6cPFQyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:778167433894:android:a8472437a8e43f0ead5267",
         "android_client_info": {
           "package_name": "com.example.boklo"

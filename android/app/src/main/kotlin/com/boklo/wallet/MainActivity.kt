@@ -1,4 +1,4 @@
-package com.example.boklo
+package com.boklo.wallet
 
 import io.flutter.embedding.android.FlutterActivity
 
