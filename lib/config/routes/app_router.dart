@@ -1,6 +1,9 @@
+import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/auth/presentation/pages/login_page.dart';
 import 'package:boklo/features/auth/presentation/pages/register_page.dart';
+import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/pages/wallet_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
@@ -19,7 +22,10 @@ class AppRouter {
       ),
       GoRoute(
         path: '/wallet',
-        builder: (context, state) => const WalletPage(),
+        builder: (context, state) => BlocProvider(
+          create: (context) => getIt<WalletCubit>()..loadWallet(),
+          child: const WalletPage(),
+        ),
       ),
     ],
   );
