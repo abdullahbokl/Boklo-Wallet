@@ -3,6 +3,7 @@ import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
+/// Use case for user logout.
 class LogoutUseCase {
   LogoutUseCase(this.repository);
 
