@@ -26,6 +26,10 @@ class FirebaseError extends AppError {
   List<Object?> get props => [...super.props, code];
 }
 
+class DatabaseError extends AppError {
+  const DatabaseError(super.message, [super.cause]);
+}
+
 class UnknownError extends AppError {
   const UnknownError(super.message, [super.cause]);
 }

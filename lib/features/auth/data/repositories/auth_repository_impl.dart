@@ -1,6 +1,7 @@
 import 'package:boklo/core/base/result.dart';
 import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:boklo/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
@@ -8,9 +9,13 @@ import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this.remoteDataSource);
+  AuthRepositoryImpl(
+    this.remoteDataSource,
+    this.userRemoteDataSource,
+  );
 
   final AuthRemoteDataSource remoteDataSource;
+  final UserRemoteDataSource userRemoteDataSource;
 
   @override
   Future<Result<User>> login(String email, String password) async {
@@ -27,8 +32,16 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<User>> register(String email, String password) async {
     try {
-      final user = await remoteDataSource.register(email, password);
-      return Success(user.toEntity());
+      final userModel = await remoteDataSource.register(email, password);
+
+      try {
+        await userRemoteDataSource.createUser(userModel);
+      } on Object catch (e) {
+        // If DB fails, we still return Failure as per requirements.
+        return Failure(DatabaseError(e.toString()));
+      }
+
+      return Success(userModel.toEntity());
     } on FirebaseAuthException catch (e) {
       return Failure(_mapFirebaseError(e));
     } on Object catch (e) {

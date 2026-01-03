@@ -7,6 +7,7 @@ import 'package:boklo/shared/responsive/responsive_builder.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -23,7 +24,7 @@ class LoginPage extends StatelessWidget {
           },
           success: (user) {
             if (user != null) {
-              // TODO(Nav): Navigate to home
+              context.go('/wallet');
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Welcome ${user.displayName ?? "User"}'),

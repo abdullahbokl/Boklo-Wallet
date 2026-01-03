@@ -1,1 +1,5 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"boklo-wallet","appId":"1:778167433894:android:9f65454df2a5faebad5267","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"boklo-wallet","configurations":{"android":"1:778167433894:android:9f65454df2a5faebad5267","ios":"1:778167433894:ios:9261b9c8718a3ef8ad5267","macos":"1:778167433894:ios:9590e7ed468bf39fad5267","web":"1:778167433894:web:8a0e61f1a33d4f59ad5267","windows":"1:778167433894:web:89d41bea7e02be20ad5267"}},"lib/firebase_options_dev.dart":{"projectId":"boklo-wallet","configurations":{"android":"1:778167433894:android:45554ec9c6cbfb78ad5267","ios":"1:778167433894:ios:9261b9c8718a3ef8ad5267","macos":"1:778167433894:ios:9590e7ed468bf39fad5267","web":"1:778167433894:web:8a0e61f1a33d4f59ad5267","windows":"1:778167433894:web:89d41bea7e02be20ad5267"}},"lib/firebase_options_prod.dart":{"projectId":"boklo-wallet","configurations":{"android":"1:778167433894:android:9f65454df2a5faebad5267","ios":"1:778167433894:ios:9261b9c8718a3ef8ad5267","macos":"1:778167433894:ios:9590e7ed468bf39fad5267","web":"1:778167433894:web:8a0e61f1a33d4f59ad5267","windows":"1:778167433894:web:89d41bea7e02be20ad5267"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

@@ -8,17 +8,26 @@ import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:boklo/features/auth/data/datasources/user_remote_data_source.dart';
+
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
+
+class MockUserRemoteDataSource extends Mock implements UserRemoteDataSource {}
 
 class MockFirebaseAuthException extends Mock implements FirebaseAuthException {}
 
 void main() {
   late AuthRepositoryImpl authRepository;
   late MockAuthRemoteDataSource mockRemoteDataSource;
+  late MockUserRemoteDataSource mockUserRemoteDataSource;
 
   setUp(() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
-    authRepository = AuthRepositoryImpl(mockRemoteDataSource);
+    mockUserRemoteDataSource = MockUserRemoteDataSource();
+    authRepository = AuthRepositoryImpl(
+      mockRemoteDataSource,
+      mockUserRemoteDataSource,
+    );
   });
 
   const tEmail = 'test@example.com';
@@ -29,6 +38,79 @@ void main() {
     displayName: 'Test User',
   );
   final tUser = tUserModel.toEntity();
+
+  group('register', () {
+    test('should return Success<User> when auth and db creation are successful',
+        () async {
+      // Arrange
+      when(() => mockRemoteDataSource.register(tEmail, tPassword))
+          .thenAnswer((_) async => tUserModel);
+      when(() => mockUserRemoteDataSource.createUser(tUserModel))
+          .thenAnswer((_) async {});
+
+      // Act
+      final result = await authRepository.register(tEmail, tPassword);
+
+      // Assert
+      expect(result, isA<Success<User>>());
+      result.fold(
+        (error) => fail('Expected Success but got Failure: $error'),
+        (user) => expect(user, tUser),
+      );
+      verify(() => mockRemoteDataSource.register(tEmail, tPassword)).called(1);
+      verify(() => mockUserRemoteDataSource.createUser(tUserModel)).called(1);
+    });
+
+    test(
+        'should return Failure with FirebaseError when auth fails with FirebaseAuthException',
+        () async {
+      // Arrange
+      final tException = FirebaseAuthException(
+        code: 'email-already-in-use',
+        message: 'Email used',
+      );
+      when(() => mockRemoteDataSource.register(tEmail, tPassword))
+          .thenThrow(tException);
+
+      // Act
+      final result = await authRepository.register(tEmail, tPassword);
+
+      // Assert
+      expect(result, isA<Failure<User>>());
+      result.fold(
+        (error) {
+          expect(error, isA<FirebaseError>());
+          expect((error as FirebaseError).code, 'email-already-in-use');
+        },
+        (user) => fail('Expected Failure but got Success'),
+      );
+      verify(() => mockRemoteDataSource.register(tEmail, tPassword)).called(1);
+      verifyNever(() => mockUserRemoteDataSource.createUser(any()));
+    });
+
+    test(
+        'should return Failure with DatabaseError when auth succeeds but db creation fails',
+        () async {
+      // Arrange
+      when(() => mockRemoteDataSource.register(tEmail, tPassword))
+          .thenAnswer((_) async => tUserModel);
+      final tException = Exception('DB Error');
+      when(() => mockUserRemoteDataSource.createUser(tUserModel))
+          .thenThrow(tException);
+
+      // Act
+      final result = await authRepository.register(tEmail, tPassword);
+
+      // Assert
+      expect(result, isA<Failure<User>>());
+      result.fold(
+        (error) => expect(error, isA<DatabaseError>()),
+        (user) => fail('Expected Failure but got Success'),
+      );
+      verify(() => mockRemoteDataSource.register(tEmail, tPassword)).called(1);
+      verify(() => mockUserRemoteDataSource.createUser(tUserModel)).called(1);
+    });
+  });
 
   group('login', () {
     test('should return Success<User> when login is successful', () async {
@@ -166,7 +248,7 @@ void main() {
     test('should return Success<null> when no user exists', () async {
       // Arrange
       when(() => mockRemoteDataSource.getCurrentUser())
-          .thenAnswer((_) async => null);
+          .thenAnswer((_) => Future<UserModel?>.value(null));
 
       // Act
       final result = await authRepository.getCurrentUser();
