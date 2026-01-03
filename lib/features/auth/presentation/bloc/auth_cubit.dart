@@ -19,8 +19,11 @@ class AuthCubit extends BaseCubit<User?> {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
 
   Future<void> login(String email, String password) async {
-    await runBlocCatching<User>(
-      action: () => _loginUseCase(email, password),
+    emitLoading();
+    final result = await _loginUseCase(email, password);
+    result.fold(
+      emitError,
+      emitSuccess,
     );
   }
 
@@ -34,8 +37,11 @@ class AuthCubit extends BaseCubit<User?> {
   }
 
   Future<void> checkAuthStatus() async {
-    await runBlocCatching<User?>(
-      action: _getCurrentUserUseCase.call,
+    emitLoading();
+    final result = await _getCurrentUserUseCase();
+    result.fold(
+      emitError,
+      emitSuccess,
     );
   }
 }

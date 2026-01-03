@@ -1,7 +1,12 @@
-sealed class AppError implements Exception {
+import 'package:equatable/equatable.dart';
+
+sealed class AppError extends Equatable implements Exception {
   const AppError(this.message, [this.cause]);
   final String message;
   final dynamic cause;
+
+  @override
+  List<Object?> get props => [message, cause];
 }
 
 class NetworkError extends AppError {
@@ -16,6 +21,9 @@ class FirebaseError extends AppError {
   const FirebaseError(super.message, this.code, [super.cause]);
 
   final String code;
+
+  @override
+  List<Object?> get props => [...super.props, code];
 }
 
 class UnknownError extends AppError {

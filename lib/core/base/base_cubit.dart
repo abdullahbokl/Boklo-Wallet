@@ -11,13 +11,13 @@ abstract class BaseCubit<T> extends Cubit<BaseState<T>> {
   BaseCubit(super.initialState);
 
   /// Emits [BaseState.loading].
-  void emitLoading() => safeEmit(const BaseState.loading());
+  void emitLoading() => safeEmit(BaseState<T>.loading());
 
   /// Emits [BaseState.success] with the provided [data].
-  void emitSuccess(T data) => safeEmit(BaseState.success(data));
+  void emitSuccess(T data) => safeEmit(BaseState<T>.success(data));
 
   /// Emits [BaseState.error] with the provided [error].
-  void emitError(AppError error) => safeEmit(BaseState.error(error));
+  void emitError(AppError error) => safeEmit(BaseState<T>.error(error));
 
   /// Safely emits a state if the Cubit is not closed.
   void safeEmit(BaseState<T> state) {
