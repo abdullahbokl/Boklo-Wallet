@@ -2,11 +2,29 @@ import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 class UserModel {
-  static User fromFirebaseUser(firebase_auth.User firebaseUser) {
-    return User(
+  const UserModel({
+    required this.id,
+    required this.email,
+    this.displayName,
+  });
+
+  factory UserModel.fromFirebaseUser(firebase_auth.User firebaseUser) {
+    return UserModel(
       id: firebaseUser.uid,
       email: firebaseUser.email ?? '',
       displayName: firebaseUser.displayName,
+    );
+  }
+
+  final String id;
+  final String email;
+  final String? displayName;
+
+  User toEntity() {
+    return User(
+      id: id,
+      email: email,
+      displayName: displayName,
     );
   }
 }
