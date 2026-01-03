@@ -35,27 +35,45 @@ class LoginPage extends StatelessWidget {
       },
       child: Scaffold(
         body: ResponsiveBuilder(
-          mobile: (context, screenInfo) {
-            final isDesktop = screenInfo.isDesktop;
-            return Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.l),
-                child: SizedBox(
-                  width: isDesktop ? 400 : double.infinity,
-                  child: const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      LoginHeader(),
-                      SizedBox(height: AppSpacing.xxl),
-                      LoginForm(),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
+          mobile: _buildMobileLayout,
+          tablet: _buildTabletLayout,
+          desktop: _buildDesktopLayout,
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context, dynamic _) {
+    return const Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(AppSpacing.l),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            LoginHeader(),
+            SizedBox(height: AppSpacing.xxl),
+            LoginForm(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabletLayout(BuildContext context, dynamic info) {
+    return Center(
+      child: SizedBox(
+        width: 500,
+        child: _buildMobileLayout(context, info),
+      ),
+    );
+  }
+
+  Widget _buildDesktopLayout(BuildContext context, dynamic info) {
+    return Center(
+      child: SizedBox(
+        width: 400,
+        child: _buildMobileLayout(context, info),
       ),
     );
   }
