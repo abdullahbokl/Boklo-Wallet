@@ -25,6 +25,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Result<User>> register(String email, String password) async {
+    try {
+      final user = await remoteDataSource.register(email, password);
+      return Success(user.toEntity());
+    } on FirebaseAuthException catch (e) {
+      return Failure(_mapFirebaseError(e));
+    } on Object catch (e) {
+      return Failure(UnknownError(e.toString()));
+    }
+  }
+
+  @override
   Future<Result<void>> logout() async {
     try {
       await remoteDataSource.logout();

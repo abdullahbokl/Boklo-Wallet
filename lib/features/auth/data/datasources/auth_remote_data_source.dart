@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
+  Future<UserModel> register(String email, String password);
   Future<void> logout();
   Future<UserModel?> getCurrentUser();
 }
@@ -23,6 +24,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final user = credential.user;
     if (user == null) {
       throw Exception('User is null after login');
+    }
+    return UserModel.fromFirebaseUser(user);
+  }
+
+  @override
+  Future<UserModel> register(String email, String password) async {
+    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    final user = credential.user;
+    if (user == null) {
+      throw Exception('User is null after registration');
     }
     return UserModel.fromFirebaseUser(user);
   }
