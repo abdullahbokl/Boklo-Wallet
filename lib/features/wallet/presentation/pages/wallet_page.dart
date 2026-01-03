@@ -44,9 +44,9 @@ class WalletPage extends StatelessWidget {
 }
 
 class _WalletLayout extends StatelessWidget {
-  final WalletState data;
-
   const _WalletLayout({required this.data});
+
+  final WalletState data;
 
   @override
   Widget build(BuildContext context) {

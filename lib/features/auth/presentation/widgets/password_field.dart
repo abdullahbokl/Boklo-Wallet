@@ -6,16 +6,18 @@ class PasswordField extends StatelessWidget {
     required this.controller,
     super.key,
     this.onSubmitted,
+    this.hintText = 'Password',
   });
 
   final TextEditingController controller;
   final void Function(String)? onSubmitted;
+  final String hintText;
 
   @override
   Widget build(BuildContext context) {
     return AppTextField(
       controller: controller,
-      hintText: 'Password',
+      hintText: hintText,
       obscureText: true,
       prefixIcon: const Icon(Icons.lock_outline),
       validator: (value) =>

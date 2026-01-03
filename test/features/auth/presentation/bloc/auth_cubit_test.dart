@@ -10,26 +10,33 @@ import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:boklo/features/auth/domain/usecases/register_usecase.dart';
+
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
 class MockLogoutUseCase extends Mock implements LogoutUseCase {}
 
 class MockGetCurrentUserUseCase extends Mock implements GetCurrentUserUseCase {}
 
+class MockRegisterUseCase extends Mock implements RegisterUseCase {}
+
 void main() {
   late AuthCubit cubit;
   late MockLoginUseCase mockLoginUseCase;
   late MockLogoutUseCase mockLogoutUseCase;
   late MockGetCurrentUserUseCase mockGetCurrentUserUseCase;
+  late MockRegisterUseCase mockRegisterUseCase;
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
     mockLogoutUseCase = MockLogoutUseCase();
     mockGetCurrentUserUseCase = MockGetCurrentUserUseCase();
+    mockRegisterUseCase = MockRegisterUseCase();
     cubit = AuthCubit(
       mockLoginUseCase,
       mockLogoutUseCase,
       mockGetCurrentUserUseCase,
+      mockRegisterUseCase,
     );
   });
 
@@ -125,6 +132,40 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockGetCurrentUserUseCase.call()).called(1);
+      },
+    );
+
+    blocTest<AuthCubit, BaseState<User?>>(
+      'emits [loading, success] when register is successful',
+      build: () {
+        when(() => mockRegisterUseCase.call(tEmail, tPassword))
+            .thenAnswer((_) async => const Success<User>(tUser));
+        return cubit;
+      },
+      act: (cubit) => cubit.register(tEmail, tPassword),
+      expect: () => const [
+        BaseState<User?>.loading(),
+        BaseState<User?>.success(tUser),
+      ],
+      verify: (_) {
+        verify(() => mockRegisterUseCase.call(tEmail, tPassword)).called(1);
+      },
+    );
+
+    blocTest<AuthCubit, BaseState<User?>>(
+      'emits [loading, error] when register fails',
+      build: () {
+        when(() => mockRegisterUseCase.call(tEmail, tPassword))
+            .thenAnswer((_) async => const Failure<User>(tError));
+        return cubit;
+      },
+      act: (cubit) => cubit.register(tEmail, tPassword),
+      expect: () => const [
+        BaseState<User?>.loading(),
+        BaseState<User?>.error(tError),
+      ],
+      verify: (_) {
+        verify(() => mockRegisterUseCase.call(tEmail, tPassword)).called(1);
       },
     );
   });

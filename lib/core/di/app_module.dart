@@ -1,4 +1,5 @@
-import 'package:boklo/core/config/app_config.dart';
+import 'package:boklo/core/config/app_config.dart' as app_config;
+import 'package:boklo/core/config/feature_flags.dart';
 import 'package:boklo/core/network/interceptors/auth_interceptor.dart';
 import 'package:boklo/core/network/interceptors/logger_interceptor.dart';
 import 'package:dio/dio.dart';
@@ -11,7 +12,7 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 abstract class AppModule {
   @lazySingleton
   Dio dio(
-    AppConfig config,
+    app_config.AppConfig config,
     AuthInterceptor authInterceptor,
     LoggerInterceptor loggerInterceptor,
   ) {
@@ -39,4 +40,27 @@ abstract class AppModule {
 
   @lazySingleton
   FirebaseAuth get firebaseAuth => FirebaseAuth.instance;
+
+  @singleton
+  @Environment(Environment.dev)
+  app_config.AppConfig get devConfig => const app_config.AppConfig(
+        environment: app_config.Environment.dev,
+        apiBaseUrl: 'https://dev-api.boklo.com',
+        firebaseProjectId: 'boklo-dev',
+        featureFlags: FeatureFlags(
+          enableBiometrics: true,
+          enableBetaFeatures: true,
+        ),
+      );
+
+  @singleton
+  @Environment(Environment.prod)
+  app_config.AppConfig get prodConfig => const app_config.AppConfig(
+        environment: app_config.Environment.prod,
+        apiBaseUrl: 'https://api.boklo.com',
+        firebaseProjectId: 'boklo-prod',
+        featureFlags: FeatureFlags(
+          enableBiometrics: true,
+        ),
+      );
 }

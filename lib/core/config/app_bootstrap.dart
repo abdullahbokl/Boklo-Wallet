@@ -1,5 +1,4 @@
 import 'package:boklo/config/routes/app_router.dart';
-import 'package:boklo/core/config/app_config.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/l10n/generated/app_localizations.dart';
@@ -9,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AppBootstrap {
   static Future<void> bootstrap({
-    required AppConfig config,
+    required String environment,
     required FirebaseOptions firebaseOptions,
   }) async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -18,9 +17,7 @@ class AppBootstrap {
       options: firebaseOptions,
     );
 
-    // Register AppConfig before other dependencies
-    getIt.registerSingleton<AppConfig>(config);
-    await configureDependencies();
+    await configureDependencies(environment);
 
     runApp(const MyApp());
   }

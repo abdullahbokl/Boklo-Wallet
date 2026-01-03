@@ -1,21 +1,10 @@
 import 'package:boklo/core/config/app_bootstrap.dart';
-import 'package:boklo/core/config/app_config.dart';
-import 'package:boklo/core/config/feature_flags.dart';
-
 import 'package:boklo/firebase_options_prod.dart';
+import 'package:injectable/injectable.dart';
 
 void main() async {
-  const prodConfig = AppConfig(
-    environment: Environment.prod,
-    apiBaseUrl: 'https://api.boklo.com',
-    firebaseProjectId: 'boklo-prod',
-    featureFlags: FeatureFlags(
-      enableBiometrics: true,
-    ),
-  );
-
   await AppBootstrap.bootstrap(
-    config: prodConfig,
+    environment: Environment.prod,
     firebaseOptions: DefaultFirebaseOptions.currentPlatform,
   );
 }
