@@ -24,3 +24,12 @@ class BaseState<T> with _$BaseState<T> {
   /// Error state carrying a specific [AppError].
   const factory BaseState.error(AppError error) = _Error;
 }
+
+extension BaseStateX<T> on BaseState<T> {
+  bool get isLoading => maybeMap(loading: (_) => true, orElse: () => false);
+  bool get isSuccess => maybeMap(success: (_) => true, orElse: () => false);
+  bool get isError => maybeMap(error: (_) => true, orElse: () => false);
+  AppError? get error =>
+      maybeMap(error: (state) => state.error, orElse: () => null);
+  T? get data => maybeMap(success: (state) => state.data, orElse: () => null);
+}

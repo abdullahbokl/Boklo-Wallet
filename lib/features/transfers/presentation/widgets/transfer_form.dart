@@ -1,0 +1,141 @@
+import 'dart:async';
+
+import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
+import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
+import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
+import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
+import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
+import 'package:boklo/shared/theme/tokens/app_spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class TransferForm extends StatefulWidget {
+  const TransferForm({super.key});
+
+  @override
+  State<TransferForm> createState() => _TransferFormState();
+}
+
+class _TransferFormState extends State<TransferForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _recipientController = TextEditingController();
+  final _amountController = TextEditingController();
+
+  @override
+  void dispose() {
+    _recipientController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  void _onSubmit(String fromWalletId, String currency) {
+    if (_formKey.currentState!.validate()) {
+      final amount = double.parse(_amountController.text);
+      final transfer = TransferEntity(
+        id: DateTime.now().millisecondsSinceEpoch.toString(), // Temp ID gen
+        fromWalletId: fromWalletId,
+        toWalletId: _recipientController.text,
+        amount: amount,
+        currency: currency,
+        status: TransferStatus.pending,
+        createdAt: DateTime.now(),
+      );
+
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Confirm Transfer'),
+            content:
+                Text('Send $amount $currency to ${_recipientController.text}?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  unawaited(
+                    context.read<TransferCubit>().createTransfer(transfer),
+                  );
+                },
+                child: const Text('Confirm'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<WalletCubit, BaseState<WalletState>>(
+      builder: (context, walletState) {
+        return walletState.maybeWhen(
+          success: (data) {
+            final wallet = data.wallet;
+            return Form(
+              key: _formKey,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.m),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Balance: ${wallet.balance} ${wallet.currency}',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.l),
+                    TextFormField(
+                      controller: _recipientController,
+                      decoration: const InputDecoration(
+                        labelText: 'Recipient Wallet ID',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (v) =>
+                          (v?.isEmpty ?? true) ? 'Required' : null,
+                    ),
+                    const SizedBox(height: AppSpacing.m),
+                    TextFormField(
+                      controller: _amountController,
+                      decoration: const InputDecoration(
+                        labelText: 'Amount',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return 'Required';
+                        if (double.tryParse(v) == null) return 'Invalid number';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    BlocBuilder<TransferCubit, BaseState<TransferState>>(
+                      builder: (context, transferState) {
+                        return FilledButton(
+                          onPressed: transferState.isLoading
+                              ? null
+                              : () => _onSubmit(wallet.id, wallet.currency),
+                          child: transferState.isLoading
+                              ? const CircularProgressIndicator()
+                              : const Text('Send Money'),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          orElse: () => const Center(child: Text('Failed to load wallet')),
+        );
+      },
+    );
+  }
+}
