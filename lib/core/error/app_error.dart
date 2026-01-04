@@ -30,6 +30,10 @@ class DatabaseError extends AppError {
   const DatabaseError(super.message, [super.cause]);
 }
 
+class ValidationError extends AppError {
+  const ValidationError(super.message, [super.cause]);
+}
+
 class UnknownError extends AppError {
   const UnknownError(super.message, [super.cause]);
 }
