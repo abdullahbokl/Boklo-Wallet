@@ -1,5 +1,7 @@
 import 'package:boklo/config/routes/app_router.dart';
 import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/navigation_service.dart';
+import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/l10n/generated/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -29,12 +31,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRouter = getIt<AppRouter>();
+    final snackbarService = getIt<SnackbarService>();
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthCubit>(create: (_) => getIt<AuthCubit>()),
       ],
       child: MaterialApp.router(
         title: 'Boklo',
+        scaffoldMessengerKey: snackbarService.scaffoldMessengerKey,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(

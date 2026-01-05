@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/shared/theme/tokens/app_radius.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
@@ -55,7 +57,7 @@ class WalletBalanceCard extends StatelessWidget {
                   vertical: AppSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppRadius.s),
                 ),
                 child: Row(
@@ -74,11 +76,8 @@ class WalletBalanceCard extends StatelessWidget {
                         unawaited(
                           Clipboard.setData(ClipboardData(text: wallet.alias!)),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Alias copied to clipboard'),
-                          ),
-                        );
+                        getIt<SnackbarService>()
+                            .showInfo('Alias copied to clipboard');
                       },
                       child: const Icon(Icons.copy, size: 16),
                     ),

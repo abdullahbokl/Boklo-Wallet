@@ -1,3 +1,5 @@
+import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
@@ -32,9 +34,7 @@ class _RegisterFormState extends State<RegisterForm> {
   Future<void> _onRegisterPressed() async {
     if (_formKey.currentState?.validate() ?? false) {
       if (_passwordController.text != _confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Passwords do not match')),
-        );
+        getIt<SnackbarService>().showError('Passwords do not match');
         return;
       }
       await context.read<AuthCubit>().register(

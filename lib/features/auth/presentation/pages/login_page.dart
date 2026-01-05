@@ -1,3 +1,6 @@
+import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/navigation_service.dart';
+import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
@@ -7,7 +10,6 @@ import 'package:boklo/shared/responsive/responsive_builder.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -18,17 +20,13 @@ class LoginPage extends StatelessWidget {
       listener: (context, state) {
         state.whenOrNull(
           error: (error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(error.message)),
-            );
+            getIt<SnackbarService>().showError(error.message);
           },
           success: (user) {
             if (user != null) {
-              context.go('/wallet');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Welcome ${user.displayName ?? "User"}'),
-                ),
+              getIt<NavigationService>().pushReplacement('/wallet');
+              getIt<SnackbarService>().showSuccess(
+                'Welcome ${user.displayName ?? "User"}',
               );
             }
           },

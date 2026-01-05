@@ -1,4 +1,7 @@
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/navigation_service.dart';
+import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_header.dart';
@@ -7,7 +10,6 @@ import 'package:boklo/shared/responsive/responsive_builder.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -18,17 +20,13 @@ class RegisterPage extends StatelessWidget {
       listener: (context, state) {
         state.whenOrNull(
           error: (error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(error.message)),
-            );
+            getIt<SnackbarService>().showError(error.message);
           },
           success: (user) {
             if (user != null) {
-              context.go('/login');
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Registration successful! Please login.'),
-                ),
+              getIt<NavigationService>().pushReplacement('/login');
+              getIt<SnackbarService>().showSuccess(
+                'Registration successful! Please login.',
               );
             }
           },
@@ -38,7 +36,8 @@ class RegisterPage extends StatelessWidget {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/login'),
+            onPressed: () =>
+                getIt<NavigationService>().pushReplacement('/login'),
           ),
         ),
         body: ResponsiveBuilder(

@@ -1,4 +1,5 @@
 import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/auth/presentation/pages/login_page.dart';
 import 'package:boklo/features/auth/presentation/pages/register_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
@@ -10,7 +11,12 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class AppRouter {
-  final GoRouter router = GoRouter(
+  AppRouter(this._navigationService);
+
+  final NavigationService _navigationService;
+
+  late final GoRouter router = GoRouter(
+    navigatorKey: _navigationService.navigatorKey,
     initialLocation: '/login',
     routes: [
       GoRoute(
