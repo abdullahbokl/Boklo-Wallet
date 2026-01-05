@@ -5,6 +5,7 @@ import 'package:boklo/features/transfers/data/models/transfer_model.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
+import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 
@@ -23,7 +24,13 @@ class TransferRepositoryImpl implements TransferRepository {
     try {
       final fromWalletModel =
           await _dataSource.getWallet(transfer.fromWalletId);
-      final toWalletModel = await _dataSource.getWallet(transfer.toWalletId);
+
+      WalletModel? toWalletModel;
+      if (transfer.toWalletId.toUpperCase().startsWith('BOKLO-')) {
+        toWalletModel = await _dataSource.getWalletByAlias(transfer.toWalletId);
+      } else {
+        toWalletModel = await _dataSource.getWallet(transfer.toWalletId);
+      }
 
       if (fromWalletModel == null || toWalletModel == null) {
         return const Failure(ValidationError('One or both wallets not found'));
@@ -39,8 +46,18 @@ class TransferRepositoryImpl implements TransferRepository {
         Failure.new,
         (_) async {
           try {
-            await _dataSource
-                .createTransfer(TransferModel.fromEntity(transfer));
+            // Use the resolved recipient ID
+            final transferModel = TransferModel(
+              id: transfer.id,
+              fromWalletId: transfer.fromWalletId,
+              toWalletId: toWalletModel!.id,
+              amount: transfer.amount,
+              currency: transfer.currency,
+              status: transfer.status,
+              createdAt: transfer.createdAt,
+            );
+
+            await _dataSource.createTransfer(transferModel);
             return const Success(null);
           } on FirebaseException catch (e) {
             return Failure(FirebaseError(e.message ?? 'Unknown error', e.code));

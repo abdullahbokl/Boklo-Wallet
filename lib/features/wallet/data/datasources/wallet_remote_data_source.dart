@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:boklo/features/wallet/data/models/transaction_model.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
@@ -12,10 +14,7 @@ abstract class WalletRemoteDataSource {
 
 @LazySingleton(as: WalletRemoteDataSource)
 class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
-  WalletRemoteDataSourceImpl(this._firestore, this._auth) {
-    print(
-        'WalletRemoteDataSourceImpl initialized with user: ${_auth.currentUser?.uid}');
-  }
+  WalletRemoteDataSourceImpl(this._firestore, this._auth);
 
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
@@ -31,11 +30,13 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     if (doc.exists) {
       return WalletModel.fromJson(doc.data()!);
     } else {
-      // Create a default wallet for new users
+      final alias =
+          'BOKLO-${Random().nextInt(9999).toString().padLeft(4, '0')}';
       final newWallet = WalletModel(
         id: userId,
-        balance: 1000.0, // Starting balance bonus
+        balance: 1000.0,
         currency: 'USD',
+        alias: alias,
       );
       await docRef.set(newWallet.toJson());
       return newWallet;
@@ -44,12 +45,9 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
   @override
   Future<List<TransactionModel>> getTransactions() async {
+    // ... existing implementation
     final userId = _auth.currentUser?.uid;
     if (userId == null) throw Exception('User not logged in');
-
-    // Query transfers where user is sender OR receiver
-    // Note: Firestore requires separate queries or an 'OR' query (available in newer SDKs)
-    // For simplicity, we'll fetch 'sent' and 'received' separately and merge.
 
     final sentQuery = await _firestore
         .collection('transfers')

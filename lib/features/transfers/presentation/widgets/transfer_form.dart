@@ -94,7 +94,7 @@ class _TransferFormState extends State<TransferForm> {
                     TextFormField(
                       controller: _recipientController,
                       decoration: const InputDecoration(
-                        labelText: 'Recipient Wallet ID',
+                        labelText: 'Recipient Wallet ID or Alias (BOKLO-XXXX)',
                         border: OutlineInputBorder(),
                       ),
                       validator: (v) =>
