@@ -34,7 +34,7 @@ class TransferPage extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Transfer successful!')),
               );
-              Navigator.pop(context);
+              Navigator.pop(context, true);
             } else if (state.isError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.error!.message)),

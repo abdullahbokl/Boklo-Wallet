@@ -59,7 +59,13 @@ class _WalletLayout extends StatelessWidget {
         children: [
           WalletBalanceCard(wallet: data.wallet),
           WalletPrimaryAction(
-            onSendMoney: () => context.push('/transfer'),
+            onSendMoney: () async {
+              final result = await context.push<bool>('/transfer');
+              if (result == true && context.mounted) {
+                // Trigger refresh on the provided WalletCubit
+                context.read<WalletCubit>().loadWallet();
+              }
+            },
           ),
           const SizedBox(height: AppSpacing.l),
           Text(
