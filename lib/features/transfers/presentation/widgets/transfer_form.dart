@@ -45,18 +45,18 @@ class _TransferFormState extends State<TransferForm> {
       unawaited(
         showDialog<void>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (dialogContext) => AlertDialog(
             title: const Text('Confirm Transfer'),
             content:
                 Text('Send $amount $currency to ${_recipientController.text}?'),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pop(dialogContext),
                 child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(dialogContext);
                   unawaited(
                     context.read<TransferCubit>().createTransfer(transfer),
                   );

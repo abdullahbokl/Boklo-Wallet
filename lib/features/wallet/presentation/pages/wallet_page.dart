@@ -3,10 +3,12 @@ import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_list.dart';
 import 'package:boklo/features/wallet/presentation/widgets/wallet_balance_card.dart';
+import 'package:boklo/features/wallet/presentation/widgets/wallet_primary_action.dart';
 import 'package:boklo/shared/responsive/responsive_builder.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class WalletPage extends StatelessWidget {
   const WalletPage({super.key});
@@ -56,6 +58,9 @@ class _WalletLayout extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           WalletBalanceCard(wallet: data.wallet),
+          WalletPrimaryAction(
+            onSendMoney: () => context.push('/transfer'),
+          ),
           const SizedBox(height: AppSpacing.l),
           Text(
             'Recent Transactions',
