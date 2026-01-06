@@ -1,5 +1,7 @@
 import 'package:boklo/features/transfers/data/models/transfer_model.dart';
+import 'package:boklo/features/wallet/data/models/transaction_model.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
+import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 
@@ -24,6 +26,14 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
     final toWalletRef =
         _firestore.collection('wallets').doc(transfer.toWalletId);
 
+    // Transaction Records for sender and receiver
+    final fromTxRef =
+        fromWalletRef.collection('transactions').doc('${transfer.id}_DEBIT');
+    final toTxRef =
+        toWalletRef.collection('transactions').doc('${transfer.id}_CREDIT');
+
+    final timestamp = DateTime.now();
+
     await _firestore.runTransaction((transaction) async {
       final fromSnapshot = await transaction.get(fromWalletRef);
       final toSnapshot = await transaction.get(toWalletRef);
@@ -39,9 +49,25 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
         throw Exception('Insufficient balance');
       }
 
+      final fromTx = TransactionModel(
+        id: fromTxRef.id,
+        amount: transfer.amount,
+        type: TransactionType.debit,
+        timestamp: timestamp,
+      );
+
+      final toTx = TransactionModel(
+        id: toTxRef.id,
+        amount: transfer.amount,
+        type: TransactionType.credit,
+        timestamp: timestamp,
+      );
+
       transaction
         ..update(fromWalletRef, {'balance': fromBalance - transfer.amount})
+        ..set(fromTxRef, fromTx.toJson())
         ..update(toWalletRef, {'balance': toBalance + transfer.amount})
+        ..set(toTxRef, toTx.toJson())
         ..set(transferRef, transfer.toJson());
     });
   }
