@@ -63,6 +63,16 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
         timestamp: timestamp,
       );
 
+      // Update everything in a single atomic commit.
+      // 1. Deduct from sender wallet balance.
+      // 2. Add Sender debit transaction record.
+      // 3. Add to recipient wallet balance.
+      // 4. Add Recipient credit transaction record.
+      // 5. Create the main Transfer record.
+      //
+      // Using a transaction ensures that either all these operations succeed
+      // or none of them do. This prevents money from being lost (deducted but
+      // not added) or created out of thin air if an error occurs mid-process.
       transaction
         ..update(fromWalletRef, {'balance': fromBalance - transfer.amount})
         ..set(fromTxRef, fromTx.toJson())
