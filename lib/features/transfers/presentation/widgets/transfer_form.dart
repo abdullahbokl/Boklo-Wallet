@@ -122,7 +122,13 @@ class _TransferFormState extends State<TransferForm> {
                               ? null
                               : () => _onSubmit(wallet.id, wallet.currency),
                           child: transferState.isLoading
-                              ? const CircularProgressIndicator()
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
                               : const Text('Send Money'),
                         );
                       },
