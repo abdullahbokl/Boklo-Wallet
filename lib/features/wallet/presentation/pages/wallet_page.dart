@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
@@ -61,9 +63,9 @@ class _WalletLayout extends StatelessWidget {
           WalletPrimaryAction(
             onSendMoney: () async {
               final result = await context.push<bool>('/transfer');
-              if (result == true && context.mounted) {
+              if ((result ?? false) && context.mounted) {
                 // Trigger refresh on the provided WalletCubit
-                context.read<WalletCubit>().loadWallet();
+                unawaited(context.read<WalletCubit>().loadWallet());
               }
             },
           ),
