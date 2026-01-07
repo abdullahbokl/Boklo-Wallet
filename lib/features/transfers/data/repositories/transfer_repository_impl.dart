@@ -27,7 +27,8 @@ class TransferRepositoryImpl implements TransferRepository {
 
       WalletModel? toWalletModel;
       if (transfer.toWalletId.toUpperCase().startsWith('BOKLO-')) {
-        toWalletModel = await _dataSource.getWalletByAlias(transfer.toWalletId);
+        toWalletModel = await _dataSource
+            .getWalletByAlias(transfer.toWalletId.toUpperCase());
       } else {
         toWalletModel = await _dataSource.getWallet(transfer.toWalletId);
       }
