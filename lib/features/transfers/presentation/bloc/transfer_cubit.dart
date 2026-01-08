@@ -22,12 +22,25 @@ class TransferCubit extends BaseCubit<TransferState> {
   final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
   final AnalyticsService _analyticsService;
 
+  DateTime? _lastExecution;
+  static const _minTransferInterval = Duration(seconds: 2);
+
   Future<void> createTransfer({
     required String fromWalletId,
     required String recipient,
     required double amount,
     required String currency,
   }) async {
+    // 0. Rate Limit
+    final now = DateTime.now();
+    if (_lastExecution != null &&
+        now.difference(_lastExecution!) < _minTransferInterval) {
+      // Silently ignore or show error
+      emitError(const ValidationError('Please wait before trying again'));
+      return;
+    }
+    _lastExecution = now;
+
     emitLoading();
 
     try {
