@@ -175,5 +175,37 @@ void main() {
         const ValidationError('One or both wallets not found'),
       );
     });
+    test(
+        'should return Failure with sanitized message when createTransfer fails',
+        () async {
+      // Arrange
+      when(() => mockDataSource.getWallet('walletA'))
+          .thenAnswer((_) async => walletModelA);
+      when(() => mockDataSource.getWallet('walletB'))
+          .thenAnswer((_) async => walletModelB);
+      when(
+        () => mockValidator.validate(
+          fromWallet: any(named: 'fromWallet'),
+          toWallet: any(named: 'toWallet'),
+          amount: any(named: 'amount'),
+        ),
+      ).thenReturn(const Success(null));
+
+      // Simulate generic exception
+      when(() => mockDataSource.createTransfer(any()))
+          .thenThrow(Exception('Firestore offline or something'));
+
+      // Act
+      final result = await repository.createTransfer(transferEntity);
+
+      // Assert
+      expect(result, isA<Failure<void>>());
+      final failure = result as Failure;
+      expect(failure.error, isA<UnknownError>());
+      // Verify sanitization
+      expect(failure.error.message, 'Failed to create transfer');
+      // Original error should be preserved as cause
+      expect(failure.error.cause.toString(), contains('Firestore offline'));
+    });
   });
 }
