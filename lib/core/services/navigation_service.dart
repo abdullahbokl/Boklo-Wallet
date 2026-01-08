@@ -17,6 +17,10 @@ class NavigationService {
     unawaited(GoRouter.of(navigatorKey.currentContext!).pushReplacement(route));
   }
 
+  void go(String route) {
+    GoRouter.of(navigatorKey.currentContext!).go(route);
+  }
+
   void pop<T extends Object?>([T? result]) {
     GoRouter.of(navigatorKey.currentContext!).pop(result);
   }

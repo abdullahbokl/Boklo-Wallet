@@ -1,7 +1,7 @@
+import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
-import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_form.dart';
@@ -24,7 +24,7 @@ class LoginPage extends StatelessWidget {
           },
           success: (user) {
             if (user != null) {
-              getIt<NavigationService>().pushReplacement('/wallet');
+              getIt<NavigationService>().go('/wallet');
               getIt<SnackbarService>().showSuccess(
                 'Welcome ${user.displayName ?? "User"}',
               );

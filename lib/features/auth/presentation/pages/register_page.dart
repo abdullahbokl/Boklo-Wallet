@@ -24,9 +24,9 @@ class RegisterPage extends StatelessWidget {
           },
           success: (user) {
             if (user != null) {
-              getIt<NavigationService>().pushReplacement('/login');
+              getIt<NavigationService>().go('/wallet');
               getIt<SnackbarService>().showSuccess(
-                'Registration successful! Please login.',
+                'Registration successful! Welcome.',
               );
             }
           },
