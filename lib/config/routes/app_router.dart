@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/auth/presentation/pages/login_page.dart';
@@ -15,9 +17,11 @@ class AppRouter {
 
   final NavigationService _navigationService;
 
+  String initialLocation = '/login';
+
   late final GoRouter router = GoRouter(
     navigatorKey: _navigationService.navigatorKey,
-    initialLocation: '/login',
+    initialLocation: initialLocation,
     routes: [
       GoRoute(
         path: '/login',
@@ -30,7 +34,11 @@ class AppRouter {
       GoRoute(
         path: '/wallet',
         builder: (context, state) => BlocProvider(
-          create: (context) => getIt<WalletCubit>()..loadWallet(),
+          create: (context) {
+            final cubit = getIt<WalletCubit>();
+            unawaited(cubit.loadWallet());
+            return cubit;
+          },
           child: const WalletPage(),
         ),
       ),
