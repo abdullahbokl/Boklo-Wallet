@@ -1,9 +1,7 @@
 import 'dart:async';
-
+import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
-
-import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
@@ -46,8 +44,7 @@ class _TransferFormState extends State<TransferForm> {
       );
 
       unawaited(
-        showDialog<void>(
-          context: context,
+        getIt<NavigationService>().showDialog<void>(
           builder: (dialogContext) => AlertDialog(
             title: const Text('Confirm Transfer'),
             content:

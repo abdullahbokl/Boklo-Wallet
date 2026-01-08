@@ -1,4 +1,7 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:flutter/material.dart' hide showDialog;
+import 'package:flutter/material.dart' as material show showDialog;
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
@@ -11,10 +14,21 @@ class NavigationService {
   }
 
   void pushReplacement(String route) {
-    GoRouter.of(navigatorKey.currentContext!).pushReplacement(route);
+    unawaited(GoRouter.of(navigatorKey.currentContext!).pushReplacement(route));
   }
 
   void pop<T extends Object?>([T? result]) {
     GoRouter.of(navigatorKey.currentContext!).pop(result);
+  }
+
+  Future<T?> showDialog<T>({
+    required WidgetBuilder builder,
+    bool barrierDismissible = true,
+  }) {
+    return material.showDialog<T>(
+      context: navigatorKey.currentContext!,
+      barrierDismissible: barrierDismissible,
+      builder: builder,
+    );
   }
 }

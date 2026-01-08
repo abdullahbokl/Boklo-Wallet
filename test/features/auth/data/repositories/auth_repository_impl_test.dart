@@ -16,7 +16,13 @@ class MockUserRemoteDataSource extends Mock implements UserRemoteDataSource {}
 
 class MockFirebaseAuthException extends Mock implements FirebaseAuthException {}
 
+class FakeUserModel extends Fake implements UserModel {}
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(FakeUserModel());
+  });
+
   late AuthRepositoryImpl authRepository;
   late MockAuthRemoteDataSource mockRemoteDataSource;
   late MockUserRemoteDataSource mockUserRemoteDataSource;
@@ -43,7 +49,7 @@ void main() {
     test('should return Success<User> when auth and db creation are successful',
         () async {
       // Arrange
-      when(() => mockRemoteDataSource.register(tEmail, tPassword))
+      when(() => mockRemoteDataSource.register(any(), any()))
           .thenAnswer((_) async => tUserModel);
       when(() => mockUserRemoteDataSource.createUser(tUserModel))
           .thenAnswer((_) async {});
@@ -69,7 +75,7 @@ void main() {
         code: 'email-already-in-use',
         message: 'Email used',
       );
-      when(() => mockRemoteDataSource.register(tEmail, tPassword))
+      when(() => mockRemoteDataSource.register(any(), any()))
           .thenThrow(tException);
 
       // Act
@@ -92,7 +98,7 @@ void main() {
         'should return Failure with DatabaseError when auth succeeds but db creation fails',
         () async {
       // Arrange
-      when(() => mockRemoteDataSource.register(tEmail, tPassword))
+      when(() => mockRemoteDataSource.register(any(), any()))
           .thenAnswer((_) async => tUserModel);
       final tException = Exception('DB Error');
       when(() => mockUserRemoteDataSource.createUser(tUserModel))
@@ -115,7 +121,7 @@ void main() {
   group('login', () {
     test('should return Success<User> when login is successful', () async {
       // Arrange
-      when(() => mockRemoteDataSource.login(tEmail, tPassword))
+      when(() => mockRemoteDataSource.login(any(), any()))
           .thenAnswer((_) async => tUserModel);
 
       // Act
@@ -138,7 +144,7 @@ void main() {
         code: 'invalid-credential',
         message: 'Invalid password',
       );
-      when(() => mockRemoteDataSource.login(tEmail, tPassword))
+      when(() => mockRemoteDataSource.login(any(), any()))
           .thenThrow(tException);
 
       // Act
@@ -164,7 +170,7 @@ void main() {
         code: 'network-request-failed',
         message: 'Network error',
       );
-      when(() => mockRemoteDataSource.login(tEmail, tPassword))
+      when(() => mockRemoteDataSource.login(any(), any()))
           .thenThrow(tException);
 
       // Act
@@ -184,7 +190,7 @@ void main() {
         () async {
       // Arrange
       final tException = Exception('Something went wrong');
-      when(() => mockRemoteDataSource.login(tEmail, tPassword))
+      when(() => mockRemoteDataSource.login(any(), any()))
           .thenThrow(tException);
 
       // Act
@@ -203,7 +209,8 @@ void main() {
   group('logout', () {
     test('should return Success<void> when logout is successful', () async {
       // Arrange
-      when(() => mockRemoteDataSource.logout()).thenAnswer((_) async {});
+      when(() => mockRemoteDataSource.logout())
+          .thenAnswer((_) => Future.value());
 
       // Act
       final result = await authRepository.logout();
@@ -231,7 +238,7 @@ void main() {
     test('should return Success<User> when user exists', () async {
       // Arrange
       when(() => mockRemoteDataSource.getCurrentUser())
-          .thenAnswer((_) async => tUserModel);
+          .thenAnswer((_) => Future.value(tUserModel));
 
       // Act
       final result = await authRepository.getCurrentUser();
