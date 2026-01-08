@@ -7,13 +7,13 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class WalletCubit extends BaseCubit<WalletState> {
-  final GetWalletUseCase _getWalletUseCase;
-  final GetTransactionsUseCase _getTransactionsUseCase;
-
   WalletCubit(
     this._getWalletUseCase,
     this._getTransactionsUseCase,
   ) : super(const BaseState.initial());
+
+  final GetWalletUseCase _getWalletUseCase;
+  final GetTransactionsUseCase _getTransactionsUseCase;
 
   Future<void> loadWallet() async {
     emitLoading();
@@ -21,12 +21,12 @@ class WalletCubit extends BaseCubit<WalletState> {
     final walletResult = await _getWalletUseCase();
 
     walletResult.fold(
-      (error) => emitError(error),
+      emitError,
       (wallet) async {
         final transactionsResult = await _getTransactionsUseCase();
 
         transactionsResult.fold(
-          (error) => emitError(error),
+          emitError,
           (transactions) {
             emitSuccess(
               WalletState(

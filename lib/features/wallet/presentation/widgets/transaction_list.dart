@@ -2,6 +2,13 @@ import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_item.dart';
 import 'package:flutter/material.dart';
 
+/// Renders a list of transactions fetched from the WalletRepository.
+///
+/// Data Flow:
+/// 1. WalletCubit calls GetTransactionsUseCase.
+/// 2. GetTransactionsUseCase calls WalletRepository.getTransactions.
+/// 3. Repository fetches from Remote/Local data source.
+/// 4. Data is emitted in WalletState and passed down here via WalletPage.
 class TransactionList extends StatelessWidget {
   const TransactionList({
     required this.transactions,
