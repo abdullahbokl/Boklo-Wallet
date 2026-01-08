@@ -1,6 +1,7 @@
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/error/app_error.dart';
+import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
@@ -10,22 +11,59 @@ import 'package:injectable/injectable.dart';
 class TransferCubit extends BaseCubit<TransferState> {
   TransferCubit(
     this._createTransferUseCase,
+    this._resolveWalletByEmailUseCase,
   ) : super(const BaseState.initial());
 
   final CreateTransferUseCase _createTransferUseCase;
+  final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
 
-  Future<void> createTransfer(TransferEntity transfer) async {
+  Future<void> createTransfer({
+    required String fromWalletId,
+    required String recipient,
+    required double amount,
+    required String currency,
+  }) async {
     emitLoading();
 
     try {
+      var toWalletId = recipient;
+
+      // 1. Resolve Recipient if Email
+      if (recipient.contains('@')) {
+        final resolution = await _resolveWalletByEmailUseCase(recipient);
+        final resolvedId = resolution.fold(
+          (error) => null, // Handle error below
+          (id) => id,
+        );
+
+        if (resolvedId == null) {
+          emitError(const ValidationError('Recipient email not found'));
+          return;
+        }
+        toWalletId = resolvedId;
+      }
+
+      // 2. Create Entity
+      final transfer = TransferEntity(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        fromWalletId: fromWalletId,
+        toWalletId: toWalletId,
+        amount: amount,
+        currency: currency,
+        status: TransferStatus.pending,
+        createdAt: DateTime.now(),
+      );
+
+      // 3. Execute
       final result = await _createTransferUseCase(transfer);
 
       result.fold(
-        (error) => emitError(error),
+        emitError,
         (_) => emitSuccess(const TransferState()),
       );
+      // Map generic exceptions to AppError
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
-      // Fallback for unexpected errors not caught by the repository
       emitError(const UnknownError('An unexpected error occurred'));
     }
   }

@@ -3,7 +3,7 @@ import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
-import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
+// import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
@@ -35,22 +35,13 @@ class _TransferFormState extends State<TransferForm> {
   void _onSubmit(String fromWalletId, String currency) {
     if (_formKey.currentState!.validate()) {
       final amount = double.parse(_amountController.text);
-      final transfer = TransferEntity(
-        id: DateTime.now().millisecondsSinceEpoch.toString(), // Temp ID gen
-        fromWalletId: fromWalletId,
-        toWalletId: _recipientController.text,
-        amount: amount,
-        currency: currency,
-        status: TransferStatus.pending,
-        createdAt: DateTime.now(),
-      );
+      final recipient = _recipientController.text;
 
       unawaited(
         getIt<NavigationService>().showDialog<void>(
           builder: (dialogContext) => AlertDialog(
             title: const Text('Confirm Transfer'),
-            content:
-                Text('Send $amount $currency to ${_recipientController.text}?'),
+            content: Text('Send $amount $currency to $recipient?'),
             actions: [
               TextButton(
                 onPressed: () => getIt<NavigationService>().pop(),
@@ -60,7 +51,12 @@ class _TransferFormState extends State<TransferForm> {
                 onPressed: () {
                   getIt<NavigationService>().pop();
                   unawaited(
-                    context.read<TransferCubit>().createTransfer(transfer),
+                    context.read<TransferCubit>().createTransfer(
+                          fromWalletId: fromWalletId,
+                          recipient: recipient,
+                          amount: amount,
+                          currency: currency,
+                        ),
                   );
                 },
                 child: const Text('Confirm'),
@@ -114,7 +110,7 @@ class _TransferFormState extends State<TransferForm> {
                             enabled: !isLoading,
                             decoration: const InputDecoration(
                               labelText:
-                                  'Recipient Wallet ID or Alias (BOKLO-XXXX)',
+                                  'Recipient (Wallet ID, Alias, or Email)',
                               border: OutlineInputBorder(),
                             ),
                             validator: (v) =>
