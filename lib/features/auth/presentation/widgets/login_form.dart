@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
-import 'package:go_router/go_router.dart';
 import 'package:boklo/features/auth/presentation/widgets/email_field.dart';
 import 'package:boklo/features/auth/presentation/widgets/password_field.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
@@ -30,10 +33,12 @@ class _LoginFormState extends State<LoginForm> {
 
   void _onLogin() {
     if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthCubit>().login(
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
+      unawaited(
+        context.read<AuthCubit>().login(
+              _emailController.text.trim(),
+              _passwordController.text,
+            ),
+      );
     }
   }
 
@@ -68,7 +73,8 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   const SizedBox(height: AppSpacing.m),
                   TextButton(
-                    onPressed: () => context.push('/register'),
+                    onPressed: () =>
+                        getIt<NavigationService>().push<void>('/register'),
                     child: const Text("Don't have an account? Sign up"),
                   ),
                 ],

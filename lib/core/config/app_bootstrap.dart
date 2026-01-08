@@ -1,6 +1,6 @@
 import 'package:boklo/config/routes/app_router.dart';
 import 'package:boklo/core/di/di_initializer.dart';
-import 'package:boklo/core/services/navigation_service.dart';
+
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/l10n/generated/app_localizations.dart';

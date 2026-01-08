@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/navigation_service.dart';
+
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
@@ -10,7 +13,6 @@ import 'package:boklo/shared/responsive/responsive_builder.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class WalletPage extends StatelessWidget {
   const WalletPage({super.key});
@@ -62,7 +64,10 @@ class _WalletLayout extends StatelessWidget {
           WalletBalanceCard(wallet: data.wallet),
           WalletPrimaryAction(
             onSendMoney: () async {
-              final result = await context.push<bool>('/transfer');
+              final navigationService = getIt<NavigationService>();
+              // result is expected to be boolean true if transfer was successful
+              final result = await navigationService.push<bool>('/transfer');
+
               if ((result ?? false) && context.mounted) {
                 // Trigger refresh on the provided WalletCubit
                 unawaited(context.read<WalletCubit>().loadWallet());

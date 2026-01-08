@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/navigation_service.dart';
+
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
@@ -51,12 +54,12 @@ class _TransferFormState extends State<TransferForm> {
                 Text('Send $amount $currency to ${_recipientController.text}?'),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
+                onPressed: () => getIt<NavigationService>().pop(),
                 child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(dialogContext);
+                  getIt<NavigationService>().pop();
                   unawaited(
                     context.read<TransferCubit>().createTransfer(transfer),
                   );
