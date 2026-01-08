@@ -7,15 +7,18 @@ class PasswordField extends StatelessWidget {
     super.key,
     this.onSubmitted,
     this.hintText = 'Password',
+    this.enabled = true,
   });
 
   final TextEditingController controller;
   final void Function(String)? onSubmitted;
   final String hintText;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return AppTextField(
+      enabled: enabled,
       controller: controller,
       hintText: hintText,
       obscureText: true,

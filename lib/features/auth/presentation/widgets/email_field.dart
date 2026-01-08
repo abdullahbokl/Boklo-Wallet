@@ -5,13 +5,16 @@ class EmailField extends StatelessWidget {
   const EmailField({
     required this.controller,
     super.key,
+    this.enabled = true,
   });
 
   final TextEditingController controller;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return AppTextField(
+      enabled: enabled,
       controller: controller,
       hintText: 'Email',
       keyboardType: TextInputType.emailAddress,

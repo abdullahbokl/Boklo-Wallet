@@ -77,51 +77,58 @@ class _TransferFormState extends State<TransferForm> {
         return walletState.maybeWhen(
           success: (data) {
             final wallet = data.wallet;
-            return Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.m),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Balance: ${wallet.balance} ${wallet.currency}',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSpacing.l),
-                    TextFormField(
-                      controller: _recipientController,
-                      decoration: const InputDecoration(
-                        labelText: 'Recipient Wallet ID or Alias (BOKLO-XXXX)',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (v) =>
-                          (v?.isEmpty ?? true) ? 'Required' : null,
-                    ),
-                    const SizedBox(height: AppSpacing.m),
-                    TextFormField(
-                      controller: _amountController,
-                      decoration: const InputDecoration(
-                        labelText: 'Amount',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Required';
-                        if (double.tryParse(v) == null) return 'Invalid number';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    BlocBuilder<TransferCubit, BaseState<TransferState>>(
-                      builder: (context, transferState) {
-                        return FilledButton(
-                          onPressed: transferState.isLoading
+            return BlocBuilder<TransferCubit, BaseState<TransferState>>(
+              builder: (context, transferState) {
+                final isLoading = transferState.isLoading;
+
+                return Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.m),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Balance: ${wallet.balance} ${wallet.currency}',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: AppSpacing.l),
+                        TextFormField(
+                          controller: _recipientController,
+                          enabled: !isLoading,
+                          decoration: const InputDecoration(
+                            labelText:
+                                'Recipient Wallet ID or Alias (BOKLO-XXXX)',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (v) =>
+                              (v?.isEmpty ?? true) ? 'Required' : null,
+                        ),
+                        const SizedBox(height: AppSpacing.m),
+                        TextFormField(
+                          controller: _amountController,
+                          enabled: !isLoading,
+                          decoration: const InputDecoration(
+                            labelText: 'Amount',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Required';
+                            if (double.tryParse(v) == null) {
+                              return 'Invalid number';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        FilledButton(
+                          onPressed: isLoading
                               ? null
                               : () => _onSubmit(wallet.id, wallet.currency),
-                          child: transferState.isLoading
+                          child: isLoading
                               ? SizedBox(
                                   width: 20,
                                   height: 20,
@@ -132,12 +139,12 @@ class _TransferFormState extends State<TransferForm> {
                                   ),
                                 )
                               : const Text('Send Money'),
-                        );
-                      },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),

@@ -1,6 +1,6 @@
+import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
-import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/email_field.dart';
@@ -48,30 +48,41 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          EmailField(controller: _emailController),
-          const SizedBox(height: AppSpacing.m),
-          PasswordField(controller: _passwordController),
-          const SizedBox(height: AppSpacing.m),
-          PasswordField(
-            controller: _confirmPasswordController,
-            hintText: 'Confirm Password',
-          ),
-          const SizedBox(height: AppSpacing.l),
-          BlocBuilder<AuthCubit, BaseState<User?>>(
-            builder: (context, state) {
-              return state.maybeWhen(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                orElse: () => AppButton(
+      child: BlocBuilder<AuthCubit, BaseState<User?>>(
+        builder: (context, state) {
+          final isLoading = state.maybeWhen(
+            loading: () => true,
+            orElse: () => false,
+          );
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              EmailField(
+                controller: _emailController,
+                enabled: !isLoading,
+              ),
+              const SizedBox(height: AppSpacing.m),
+              PasswordField(
+                controller: _passwordController,
+                enabled: !isLoading,
+              ),
+              const SizedBox(height: AppSpacing.m),
+              PasswordField(
+                controller: _confirmPasswordController,
+                hintText: 'Confirm Password',
+                enabled: !isLoading,
+              ),
+              const SizedBox(height: AppSpacing.l),
+              if (isLoading)
+                const Center(child: CircularProgressIndicator())
+              else
+                AppButton(
                   text: 'Register',
                   onPressed: _onRegisterPressed,
                 ),
-              );
-            },
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

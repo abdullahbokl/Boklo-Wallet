@@ -46,23 +46,27 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          EmailField(controller: _emailController),
-          const SizedBox(height: AppSpacing.m),
-          PasswordField(
-            controller: _passwordController,
-            onSubmitted: (_) => _onLogin(),
-          ),
-          const SizedBox(height: AppSpacing.l),
-          BlocBuilder<AuthCubit, BaseState<User?>>(
-            builder: (context, state) {
-              final isLoading = state.maybeWhen(
-                loading: () => true,
-                orElse: () => false,
-              );
-              return Column(
+      child: BlocBuilder<AuthCubit, BaseState<User?>>(
+        builder: (context, state) {
+          final isLoading = state.maybeWhen(
+            loading: () => true,
+            orElse: () => false,
+          );
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              EmailField(
+                controller: _emailController,
+                enabled: !isLoading,
+              ),
+              const SizedBox(height: AppSpacing.m),
+              PasswordField(
+                controller: _passwordController,
+                onSubmitted: isLoading ? null : (_) => _onLogin(),
+                enabled: !isLoading,
+              ),
+              const SizedBox(height: AppSpacing.l),
+              Column(
                 children: [
                   SizedBox(
                     width: double.infinity,
@@ -73,15 +77,17 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                   const SizedBox(height: AppSpacing.m),
                   TextButton(
-                    onPressed: () =>
-                        getIt<NavigationService>().push<void>('/register'),
+                    onPressed: isLoading
+                        ? null
+                        : () =>
+                            getIt<NavigationService>().push<void>('/register'),
                     child: const Text("Don't have an account? Sign up"),
                   ),
                 ],
-              );
-            },
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
