@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/error/app_error.dart';
+import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
@@ -12,10 +15,12 @@ class TransferCubit extends BaseCubit<TransferState> {
   TransferCubit(
     this._createTransferUseCase,
     this._resolveWalletByEmailUseCase,
+    this._analyticsService,
   ) : super(const BaseState.initial());
 
   final CreateTransferUseCase _createTransferUseCase;
   final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
+  final AnalyticsService _analyticsService;
 
   Future<void> createTransfer({
     required String fromWalletId,
@@ -37,7 +42,11 @@ class TransferCubit extends BaseCubit<TransferState> {
         );
 
         if (resolvedId == null) {
-          emitError(const ValidationError('Recipient email not found'));
+          const error = ValidationError('Recipient email not found');
+          unawaited(
+            _analyticsService.logTransferFailure(reason: error.message),
+          );
+          emitError(error);
           return;
         }
         toWalletId = resolvedId;
@@ -58,12 +67,26 @@ class TransferCubit extends BaseCubit<TransferState> {
       final result = await _createTransferUseCase(transfer);
 
       result.fold(
-        emitError,
-        (_) => emitSuccess(const TransferState()),
+        (error) {
+          unawaited(
+            _analyticsService.logTransferFailure(reason: error.message),
+          );
+          emitError(error);
+        },
+        (_) {
+          unawaited(
+            _analyticsService.logTransferSuccess(
+              amount: amount,
+              currency: currency,
+            ),
+          );
+          emitSuccess(const TransferState());
+        },
       );
       // Map generic exceptions to AppError
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
+      unawaited(_analyticsService.logTransferFailure(reason: e.toString()));
       emitError(const UnknownError('An unexpected error occurred'));
     }
   }

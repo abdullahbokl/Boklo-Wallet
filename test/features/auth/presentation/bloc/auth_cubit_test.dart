@@ -12,6 +12,10 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:boklo/features/auth/domain/usecases/register_usecase.dart';
 
+import 'package:boklo/core/services/analytics_service.dart';
+
+class MockAnalyticsService extends Mock implements AnalyticsService {}
+
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
 class MockLogoutUseCase extends Mock implements LogoutUseCase {}
@@ -26,17 +30,24 @@ void main() {
   late MockLogoutUseCase mockLogoutUseCase;
   late MockGetCurrentUserUseCase mockGetCurrentUserUseCase;
   late MockRegisterUseCase mockRegisterUseCase;
+  late MockAnalyticsService mockAnalyticsService;
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
     mockLogoutUseCase = MockLogoutUseCase();
     mockGetCurrentUserUseCase = MockGetCurrentUserUseCase();
     mockRegisterUseCase = MockRegisterUseCase();
+    mockAnalyticsService = MockAnalyticsService();
+
+    when(() => mockAnalyticsService.logLogin(method: any(named: 'method')))
+        .thenAnswer((_) async {});
+
     cubit = AuthCubit(
       mockLoginUseCase,
       mockLogoutUseCase,
       mockGetCurrentUserUseCase,
       mockRegisterUseCase,
+      mockAnalyticsService,
     );
   });
 
