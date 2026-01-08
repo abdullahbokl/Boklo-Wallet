@@ -49,20 +49,27 @@ class TransferCubit extends BaseCubit<TransferState> {
       // 1. Resolve Recipient if Email
       if (recipient.contains('@')) {
         final resolution = await _resolveWalletByEmailUseCase(recipient);
+
+        AppError? resolutionError;
+
         final resolvedId = resolution.fold(
-          (error) => null, // Handle error below
+          (error) {
+            resolutionError = error;
+            return null;
+          },
           (id) => id,
         );
 
-        if (resolvedId == null) {
-          const error = ValidationError('Recipient email not found');
+        if (resolutionError != null) {
           unawaited(
-            _analyticsService.logTransferFailure(reason: error.message),
+            _analyticsService.logTransferFailure(
+              reason: resolutionError!.message,
+            ),
           );
-          emitError(error);
+          emitError(resolutionError!);
           return;
         }
-        toWalletId = resolvedId;
+        toWalletId = resolvedId!;
       }
 
       // 2. Create Entity

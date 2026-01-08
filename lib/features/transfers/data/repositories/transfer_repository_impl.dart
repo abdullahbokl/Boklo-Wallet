@@ -63,12 +63,12 @@ class TransferRepositoryImpl implements TransferRepository {
           } on FirebaseException catch (e) {
             return Failure(FirebaseError(e.message ?? 'Unknown error', e.code));
           } on Object catch (e) {
-            return Failure(UnknownError(e.toString()));
+            return Failure(UnknownError('Failed to create transfer', e));
           }
         },
       );
     } on Object catch (e) {
-      return Failure(UnknownError(e.toString()));
+      return Failure(UnknownError('An unexpected error occurred', e));
     }
   }
 
@@ -78,7 +78,7 @@ class TransferRepositoryImpl implements TransferRepository {
       final models = await _dataSource.getTransfers();
       return Success(models.map((e) => e.toEntity()).toList());
     } on Object catch (e) {
-      return Failure(UnknownError(e.toString()));
+      return Failure(UnknownError('Failed to load transfers', e));
     }
   }
 }
