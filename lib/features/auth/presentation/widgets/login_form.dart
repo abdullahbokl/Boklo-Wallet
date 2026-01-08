@@ -72,7 +72,8 @@ class _LoginFormState extends State<LoginForm> {
                     width: double.infinity,
                     child: AppButton(
                       text: 'Sign In',
-                      onPressed: isLoading ? null : _onLogin,
+                      onPressed: _onLogin,
+                      isLoading: isLoading,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.m),

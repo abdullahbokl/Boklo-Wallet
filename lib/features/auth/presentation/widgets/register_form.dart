@@ -73,13 +73,11 @@ class _RegisterFormState extends State<RegisterForm> {
                 enabled: !isLoading,
               ),
               const SizedBox(height: AppSpacing.l),
-              if (isLoading)
-                const Center(child: CircularProgressIndicator())
-              else
-                AppButton(
-                  text: 'Register',
-                  onPressed: _onRegisterPressed,
-                ),
+              AppButton(
+                text: 'Register',
+                onPressed: _onRegisterPressed,
+                isLoading: isLoading,
+              ),
             ],
           );
         },
