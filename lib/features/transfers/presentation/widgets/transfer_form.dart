@@ -10,6 +10,7 @@ import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransferForm extends StatefulWidget {
@@ -127,11 +128,22 @@ class _TransferFormState extends State<TransferForm> {
                               labelText: 'Amount',
                               border: OutlineInputBorder(),
                             ),
-                            keyboardType: TextInputType.number,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d*'),
+                              ),
+                            ],
                             validator: (v) {
                               if (v == null || v.isEmpty) return 'Required';
-                              if (double.tryParse(v) == null) {
+                              final amount = double.tryParse(v);
+                              if (amount == null) {
                                 return 'Invalid number';
+                              }
+                              if (amount <= 0) {
+                                return 'Amount must be greater than 0';
                               }
                               return null;
                             },
