@@ -3,14 +3,14 @@ import 'package:boklo/features/wallet/presentation/widgets/transaction_item.dart
 import 'package:flutter/material.dart';
 
 class TransactionList extends StatelessWidget {
-  final List<TransactionEntity> transactions;
-  final bool isLoading;
-
   const TransactionList({
-    super.key,
     required this.transactions,
+    super.key,
     this.isLoading = false,
   });
+
+  final List<TransactionEntity> transactions;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {

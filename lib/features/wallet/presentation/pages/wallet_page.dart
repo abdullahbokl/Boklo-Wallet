@@ -1,9 +1,8 @@
 import 'dart:async';
 
+import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
-
-import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_list.dart';
@@ -65,7 +64,8 @@ class _WalletLayout extends StatelessWidget {
           WalletPrimaryAction(
             onSendMoney: () async {
               final navigationService = getIt<NavigationService>();
-              // result is expected to be boolean true if transfer was successful
+              // result is expected to be boolean true
+              // if transfer was successful
               final result = await navigationService.push<bool>('/transfer');
 
               if ((result ?? false) && context.mounted) {
