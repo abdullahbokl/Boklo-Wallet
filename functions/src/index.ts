@@ -13,6 +13,7 @@ import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import {PublisherClient} from "@google-cloud/eventarc-publishing";
 import {CloudEvent} from "cloudevents";
+export { recordLedgerEntry } from "./ledger";
 
 admin.initializeApp();
 const db = admin.firestore();
