@@ -11,14 +11,14 @@ import {setGlobalOptions} from "firebase-functions";
 import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
-// import {EventarcClient} from "@google-cloud/eventarc";
+import {PublisherClient} from "@google-cloud/eventarc-publishing";
 import {CloudEvent} from "cloudevents";
 
 admin.initializeApp();
 const db = admin.firestore();
 
-// Initialize Eventarc Client
-// const eventarc = new EventarcClient();
+// Initialize Eventarc Publisher Client
+const publisherClient = new PublisherClient();
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -33,16 +33,7 @@ const EMIT_EVENTS = true; // Feature flag for events
 async function publishEvent(type: string, data: any, source: string) {
     if (!EMIT_EVENTS) return;
     
-    // We default to the global location and default channel in a real setup
-    // For now, we construct the event. In a production Eventarc setup, 
-    // we would publish to a specific channel.
-    // Note: The Eventarc Node.js SDK 'publish' method requires a channel/location context.
-    // If running in Cloud Functions locally or without explicit Eventarc setup, 
-    // we might just log "Emitting Event" or skip actual API call to avoid errors if the API isn't enabled.
-    
-    // For this preparation step, we will verify we CAN construct the CloudEvent 
-    // and log the intent. In a real deployment, we would await eventarc.channel(...).publish(...)
-    
+    // Construct the CloudEvent
     const cloudEvent = new CloudEvent({
         type: `com.boklo.wallet.${type}`,
         source: source,
@@ -52,16 +43,24 @@ async function publishEvent(type: string, data: any, source: string) {
 
     logger.info(`[Eventarc] Emitting ${cloudEvent.type}`, cloudEvent);
     
-    // START: Actual Eventarc publishing logic (commented out until infrastructure is ready)
-    /*
+    // Publish to the default Eventarc channel
+    // Note: Ensure the "Eventarc API" is enabled in your Google Cloud Project.
+    // We strive to use the project ID from the environment.
+    const projectId = process.env.GCLOUD_PROJECT || (process.env.FIREBASE_CONFIG ? JSON.parse(process.env.FIREBASE_CONFIG as string).projectId : "boklo-wallet");
+    const location = "us-central1"; // Default location for Firebase Functions
+    const channel = `projects/${projectId}/locations/${location}/channels/default`;
+
     try {
-        await eventarc.channel("projects/boklo-wallet/locations/us-central1/channels/default")
-            .publish(cloudEvent);
+        await publisherClient.publishEvents({
+            channel: channel,
+            textEvents: [JSON.stringify(cloudEvent)]
+        });
+        logger.info(`[Eventarc] Successfully published to ${channel}`);
     } catch (e) {
-        logger.error(`Failed to publish event ${type}`, e);
+        // We log error but do not fail the function execution to ensure idempotency/reliability of the core logic
+        // In a strict event-driven system, we might want to retry or fail.
+        logger.error(`[Eventarc] Failed to publish event ${type} to ${channel}`, e);
     }
-    */
-    // END: Actual Eventarc publishing logic
 }
 
 export const onTransferCreated = onDocumentCreated("transfers/{transferId}", async (event) => {
