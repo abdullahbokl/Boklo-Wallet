@@ -11,9 +11,14 @@ import {setGlobalOptions} from "firebase-functions";
 import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
+// import {EventarcClient} from "@google-cloud/eventarc";
+import {CloudEvent} from "cloudevents";
 
 admin.initializeApp();
 const db = admin.firestore();
+
+// Initialize Eventarc Client
+// const eventarc = new EventarcClient();
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -22,6 +27,42 @@ const db = admin.firestore();
 // `maxInstances` option in the function's options, e.g.
 // `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
 setGlobalOptions({ maxInstances: 10 });
+
+const EMIT_EVENTS = true; // Feature flag for events
+
+async function publishEvent(type: string, data: any, source: string) {
+    if (!EMIT_EVENTS) return;
+    
+    // We default to the global location and default channel in a real setup
+    // For now, we construct the event. In a production Eventarc setup, 
+    // we would publish to a specific channel.
+    // Note: The Eventarc Node.js SDK 'publish' method requires a channel/location context.
+    // If running in Cloud Functions locally or without explicit Eventarc setup, 
+    // we might just log "Emitting Event" or skip actual API call to avoid errors if the API isn't enabled.
+    
+    // For this preparation step, we will verify we CAN construct the CloudEvent 
+    // and log the intent. In a real deployment, we would await eventarc.channel(...).publish(...)
+    
+    const cloudEvent = new CloudEvent({
+        type: `com.boklo.wallet.${type}`,
+        source: source,
+        data: data,
+        specversion: "1.0",
+    });
+
+    logger.info(`[Eventarc] Emitting ${cloudEvent.type}`, cloudEvent);
+    
+    // START: Actual Eventarc publishing logic (commented out until infrastructure is ready)
+    /*
+    try {
+        await eventarc.channel("projects/boklo-wallet/locations/us-central1/channels/default")
+            .publish(cloudEvent);
+    } catch (e) {
+        logger.error(`Failed to publish event ${type}`, e);
+    }
+    */
+    // END: Actual Eventarc publishing logic
+}
 
 export const onTransferCreated = onDocumentCreated("transfers/{transferId}", async (event) => {
   const snapshot = event.data;
@@ -38,6 +79,16 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
       logger.info(`Transfer ${transferId} is already ${transferData.status}, skipping.`);
       return;
   }
+
+  // 1. Emit transaction.created
+  await publishEvent("transaction.created", {
+      transferId,
+      amount: transferData.amount,
+      currency: transferData.currency,
+      fromWallet: transferData.fromWalletId,
+      toWallet: transferData.toWalletId,
+      timestamp: new Date().toISOString()
+  }, `/transfers/${transferId}`);
 
   const { fromWalletId, toWalletId, amount } = transferData;
   const fromWalletRef = db.collection("wallets").doc(fromWalletId);
@@ -91,13 +142,31 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
       });
 
       logger.info(`Transfer ${transferId} completed successfully.`);
+
+      // 2. Emit transaction.completed
+      await publishEvent("transaction.completed", {
+          transferId,
+          status: "completed",
+          timestamp: new Date().toISOString()
+      }, `/transfers/${transferId}`);
+
   } catch (error) {
       logger.error(`Transfer ${transferId} failed:`, error);
       
+      const reason = error instanceof Error ? error.message : "Unknown error";
+
       // Update transfer status to FAILED
       await transferRef.update({ 
           status: "failed", 
-          failureReason: error instanceof Error ? error.message : "Unknown error" 
+          failureReason: reason
       });
+
+      // 3. Emit transaction.failed
+      await publishEvent("transaction.failed", {
+          transferId,
+          status: "failed",
+          reason: reason,
+          timestamp: new Date().toISOString()
+      }, `/transfers/${transferId}`);
   }
 });
