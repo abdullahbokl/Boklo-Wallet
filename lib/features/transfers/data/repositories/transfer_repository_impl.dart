@@ -67,6 +67,8 @@ class TransferRepositoryImpl implements TransferRepository {
           }
         },
       );
+    } on FirebaseException catch (e) {
+      return Failure(FirebaseError(e.message ?? 'Unknown error', e.code));
     } on Object catch (e) {
       return Failure(UnknownError('An unexpected error occurred', e));
     }

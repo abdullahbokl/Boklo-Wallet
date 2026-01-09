@@ -1,10 +1,16 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:boklo/config/routes/app_router.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/l10n/generated/app_localizations.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,12 +18,17 @@ class AppBootstrap {
   static Future<void> bootstrap({
     required String environment,
     required FirebaseOptions firebaseOptions,
+    bool useFirebaseEmulator = false,
   }) async {
     WidgetsFlutterBinding.ensureInitialized();
 
     await Firebase.initializeApp(
       options: firebaseOptions,
     );
+
+    if (useFirebaseEmulator) {
+      await _configureEmulators();
+    }
 
     await configureDependencies(environment);
 
@@ -43,6 +54,18 @@ class AppBootstrap {
     getIt<AppRouter>().initialLocation = initialRoute;
 
     runApp(const MyApp());
+  }
+
+  static Future<void> _configureEmulators() async {
+    const authPort = 9099;
+    const firestorePort = 8080;
+
+    final host = (!kIsWeb && Platform.isAndroid) ? '10.0.2.2' : 'localhost';
+
+    log('🔥 Using Firebase Emulators at $host');
+
+    await FirebaseAuth.instance.useAuthEmulator(host, authPort);
+    FirebaseFirestore.instance.useFirestoreEmulator(host, firestorePort);
   }
 }
 

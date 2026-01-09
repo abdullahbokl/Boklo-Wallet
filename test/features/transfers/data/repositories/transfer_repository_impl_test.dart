@@ -7,6 +7,7 @@ import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -206,6 +207,23 @@ void main() {
       expect(failure.error.message, 'Failed to create transfer');
       // Original error should be preserved as cause
       expect(failure.error.cause.toString(), contains('Firestore offline'));
+    });
+
+    test('should return FirebaseError when Firestore throws FirebaseException',
+        () async {
+      // Arrange
+      when(() => mockDataSource.getWallet(any())).thenThrow(
+        FirebaseException(plugin: 'firestore', message: 'Cleartext error'),
+      );
+
+      // Act
+      final result = await repository.createTransfer(transferEntity);
+
+      // Assert
+      expect(result, isA<Failure<void>>());
+      final failure = result as Failure;
+      expect(failure.error, isA<FirebaseError>());
+      expect(failure.error.message, 'Cleartext error');
     });
   });
 }

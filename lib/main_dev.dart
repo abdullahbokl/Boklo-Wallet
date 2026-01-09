@@ -6,5 +6,6 @@ void main() async {
   await AppBootstrap.bootstrap(
     environment: Environment.dev,
     firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+    useFirebaseEmulator: true,
   );
 }
