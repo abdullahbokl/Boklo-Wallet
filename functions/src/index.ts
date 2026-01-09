@@ -14,6 +14,7 @@ import * as admin from "firebase-admin";
 import {PublisherClient} from "@google-cloud/eventarc-publishing";
 import {CloudEvent} from "cloudevents";
 export { recordLedgerEntry } from "./ledger";
+export { onTransactionCompletedNotification, onTransactionFailedNotification } from "./notifications";
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -147,6 +148,10 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
       await publishEvent("transaction.completed", {
           transferId,
           status: "completed",
+          amount,
+          currency: transferData.currency,
+          fromWallet: fromWalletId,
+          toWallet: toWalletId,
           timestamp: new Date().toISOString()
       }, `/transfers/${transferId}`);
 
@@ -166,6 +171,10 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
           transferId,
           status: "failed",
           reason: reason,
+          amount,
+          currency: transferData.currency,
+          fromWallet: fromWalletId,
+          toWallet: toWalletId,
           timestamp: new Date().toISOString()
       }, `/transfers/${transferId}`);
   }
