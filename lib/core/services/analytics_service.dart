@@ -38,6 +38,19 @@ class AnalyticsService {
     );
   }
 
+  Future<void> logTransferInitiated({
+    required double amount,
+    required String currency,
+  }) async {
+    await logEvent(
+      name: 'transfer_initiated',
+      parameters: {
+        'amount': amount,
+        'currency': currency,
+      },
+    );
+  }
+
   Future<void> logTransferFailure({required String reason}) async {
     await logEvent(
       name: 'transfer_failure',

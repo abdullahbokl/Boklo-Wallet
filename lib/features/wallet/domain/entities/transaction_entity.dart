@@ -7,6 +7,12 @@ enum TransactionType {
   debit,
 }
 
+enum TransactionStatus {
+  pending,
+  completed,
+  failed,
+}
+
 @freezed
 class TransactionEntity with _$TransactionEntity {
   const factory TransactionEntity({
@@ -14,5 +20,6 @@ class TransactionEntity with _$TransactionEntity {
     required double amount,
     required TransactionType type,
     required DateTime timestamp,
+    @Default(TransactionStatus.completed) TransactionStatus status,
   }) = _TransactionEntity;
 }

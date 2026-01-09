@@ -10,11 +10,14 @@ class TransactionModel {
   final TransactionType type;
   final DateTime timestamp;
 
+  final TransactionStatus status;
+
   const TransactionModel({
     required this.id,
     required this.amount,
     required this.type,
     required this.timestamp,
+    this.status = TransactionStatus.completed,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) =>
@@ -28,6 +31,7 @@ class TransactionModel {
       amount: entity.amount,
       type: entity.type,
       timestamp: entity.timestamp,
+      status: entity.status,
     );
   }
 
@@ -37,6 +41,7 @@ class TransactionModel {
       amount: amount,
       type: type,
       timestamp: timestamp,
+      status: status,
     );
   }
 }

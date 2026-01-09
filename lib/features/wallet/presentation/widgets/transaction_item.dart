@@ -57,11 +57,50 @@ class TransactionItem extends StatelessWidget {
                         ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    DateFormat.yMMMd().add_jm().format(transaction.timestamp),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey.shade600,
+                  Row(
+                    children: [
+                      Text(
+                        DateFormat.yMMMd()
+                            .add_jm()
+                            .format(transaction.timestamp),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade600,
+                            ),
+                      ),
+                      if (transaction.status !=
+                          TransactionStatus.completed) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                transaction.status == TransactionStatus.failed
+                                    ? Colors.red.shade100
+                                    : Colors.amber.shade100,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            transaction.status == TransactionStatus.failed
+                                ? 'FAILED'
+                                : 'PENDING',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: transaction.status ==
+                                          TransactionStatus.failed
+                                      ? Colors.red.shade800
+                                      : Colors.amber.shade800,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10,
+                                ),
+                          ),
                         ),
+                      ],
+                    ],
                   ),
                 ],
               ),
