@@ -7,6 +7,7 @@ import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
+import 'package:boklo/features/transfers/domain/usecases/observe_transfer_status_usecase.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:injectable/injectable.dart';
 
@@ -15,11 +16,13 @@ class TransferCubit extends BaseCubit<TransferState> {
   TransferCubit(
     this._createTransferUseCase,
     this._resolveWalletByEmailUseCase,
+    this._observeTransferStatusUseCase,
     this._analyticsService,
   ) : super(const BaseState.initial());
 
   final CreateTransferUseCase _createTransferUseCase;
   final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
+  final ObserveTransferStatusUseCase _observeTransferStatusUseCase;
   final AnalyticsService _analyticsService;
 
   DateTime? _lastExecution;
@@ -94,13 +97,10 @@ class TransferCubit extends BaseCubit<TransferState> {
           emitError(error);
         },
         (_) {
-          unawaited(
-            _analyticsService.logTransferSuccess(
-              amount: amount,
-              currency: currency,
-            ),
-          );
-          emitSuccess(const TransferState());
+          // 4. Observe Status
+          // Instead of immediate success, we wait for the backend to process it.
+          // We subscribe to the status stream.
+          _observeStatus(transfer.id, amount, currency);
         },
       );
       // Map generic exceptions to AppError
@@ -109,5 +109,43 @@ class TransferCubit extends BaseCubit<TransferState> {
       unawaited(_analyticsService.logTransferFailure(reason: e.toString()));
       emitError(const UnknownError('An unexpected error occurred'));
     }
+  }
+
+  void _observeStatus(String transferId, double amount, String currency) {
+    _statusSubscription?.cancel();
+    _statusSubscription = _observeTransferStatusUseCase(transferId).listen(
+      (status) {
+        if (status == TransferStatus.completed) {
+          unawaited(
+            _analyticsService.logTransferSuccess(
+              amount: amount,
+              currency: currency,
+            ),
+          );
+          emitSuccess(const TransferState());
+          _statusSubscription?.cancel();
+        } else if (status == TransferStatus.failed) {
+          unawaited(
+            _analyticsService.logTransferFailure(
+              reason: 'Transfer failed on backend',
+            ),
+          );
+          emitError(const UnknownError('Transfer failed'));
+          _statusSubscription?.cancel();
+        }
+        // Pending status is implicitly handled by the Loading state currently active
+      },
+      onError: (e) {
+        emitError(const UnknownError('Failed to track transfer status'));
+      },
+    );
+  }
+
+  StreamSubscription? _statusSubscription;
+
+  @override
+  Future<void> close() {
+    _statusSubscription?.cancel();
+    return super.close();
   }
 }

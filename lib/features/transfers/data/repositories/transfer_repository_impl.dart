@@ -83,4 +83,11 @@ class TransferRepositoryImpl implements TransferRepository {
       return Failure(UnknownError('Failed to load transfers', e));
     }
   }
+
+  @override
+  Stream<TransferStatus> observeTransferStatus(String transferId) {
+    return _dataSource.observeTransfer(transferId).map((model) {
+      return model?.status ?? TransferStatus.pending;
+    });
+  }
 }
