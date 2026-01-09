@@ -1,4 +1,4 @@
-import { onCustomEventPublished } from "firebase-functions/v2/eventarc";
+import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 
@@ -21,13 +21,20 @@ interface LedgerEntry {
     metadata?: any;
 }
 
-export const recordLedgerEntry = onCustomEventPublished(
-    "com.boklo.wallet.transaction.completed",
+export const recordLedgerEntry = onMessagePublished(
+    {
+        topic: "transaction-completed",
+        retry: true,
+    },
     async (event) => {
-        logger.info("Received transaction.completed event", event);
+        logger.info("Received transaction.completed event for Ledger via Pub/Sub", event.id);
 
-        const eventData = event.data as any; // Cast generic data
-        const { transferId, fromWallet, toWallet, amount, currency, timestamp } = eventData;
+        let eventData = event.data.message.json;
+        if (eventData && eventData.data) {
+             eventData = eventData.data;
+        }
+
+        const { transferId, fromWallet, toWallet, amount, currency, timestamp } = eventData || {};
 
         if (!transferId || !amount) {
             logger.error("Invalid event data", eventData);
@@ -65,7 +72,7 @@ export const recordLedgerEntry = onCustomEventPublished(
             logger.info(`Ledger entry created for transfer ${transferId}`);
         } catch (error) {
             logger.error(`Failed to create ledger entry for ${transferId}`, error);
-            // Throwing error prompts Eventarc/Functions to retry if configured
+            // Throwing error prompts Pub/Sub retry mechanism
             throw error;
         }
     }

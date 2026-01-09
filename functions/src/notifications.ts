@@ -1,4 +1,4 @@
-import { onCustomEventPublished } from "firebase-functions/v2/eventarc";
+import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 
@@ -15,13 +15,20 @@ async function sendNotification(userId: string, title: string, body: string) {
     logger.info(`[Notification] To User: ${userId} | Title: ${title} | Body: ${body}`);
 }
 
-export const onTransactionCompletedNotification = onCustomEventPublished(
-    "com.boklo.wallet.transaction.completed",
+export const onTransactionCompletedNotification = onMessagePublished(
+    {
+        topic: "transaction-completed",
+        retry: true,
+    },
     async (event) => {
-        logger.info("Received transaction.completed notification event", event.id);
+        logger.info("Received transaction.completed notification event via Pub/Sub", event.id);
 
-        const eventData = event.data as any; // Cast generic data
-        const { transferId, fromWallet, toWallet, amount, currency } = eventData;
+        let eventData = event.data.message.json;
+        if (eventData && eventData.data) {
+             eventData = eventData.data;
+        }
+        
+        const { transferId, fromWallet, toWallet, amount, currency } = eventData || {};
 
         if (!transferId || !amount) {
              logger.warn("Invalid event data for notification", eventData);
@@ -46,13 +53,20 @@ export const onTransactionCompletedNotification = onCustomEventPublished(
     }
 );
 
-export const onTransactionFailedNotification = onCustomEventPublished(
-    "com.boklo.wallet.transaction.failed",
+export const onTransactionFailedNotification = onMessagePublished(
+    {
+        topic: "transaction-failed",
+        retry: true,
+    },
     async (event) => {
-        logger.info("Received transaction.failed notification event", event.id);
+        logger.info("Received transaction.failed notification event via Pub/Sub", event.id);
 
-        const eventData = event.data as any;
-        const { transferId, fromWallet, amount, currency, reason } = eventData;
+        let eventData = event.data.message.json;
+        if (eventData && eventData.data) {
+             eventData = eventData.data;
+        }
+
+        const { transferId, fromWallet, amount, currency, reason } = eventData || {};
 
         logger.info(`Processing failure notification for ${transferId}`);
 
