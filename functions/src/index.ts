@@ -15,6 +15,7 @@ import {PublisherClient} from "@google-cloud/eventarc-publishing";
 import {CloudEvent} from "cloudevents";
 export { recordLedgerEntry } from "./ledger";
 export { onTransactionCompletedNotification, onTransactionFailedNotification } from "./notifications";
+export { detectFraud } from "./fraud";
 
 admin.initializeApp();
 const db = admin.firestore();
