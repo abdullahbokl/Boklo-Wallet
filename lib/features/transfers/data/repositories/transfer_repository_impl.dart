@@ -54,7 +54,7 @@ class TransferRepositoryImpl implements TransferRepository {
               toWalletId: toWalletModel!.id,
               amount: transfer.amount,
               currency: transfer.currency,
-              status: TransferStatus.completed,
+              status: TransferStatus.pending,
               createdAt: transfer.createdAt,
             );
 
