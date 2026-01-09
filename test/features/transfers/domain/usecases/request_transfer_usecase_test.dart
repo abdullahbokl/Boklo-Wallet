@@ -1,6 +1,7 @@
 import 'package:boklo/core/base/result.dart';
 import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
+import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
@@ -9,9 +10,12 @@ import 'package:mocktail/mocktail.dart';
 
 class MockTransferValidator extends Mock implements TransferValidator {}
 
+class MockTransferRepository extends Mock implements TransferRepository {}
+
 void main() {
   late RequestTransferUseCase useCase;
   late MockTransferValidator mockValidator;
+  late MockTransferRepository mockRepository;
 
   setUpAll(() {
     registerFallbackValue(
@@ -26,7 +30,8 @@ void main() {
 
   setUp(() {
     mockValidator = MockTransferValidator();
-    useCase = RequestTransferUseCase(mockValidator);
+    mockRepository = MockTransferRepository();
+    useCase = RequestTransferUseCase(mockValidator, mockRepository);
   });
 
   const tFromWallet = WalletEntity(
@@ -47,6 +52,11 @@ void main() {
       'should return TransferEntity with status PENDING when validation succeeds',
       () async {
     // Arrange
+    when(() => mockRepository.getWallet('1'))
+        .thenAnswer((_) async => Success(tFromWallet));
+    when(() => mockRepository.getWallet('2'))
+        .thenAnswer((_) async => Success(tToWallet));
+
     when(() => mockValidator.validate(
           fromWallet: any(named: 'fromWallet'),
           toWallet: any(named: 'toWallet'),
@@ -55,8 +65,8 @@ void main() {
 
     // Act
     final result = await useCase.call(
-      fromWallet: tFromWallet,
-      toWallet: tToWallet,
+      fromWalletId: '1',
+      toWalletId: '2',
       amount: 10.0,
     );
 
@@ -71,6 +81,11 @@ void main() {
 
   test('should return Failure when validation fails', () async {
     // Arrange
+    when(() => mockRepository.getWallet('1'))
+        .thenAnswer((_) async => Success(tFromWallet));
+    when(() => mockRepository.getWallet('2'))
+        .thenAnswer((_) async => Success(tToWallet));
+
     const tError = ValidationError('Insufficient balance');
     when(() => mockValidator.validate(
           fromWallet: any(named: 'fromWallet'),
@@ -80,8 +95,8 @@ void main() {
 
     // Act
     final result = await useCase.call(
-      fromWallet: tFromWallet,
-      toWallet: tToWallet,
+      fromWalletId: '1',
+      toWalletId: '2',
       amount: 1000.0,
     );
 

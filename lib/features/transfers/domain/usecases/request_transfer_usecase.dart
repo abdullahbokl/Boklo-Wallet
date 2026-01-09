@@ -1,5 +1,6 @@
 import 'package:boklo/core/base/result.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
+import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:injectable/injectable.dart';
@@ -7,16 +8,34 @@ import 'package:uuid/uuid.dart';
 
 @injectable
 class RequestTransferUseCase {
-  RequestTransferUseCase(this._validator);
+  RequestTransferUseCase(
+    this._validator,
+    this._repository,
+  );
 
   final TransferValidator _validator;
+  final TransferRepository _repository;
   final _uuid = const Uuid();
 
   Future<Result<TransferEntity>> call({
-    required WalletEntity fromWallet,
-    required WalletEntity toWallet,
+    required String fromWalletId,
+    required String toWalletId,
     required double amount,
   }) async {
+    // 0. Fetch Wallets
+    final fromWalletResult = await _repository.getWallet(fromWalletId);
+    final toWalletResult = await _repository.getWallet(toWalletId);
+
+    if (fromWalletResult is Failure) {
+      return Failure((fromWalletResult as Failure).error);
+    }
+    if (toWalletResult is Failure) {
+      return Failure((toWalletResult as Failure).error);
+    }
+
+    final fromWallet = (fromWalletResult as Success<WalletEntity>).data;
+    final toWallet = (toWalletResult as Success<WalletEntity>).data;
+
     // 1. Validate
     final validationResult = _validator.validate(
       fromWallet: fromWallet,

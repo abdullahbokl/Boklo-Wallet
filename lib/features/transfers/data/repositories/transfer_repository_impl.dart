@@ -6,6 +6,7 @@ import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
+import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 
@@ -89,5 +90,18 @@ class TransferRepositoryImpl implements TransferRepository {
     return _dataSource.observeTransfer(transferId).map((model) {
       return model?.status ?? TransferStatus.pending;
     });
+  }
+
+  @override
+  Future<Result<WalletEntity>> getWallet(String id) async {
+    try {
+      final model = await _dataSource.getWallet(id);
+      if (model == null) {
+        return const Failure(ValidationError('Wallet not found'));
+      }
+      return Success(model.toEntity());
+    } on Object catch (e) {
+      return Failure(UnknownError('Failed to get wallet', e));
+    }
   }
 }

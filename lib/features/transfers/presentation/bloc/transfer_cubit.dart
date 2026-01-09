@@ -1,12 +1,14 @@
 import 'dart:async';
-
+import 'package:boklo/core/base/result.dart';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/core/config/feature_flags.dart';
 import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
+import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:injectable/injectable.dart';
 
@@ -14,13 +16,17 @@ import 'package:injectable/injectable.dart';
 class TransferCubit extends BaseCubit<TransferState> {
   TransferCubit(
     this._createTransferUseCase,
+    this._requestTransferUseCase,
     this._resolveWalletByEmailUseCase,
     this._analyticsService,
+    this._featureFlags,
   ) : super(const BaseState.initial());
 
   final CreateTransferUseCase _createTransferUseCase;
+  final RequestTransferUseCase _requestTransferUseCase;
   final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
   final AnalyticsService _analyticsService;
+  final FeatureFlags _featureFlags;
 
   DateTime? _lastExecution;
   static const _minTransferInterval = Duration(seconds: 2);
@@ -72,45 +78,75 @@ class TransferCubit extends BaseCubit<TransferState> {
         toWalletId = resolvedId!;
       }
 
-      // 2. Create Entity
-      final transfer = TransferEntity(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        fromWalletId: fromWalletId,
-        toWalletId: toWalletId,
-        amount: amount,
-        currency: currency,
-        status: TransferStatus.pending,
-        createdAt: DateTime.now(),
-      );
+      if (_featureFlags.backendAuthoritativeTransfers) {
+        // --- NEW FLOW: Request Transfer (Backend Authoritative) ---
+        // 1. Validate & Create Entity via UseCase (fetches wallets internally)
+        final requestResult = await _requestTransferUseCase(
+          fromWalletId: fromWalletId,
+          toWalletId: toWalletId,
+          amount: amount,
+        );
 
-      // 3. Execute
-      final result = await _createTransferUseCase(transfer);
+        requestResult.fold(
+          (error) {
+            unawaited(
+                _analyticsService.logTransferFailure(reason: error.message));
+            emitError(error);
+          },
+          (transfer) async {
+            // 2. Persist Transfer
+            // Note: createTransferUseCase calls repo.createTransfer which might re-validate.
+            // This is acceptable redundancy for safety.
+            final persistResult = await _createTransferUseCase(transfer);
+            _handlePersistenceResult(persistResult, amount, currency);
+          },
+        );
+      } else {
+        // --- OLD FLOW: Legacy Manual Creation ---
+        // 1. Create Entity Manually
+        final transfer = TransferEntity(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          fromWalletId: fromWalletId,
+          toWalletId: toWalletId,
+          amount: amount,
+          currency: currency,
+          status: TransferStatus.pending,
+          createdAt: DateTime.now(),
+        );
 
-      result.fold(
-        (error) {
-          unawaited(
-            _analyticsService.logTransferFailure(reason: error.message),
-          );
-          emitError(error);
-        },
-        (_) {
-          // 4. Success (Pending)
-          // We don't wait for backend completion.
-          unawaited(
-            _analyticsService.logTransferInitiated(
-              amount: amount,
-              currency: currency,
-            ),
-          );
-          emitSuccess(const TransferState());
-        },
-      );
-      // Map generic exceptions to AppError
-      // ignore: avoid_catches_without_on_clauses
+        // 2. Persist Transfer
+        final persistResult = await _createTransferUseCase(transfer);
+        _handlePersistenceResult(persistResult, amount, currency);
+      }
     } catch (e) {
       unawaited(_analyticsService.logTransferFailure(reason: e.toString()));
       emitError(const UnknownError('An unexpected error occurred'));
     }
+  }
+
+  void _handlePersistenceResult(
+    Result<void> result,
+    double amount,
+    String currency,
+  ) {
+    result.fold(
+      (error) {
+        unawaited(
+          _analyticsService.logTransferFailure(reason: error.message),
+        );
+        emitError(error);
+      },
+      (_) {
+        // Success (Pending)
+        unawaited(
+          _analyticsService.logTransferInitiated(
+            amount: amount,
+            currency: currency,
+          ),
+        );
+        emitSuccess(const TransferState());
+      },
+    );
   }
 
   @override
