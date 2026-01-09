@@ -20,9 +20,23 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
   @override
   Future<void> createTransfer(TransferModel transfer) async {
     final transferRef = _firestore.collection('transfers').doc(transfer.id);
-    // We only create the transfer document.
-    // The backend Cloud Function will handle the actual money movement and status updates.
-    await transferRef.set(transfer.toJson());
+
+    // BACKEND-AUTHORITY:
+    // We strictly use a Firestore transaction here to ensure data consistency of the transfer record.
+    // We DO NOT update wallet balances on the client.
+    // The backend (Cloud Functions) is solely responsible for:
+    // 1. Validating the transfer (again)
+    // 2. Atomically updating balances (Ledger)
+    // 3. Updating the transfer status to COMPLETED or FAILED
+    await _firestore.runTransaction((transaction) async {
+      // We read the doc first even though it's a new create, to ensure we don't overwrite if ID collides (rare but safe)
+      final docSnapshot = await transaction.get(transferRef);
+      if (docSnapshot.exists) {
+        throw Exception('Transfer with ID ${transfer.id} already exists');
+      }
+
+      transaction.set(transferRef, transfer.toJson());
+    });
   }
 
   @override

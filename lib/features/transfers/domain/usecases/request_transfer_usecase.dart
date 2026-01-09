@@ -25,7 +25,7 @@ class RequestTransferUseCase {
     );
 
     if (validationResult is Failure) {
-      return Failure((validationResult as Failure).error);
+      return Failure(validationResult.error);
     }
 
     // 2. Create Pending Entity
