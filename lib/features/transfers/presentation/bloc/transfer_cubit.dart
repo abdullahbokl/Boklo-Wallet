@@ -9,6 +9,7 @@ import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
+import 'package:boklo/features/transfers/domain/usecases/observe_transfer_status_usecase.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:injectable/injectable.dart';
 
@@ -18,6 +19,7 @@ class TransferCubit extends BaseCubit<TransferState> {
     this._createTransferUseCase,
     this._requestTransferUseCase,
     this._resolveWalletByEmailUseCase,
+    this._observeTransferStatusUseCase,
     this._analyticsService,
     this._featureFlags,
   ) : super(const BaseState.initial());
@@ -25,6 +27,7 @@ class TransferCubit extends BaseCubit<TransferState> {
   final CreateTransferUseCase _createTransferUseCase;
   final RequestTransferUseCase _requestTransferUseCase;
   final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
+  final ObserveTransferStatusUseCase _observeTransferStatusUseCase;
   final AnalyticsService _analyticsService;
   final FeatureFlags _featureFlags;
 
@@ -87,7 +90,7 @@ class TransferCubit extends BaseCubit<TransferState> {
           amount: amount,
         );
 
-        requestResult.fold(
+        await requestResult.fold(
           (error) {
             unawaited(
                 _analyticsService.logTransferFailure(reason: error.message));
@@ -98,7 +101,18 @@ class TransferCubit extends BaseCubit<TransferState> {
             // Note: createTransferUseCase calls repo.createTransfer which might re-validate.
             // This is acceptable redundancy for safety.
             final persistResult = await _createTransferUseCase(transfer);
-            _handlePersistenceResult(persistResult, amount, currency);
+
+            await persistResult.fold(
+              (error) {
+                unawaited(_analyticsService.logTransferFailure(
+                    reason: error.message));
+                emitError(error);
+              },
+              (_) async {
+                // 3. Wait for Backend Completion
+                await _waitForBackendResult(transfer.id, amount, currency);
+              },
+            );
           },
         );
       } else {
@@ -121,6 +135,33 @@ class TransferCubit extends BaseCubit<TransferState> {
     } catch (e) {
       unawaited(_analyticsService.logTransferFailure(reason: e.toString()));
       emitError(const UnknownError('An unexpected error occurred'));
+    }
+  }
+
+  Future<void> _waitForBackendResult(
+      String transferId, double amount, String currency) async {
+    try {
+      final status = await _observeTransferStatusUseCase(transferId)
+          .firstWhere(
+            (s) => s == TransferStatus.completed || s == TransferStatus.failed,
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (status == TransferStatus.completed) {
+        unawaited(_analyticsService.logTransferInitiated(
+            amount: amount, currency: currency));
+        emitSuccess(const TransferState());
+      } else {
+        unawaited(_analyticsService.logTransferFailure(
+            reason: 'Transfer failed on backend'));
+        emitError(const UnknownError('Transfer processing failed'));
+      }
+    } catch (e) {
+      unawaited(
+          _analyticsService.logTransferFailure(reason: 'Transfer timed out'));
+      // We emit error, but maybe we should show "Processing..."?
+      // For now, adhere to "React to COMPLETED and FAILED states".
+      emitError(const UnknownError('Transfer processing timed out'));
     }
   }
 

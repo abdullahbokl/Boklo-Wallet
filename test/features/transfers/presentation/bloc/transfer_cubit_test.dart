@@ -7,6 +7,7 @@ import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
+import 'package:boklo/features/transfers/domain/usecases/observe_transfer_status_usecase.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +21,9 @@ class MockRequestTransferUseCase extends Mock
 class MockResolveWalletByEmailUseCase extends Mock
     implements ResolveWalletByEmailUseCase {}
 
+class MockObserveTransferStatusUseCase extends Mock
+    implements ObserveTransferStatusUseCase {}
+
 class MockAnalyticsService extends Mock implements AnalyticsService {}
 
 class MockFeatureFlags extends Mock implements FeatureFlags {}
@@ -29,6 +33,7 @@ void main() {
   late MockCreateTransferUseCase mockCreateTransferUseCase;
   late MockRequestTransferUseCase mockRequestTransferUseCase;
   late MockResolveWalletByEmailUseCase mockResolveWalletByEmailUseCase;
+  late MockObserveTransferStatusUseCase mockObserveTransferStatusUseCase;
   late MockAnalyticsService mockAnalyticsService;
   late MockFeatureFlags mockFeatureFlags;
 
@@ -36,6 +41,7 @@ void main() {
     mockCreateTransferUseCase = MockCreateTransferUseCase();
     mockRequestTransferUseCase = MockRequestTransferUseCase();
     mockResolveWalletByEmailUseCase = MockResolveWalletByEmailUseCase();
+    mockObserveTransferStatusUseCase = MockObserveTransferStatusUseCase();
     mockAnalyticsService = MockAnalyticsService();
     mockFeatureFlags = MockFeatureFlags();
 
@@ -55,6 +61,7 @@ void main() {
       mockCreateTransferUseCase,
       mockRequestTransferUseCase,
       mockResolveWalletByEmailUseCase,
+      mockObserveTransferStatusUseCase,
       mockAnalyticsService,
       mockFeatureFlags,
     );
@@ -127,6 +134,14 @@ void main() {
           amount: any(named: 'amount'),
           currency: any(named: 'currency'))).thenAnswer((_) async {});
 
+      // Mock Observation Stream
+      when(() => mockObserveTransferStatusUseCase.call(any())).thenAnswer(
+        (_) => Stream.fromIterable([
+          TransferStatus.pending,
+          TransferStatus.completed,
+        ]),
+      );
+
       // Act
       await cubit.createTransfer(
         fromWalletId: tFromId,
@@ -143,6 +158,9 @@ void main() {
           )).called(1);
 
       verify(() => mockCreateTransferUseCase.call(tTransfer)).called(1);
+
+      // Verify we waited for completion
+      verify(() => mockObserveTransferStatusUseCase.call('new_id')).called(1);
     });
   });
 }

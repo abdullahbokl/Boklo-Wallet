@@ -42,6 +42,22 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
 
   try {
     await db.runTransaction(async (transaction) => {
+        // IDEMPOTENCY CHECK (CRITICAL): 
+        // We re-read the transfer document inside the transaction to ensure 
+        // no other execution instance has already processed it.
+        const transferDoc = await transaction.get(transferRef);
+        if (!transferDoc.exists) {
+            throw new Error("Transfer document no longer exists");
+        }
+        
+        const currentStatus = transferDoc.data()?.status;
+        if (currentStatus !== "pending") {
+            // Already processed (completed or failed) by another instance.
+            // We return early to abort this transaction without changes.
+            logger.info(`Idempotency check: Transfer ${transferId} is ${currentStatus}, aborting transaction.`);
+            return;
+        }
+
         const fromWalletDoc = await transaction.get(fromWalletRef);
         const toWalletDoc = await transaction.get(toWalletRef);
 
