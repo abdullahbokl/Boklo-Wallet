@@ -14,6 +14,7 @@ import * as admin from "firebase-admin";
 export { recordLedgerEntry } from "./ledger";
 export { onTransferCreated } from "./transfers";
 export { onEventCreated } from "./events_publisher";
+export { onTransactionCompletedLog } from "./smoke_test";
 
 admin.initializeApp();
 // const db = admin.firestore(); // Not currently used in index.ts
