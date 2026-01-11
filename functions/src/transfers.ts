@@ -1,120 +1,197 @@
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
+import {
+  TransferEventType,
+  TransactionCreatedEvent,
+  TransactionCompletedEvent,
+  TransactionFailedEvent,
+} from "./domain/events/transfer_events";
 
-const db = admin.firestore();
+// Helper to create event objects
+const createEventPayload = (
+  transferId: string,
+  data: any
+) => ({
+  transactionId: transferId,
+  senderWalletId: data.fromWalletId,
+  receiverWalletId: data.toWalletId,
+  amount: data.amount,
+  currency: data.currency,
+});
 
 export const onTransferCreated = onDocumentCreated("transfers/{transferId}", async (event) => {
   const snapshot = event.data;
   if (!snapshot) {
-    logger.error("No data associated with the event");
     return;
   }
 
-  const transferData = snapshot.data();
   const transferId = event.params.transferId;
+  const transferData = snapshot.data();
+  const currentStatus = transferData.status;
 
-  // Idempotency / Guard: Process only PENDING transfers
-  if (transferData.status !== "pending") {
-    logger.info(`Transfer ${transferId} is already ${transferData.status}, skipping.`);
+  // Idempotency: Only process if status is 'pending'
+  if (currentStatus !== "pending") {
+    logger.info(`Transfer ${transferId} is already processed (status: ${currentStatus}). Skipping.`);
     return;
   }
 
-  const { fromWalletId, toWalletId, amount } = transferData;
-  const transferRef = snapshot.ref;
+  const db = admin.firestore();
 
-  // Validation: Sender != Receiver
+  // EMIT: transaction.created
+  // We use a deterministic ID to prevent duplicate events on retries
+  const createdEventId = `${transferId}_created`;
+  const createdEvent: TransactionCreatedEvent = {
+    eventId: createdEventId,
+    eventType: TransferEventType.CREATED,
+    occurredAt: new Date().toISOString(),
+    ...createEventPayload(transferId, transferData),
+  };
+
+  // We write this separately (not in the transaction below) because it signifies
+  // the *attempt* was recognized. worst case if function fails before transaction,
+  // we have a created event but no completion.
+  try {
+    await db.collection("events").doc(createdEventId).create(createdEvent);
+  } catch (e: any) {
+    // If it already exists, that's fine (idempotency).
+    if (e.code !== 6 /* ALREADY_EXISTS */) {
+      logger.error("Failed to emit created event", e);
+    }
+  }
+
+  const fromWalletId = transferData.fromWalletId;
+  const toWalletId = transferData.toWalletId;
+  const amount = transferData.amount;
+
+  // Validation: Initial Checks
   if (fromWalletId === toWalletId) {
-    logger.error(`Transfer ${transferId} failed: Sender cannot be receiver`);
-    await transferRef.update({ 
-        status: "failed", 
-        failureReason: "Sender cannot be receiver" 
-    });
+    await updateAsFailed(db, transferId, "Sender and receiver cannot be the same", transferData);
     return;
   }
-
-  const fromWalletRef = db.collection("wallets").doc(fromWalletId);
-  const toWalletRef = db.collection("wallets").doc(toWalletId);
-
-  // Transaction references for history/ledger
-  const fromTxRef = fromWalletRef.collection("transactions").doc(`${transferId}_DEBIT`);
-  const toTxRef = toWalletRef.collection("transactions").doc(`${transferId}_CREDIT`);
 
   try {
-    await db.runTransaction(async (transaction) => {
-        // IDEMPOTENCY CHECK (CRITICAL): 
-        // We re-read the transfer document inside the transaction to ensure 
-        // no other execution instance has already processed it.
-        const transferDoc = await transaction.get(transferRef);
-        if (!transferDoc.exists) {
-            throw new Error("Transfer document no longer exists");
-        }
-        
-        const currentStatus = transferDoc.data()?.status;
-        if (currentStatus !== "pending") {
-            // Already processed (completed or failed) by another instance.
-            // We return early to abort this transaction without changes.
-            logger.info(`Idempotency check: Transfer ${transferId} is ${currentStatus}, aborting transaction.`);
-            return;
-        }
+    await db.runTransaction(async (t) => {
+      const transferRef = db.collection("transfers").doc(transferId);
+      const fromWalletRef = db.collection("wallets").doc(fromWalletId);
+      const toWalletRef = db.collection("wallets").doc(toWalletId);
 
-        const fromWalletDoc = await transaction.get(fromWalletRef);
-        const toWalletDoc = await transaction.get(toWalletRef);
+      // Transactional Idempotency Check
+      // We re-read the transfer doc INSIDE the transaction to ensure no concurrent
+      // execution has changed the status since our initial check.
+      const freshTransferDoc = await t.get(transferRef);
+      if (freshTransferDoc.data()?.status !== "pending") {
+        throw new Error("Transfer already processed (concurrent)");
+      }
 
-        // Validation: Wallets exist
-        if (!fromWalletDoc.exists || !toWalletDoc.exists) {
-            throw new Error("One or both wallets not found");
-        }
+      const fromWalletDoc = await t.get(fromWalletRef);
+      const toWalletDoc = await t.get(toWalletRef);
 
-        const fromBalance = fromWalletDoc.data()?.balance || 0;
-        const toBalance = toWalletDoc.data()?.balance || 0;
+      if (!fromWalletDoc.exists || !toWalletDoc.exists) {
+        throw new Error("One or both wallets do not exist");
+      }
 
-        // Validation: Balance
-        if (fromBalance < amount) {
-            throw new Error("Insufficient balance");
-        }
+      const fromBalance = fromWalletDoc.data()?.balance || 0;
+      if (fromBalance < amount) {
+        throw new Error("Insufficient balance");
+      }
 
-        const timestamp = admin.firestore.FieldValue.serverTimestamp();
+      // 1. Deduct from Sender
+      t.update(fromWalletRef, {
+        balance: admin.firestore.FieldValue.increment(-amount),
+      });
 
-        // 1. Deduct from sender
-        transaction.update(fromWalletRef, { balance: fromBalance - amount });
-        transaction.set(fromTxRef, {
-            id: fromTxRef.id,
-            amount: amount,
-            type: "debit",
-            timestamp: timestamp,
-            transferId: transferId,
-            description: `Transfer to ${toWalletId}`,
-            status: "completed"
-        });
+      // 2. Credit to Receiver
+      t.update(toWalletRef, {
+        balance: admin.firestore.FieldValue.increment(amount),
+      });
 
-        // 2. Credit receiver
-        transaction.update(toWalletRef, { balance: toBalance + amount });
-        transaction.set(toTxRef, {
-            id: toTxRef.id,
-            amount: amount,
-            type: "credit",
-            timestamp: timestamp,
-            transferId: transferId,
-            description: `Transfer from ${fromWalletId}`,
-            status: "completed"
-        });
+      // 3. Create Transaction Records (Subcollection)
+      const timestamp = admin.firestore.FieldValue.serverTimestamp();
+      const fromTransactionRef = fromWalletRef.collection("transactions").doc();
+      const toTransactionRef = toWalletRef.collection("transactions").doc();
 
-        // 3. Update transfer status
-        transaction.update(transferRef, { status: "completed" });
+      t.set(fromTransactionRef, {
+        id: fromTransactionRef.id,
+        transferId: transferId,
+        amount: -amount,
+        type: "DEBIT",
+        counterpartyId: toWalletId,
+        timestamp: timestamp,
+        status: "COMPLETED",
+        description: `Transfer to ${toWalletDoc.data()?.alias || toWalletId}`,
+      });
+
+      t.set(toTransactionRef, {
+        id: toTransactionRef.id,
+        transferId: transferId,
+        amount: amount,
+        type: "CREDIT",
+        counterpartyId: fromWalletId,
+        timestamp: timestamp,
+        status: "COMPLETED",
+        description: `Transfer from ${fromWalletDoc.data()?.alias || fromWalletId}`,
+      });
+
+      // 4. Update Transfer Status
+      t.update(transferRef, {
+        status: "completed",
+        completedAt: timestamp,
+      });
+
+      // 5. EMIT: transaction.completed
+      const completedEvent: TransactionCompletedEvent = {
+        eventId: `${transferId}_completed`,
+        eventType: TransferEventType.COMPLETED,
+        occurredAt: new Date().toISOString(),
+        ...createEventPayload(transferId, transferData),
+      };
+      const eventRef = db.collection("events").doc(completedEvent.eventId);
+      t.set(eventRef, completedEvent);
     });
 
     logger.info(`Transfer ${transferId} completed successfully.`);
+  } catch (error: any) {
+    logger.error(`Transfer ${transferId} failed to execute transaction`, error);
+    // Determine if we should mark as failed or just log (e.g. concurrent error vs logic error)
+    // For "Transfer already processed", we exit gracefully.
+    if (error.message === "Transfer already processed (concurrent)") {
+      return;
+    }
 
-  } catch (error) {
-    logger.error(`Transfer ${transferId} failed:`, error);
-    
-    const reason = error instanceof Error ? error.message : "Unknown error";
-
-    // Update transfer status to FAILED
-    await transferRef.update({ 
-        status: "failed", 
-        failureReason: reason
-    });
+    // For logic errors (balance, existing wallets), we update status to FAILED.
+    await updateAsFailed(db, transferId, error.message, transferData);
   }
 });
+
+async function updateAsFailed(
+  db: admin.firestore.Firestore,
+  transferId: string,
+  reason: string,
+  transferData: any
+) {
+  // We use a transaction here too to ensure we emit the event atomically with the failure update
+  // effectively closing the loop.
+  try {
+    await db.runTransaction(async (t) => {
+        const transferRef = db.collection("transfers").doc(transferId);
+        t.update(transferRef, {
+            status: "failed",
+            failureReason: reason,
+        });
+
+        // EMIT: transaction.failed
+        const failedEvent: TransactionFailedEvent = {
+            eventId: `${transferId}_failed`,
+            eventType: TransferEventType.FAILED,
+            occurredAt: new Date().toISOString(),
+            ...createEventPayload(transferId, transferData),
+            failureReason: reason,
+        };
+        const eventRef = db.collection("events").doc(failedEvent.eventId);
+        t.set(eventRef, failedEvent);
+    });
+  } catch (e) {
+      logger.error(`Failed to mark transfer ${transferId} as failed`, e);
+  }
+}
