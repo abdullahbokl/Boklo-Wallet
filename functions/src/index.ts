@@ -10,10 +10,10 @@
 import {setGlobalOptions} from "firebase-functions";
 import * as admin from "firebase-admin";
 
+// Export all functions
 export { recordLedgerEntry } from "./ledger";
-export { onTransactionCompletedNotification, onTransactionFailedNotification } from "./notifications";
-export { detectFraud } from "./fraud";
 export { onTransferCreated } from "./transfers";
+export { onEventCreated } from "./events_publisher";
 
 admin.initializeApp();
 // const db = admin.firestore(); // Not currently used in index.ts
