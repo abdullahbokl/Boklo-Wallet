@@ -1,6 +1,7 @@
 import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 import {
   TransferEventType,
   TransactionCreatedEvent,
@@ -98,27 +99,27 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
 
       // 1. Deduct from Sender
       t.update(fromWalletRef, {
-        balance: admin.firestore.FieldValue.increment(-amount),
+        balance: FieldValue.increment(-amount),
       });
 
       // 2. Credit to Receiver
       t.update(toWalletRef, {
-        balance: admin.firestore.FieldValue.increment(amount),
+        balance: FieldValue.increment(amount),
       });
 
       // 3. Create Transaction Records (Subcollection)
-      const timestamp = admin.firestore.FieldValue.serverTimestamp();
+      const timestamp = FieldValue.serverTimestamp();
       const fromTransactionRef = fromWalletRef.collection("transactions").doc();
       const toTransactionRef = toWalletRef.collection("transactions").doc();
 
       t.set(fromTransactionRef, {
         id: fromTransactionRef.id,
         transferId: transferId,
-        amount: -amount,
-        type: "DEBIT",
+        amount: amount,
+        type: "debit",
         counterpartyId: toWalletId,
         timestamp: timestamp,
-        status: "COMPLETED",
+        status: "completed",
         description: `Transfer to ${toWalletDoc.data()?.alias || toWalletId}`,
       });
 
@@ -126,10 +127,10 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
         id: toTransactionRef.id,
         transferId: transferId,
         amount: amount,
-        type: "CREDIT",
+        type: "credit",
         counterpartyId: fromWalletId,
         timestamp: timestamp,
-        status: "COMPLETED",
+        status: "completed",
         description: `Transfer from ${fromWalletDoc.data()?.alias || fromWalletId}`,
       });
 

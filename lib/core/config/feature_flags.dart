@@ -1,6 +1,3 @@
-import 'package:injectable/injectable.dart';
-
-@injectable
 class FeatureFlags {
   const FeatureFlags({
     this.enableBiometrics = false,

@@ -1,6 +1,7 @@
 import { onMessagePublished } from "firebase-functions/v2/pubsub";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 // Ensure admin is initialized (it might be initialized in index.ts, but safe to call if check is done or relying on single instance)
 if (admin.apps.length === 0) {
@@ -16,7 +17,7 @@ interface LedgerEntry {
     amount: number;
     currency: string;
     timestamp: string; // ISO string from event
-    recordedAt: admin.firestore.FieldValue; // When it was written to ledger
+    recordedAt: FieldValue; // When it was written to ledger
     type: 'TRANSFER';
     metadata?: any;
 }
@@ -59,7 +60,7 @@ export const recordLedgerEntry = onMessagePublished(
                     amount,
                     currency: currency || "SAR", // Default if missing
                     timestamp,
-                    recordedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    recordedAt: FieldValue.serverTimestamp(),
                     type: "TRANSFER",
                     metadata: {
                         eventId: event.id,

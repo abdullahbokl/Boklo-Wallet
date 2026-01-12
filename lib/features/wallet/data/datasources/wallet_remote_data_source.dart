@@ -4,11 +4,13 @@ import 'package:boklo/features/wallet/data/models/transaction_model.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:boklo/core/error/app_error.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class WalletRemoteDataSource {
   Future<WalletModel> getWallet();
   Future<List<TransactionModel>> getTransactions();
+  Stream<List<TransactionModel>> watchTransactions();
 }
 
 @LazySingleton(as: WalletRemoteDataSource)
@@ -59,5 +61,24 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     return query.docs
         .map((doc) => TransactionModel.fromJson(doc.data()))
         .toList();
+  }
+
+  @override
+  Stream<List<TransactionModel>> watchTransactions() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      return Stream.error(const ValidationError('User not logged in'));
+    }
+
+    return _firestore
+        .collection('wallets')
+        .doc(userId)
+        .collection('transactions')
+        .orderBy('timestamp', descending: true)
+        .limit(20)
+        .snapshots()
+        .map((query) => query.docs
+            .map((doc) => TransactionModel.fromJson(doc.data()))
+            .toList());
   }
 }

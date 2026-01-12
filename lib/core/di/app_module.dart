@@ -67,4 +67,7 @@ abstract class AppModule {
           enableBiometrics: true,
         ),
       );
+
+  @singleton
+  FeatureFlags featureFlags(app_config.AppConfig config) => config.featureFlags;
 }

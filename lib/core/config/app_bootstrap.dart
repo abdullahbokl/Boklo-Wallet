@@ -28,6 +28,16 @@ class AppBootstrap {
 
     if (useFirebaseEmulator) {
       await _configureEmulators();
+
+      // Force token check for emulators to avoid stale state issues
+      if (FirebaseAuth.instance.currentUser != null) {
+        try {
+          await FirebaseAuth.instance.currentUser!.reload();
+        } catch (e) {
+          log('ℹ️ Emulator: Stale auth token detected. Signing out... (This is normal for emulators)');
+          await FirebaseAuth.instance.signOut();
+        }
+      }
     }
 
     await configureDependencies(environment);
@@ -65,6 +75,9 @@ class AppBootstrap {
     log('🔥 Using Firebase Emulators at $host');
 
     await FirebaseAuth.instance.useAuthEmulator(host, authPort);
+    // Fixes "Ignoring header X-Firebase-Locale because its value was null" warning
+    FirebaseAuth.instance.setLanguageCode('en');
+
     FirebaseFirestore.instance.useFirestoreEmulator(host, firestorePort);
   }
 }

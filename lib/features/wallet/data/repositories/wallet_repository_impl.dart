@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:boklo/core/base/result.dart';
 import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/features/wallet/data/datasources/wallet_local_data_source.dart';
 import 'package:boklo/features/wallet/data/datasources/wallet_remote_data_source.dart';
+import 'package:boklo/features/wallet/data/models/transaction_model.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/repositories/wallet_repository.dart';
@@ -61,5 +63,20 @@ class WalletRepositoryImpl implements WalletRepository {
       }
       return Failure(UnknownError('Failed to fetch transactions: $e'));
     }
+  }
+
+  @override
+  Stream<Result<List<TransactionEntity>>> watchTransactions() {
+    return _remoteDataSource.watchTransactions().transform(
+          StreamTransformer<List<TransactionModel>,
+              Result<List<TransactionEntity>>>.fromHandlers(
+            handleData: (data, sink) {
+              sink.add(Success(data.map((e) => e.toEntity()).toList()));
+            },
+            handleError: (error, stack, sink) {
+              sink.add(Failure(UnknownError('Stream error: $error')));
+            },
+          ),
+        );
   }
 }

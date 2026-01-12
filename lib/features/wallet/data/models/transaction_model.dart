@@ -1,3 +1,4 @@
+import 'package:boklo/core/utils/json_converters.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -8,6 +9,7 @@ class TransactionModel {
   final String id;
   final double amount;
   final TransactionType type;
+  @TimestampConverter()
   final DateTime timestamp;
 
   final TransactionStatus status;

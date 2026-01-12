@@ -57,8 +57,8 @@ void main() {
       build: () {
         when(() => mockGetWalletUseCase.call())
             .thenAnswer((_) async => const Success(tWallet));
-        when(() => mockGetTransactionsUseCase.call())
-            .thenAnswer((_) async => Success(tTransactions));
+        when(() => mockGetTransactionsUseCase.watch())
+            .thenAnswer((_) => Stream.value(Success(tTransactions)));
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
@@ -70,7 +70,7 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockGetWalletUseCase.call()).called(1);
-        verify(() => mockGetTransactionsUseCase.call()).called(1);
+        verify(() => mockGetTransactionsUseCase.watch()).called(1);
       },
     );
 
@@ -88,7 +88,7 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockGetWalletUseCase.call()).called(1);
-        verifyNever(() => mockGetTransactionsUseCase.call());
+        verifyNever(() => mockGetTransactionsUseCase.watch());
       },
     );
 
@@ -97,8 +97,8 @@ void main() {
       build: () {
         when(() => mockGetWalletUseCase.call())
             .thenAnswer((_) async => const Success(tWallet));
-        when(() => mockGetTransactionsUseCase.call())
-            .thenAnswer((_) async => const Failure(tError));
+        when(() => mockGetTransactionsUseCase.watch())
+            .thenAnswer((_) => Stream.value(const Failure(tError)));
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
@@ -108,7 +108,7 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockGetWalletUseCase.call()).called(1);
-        verify(() => mockGetTransactionsUseCase.call()).called(1);
+        verify(() => mockGetTransactionsUseCase.watch()).called(1);
       },
     );
   });

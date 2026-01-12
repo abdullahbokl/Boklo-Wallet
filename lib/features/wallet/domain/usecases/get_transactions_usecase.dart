@@ -12,4 +12,8 @@ class GetTransactionsUseCase {
   Future<Result<List<TransactionEntity>>> call() {
     return _repository.getTransactions();
   }
+
+  Stream<Result<List<TransactionEntity>>> watch() {
+    return _repository.watchTransactions();
+  }
 }
