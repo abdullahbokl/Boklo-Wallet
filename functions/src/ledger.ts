@@ -89,7 +89,13 @@ export const recordLedgerEntry = onCustomEventPublished(
                 t.set(creditRef, creditEntry);
             });
 
-            logger.info(`Successfully recorded ledger entries for transaction ${transactionId}`);
+            logger.info(`[LEDGER] Successfully recorded ledger entries`, {
+                transactionId,
+                debitEntryId,
+                creditEntryId,
+                amount,
+                currency
+            });
         } catch (error) {
             logger.error(`Failed to record ledger entries for ${transactionId}`, error);
             // Throwing ensures Eventarc retries the delivery
