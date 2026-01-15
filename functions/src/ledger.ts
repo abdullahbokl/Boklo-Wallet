@@ -1,79 +1,87 @@
-import { onMessagePublished } from "firebase-functions/v2/pubsub";
+import { onCustomEventPublished } from "firebase-functions/v2/eventarc";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
-import { FieldValue } from "firebase-admin/firestore";
+import { TransferEventType, TransactionCompletedEvent } from "./domain/events/transfer_events";
+import { LedgerEntry } from "./domain/ledger/ledger_entry";
 
-// Ensure admin is initialized (it might be initialized in index.ts, but safe to call if check is done or relying on single instance)
+// Initialize admin if not already done
 if (admin.apps.length === 0) {
     admin.initializeApp();
 }
 const db = admin.firestore();
 
-interface LedgerEntry {
-    id: string; // Specific Ledger ID
-    transferId: string;
-    fromWalletId: string;
-    toWalletId: string;
-    amount: number;
-    currency: string;
-    timestamp: string; // ISO string from event
-    recordedAt: FieldValue; // When it was written to ledger
-    type: 'TRANSFER';
-    metadata?: any;
-}
-
-export const recordLedgerEntry = onMessagePublished(
+export const recordLedgerEntry = onCustomEventPublished(
     {
-        topic: "transaction-completed",
-        retry: true,
+        eventType: TransferEventType.COMPLETED,
+        retry: true, // Enable retry for reliability
     },
     async (event) => {
-        logger.info("Received transaction.completed event for Ledger via Pub/Sub", event.id);
+        logger.info(`Received ${event.type} event: ${event.id}`, { data: event.data });
 
-        let eventData = event.data.message.json;
-        if (eventData && eventData.data) {
-             eventData = eventData.data;
-        }
+        // Cast event data to our typed interface
+        // Note: Eventarc usually wraps the data. We assume event.data matches the payload.
+        const payload = event.data as unknown as TransactionCompletedEvent;
 
-        const { transferId, fromWallet, toWallet, amount, currency, timestamp } = eventData || {};
-
-        if (!transferId || !amount) {
-            logger.error("Invalid event data", eventData);
+        if (!payload || !payload.transactionId || !payload.amount) {
+            logger.error("Invalid event payload", payload);
             return;
         }
 
-        const ledgerRef = db.collection("ledger").doc(transferId);
+        const { transactionId, senderWalletId, receiverWalletId, amount, currency, occurredAt } = payload;
+
+        // Define Ledger IDs deterministically for idempotency
+        const debitEntryId = `${transactionId}_DR`;
+        const creditEntryId = `${transactionId}_CR`;
+
+        const debitRef = db.collection("ledger").doc(debitEntryId);
+        const creditRef = db.collection("ledger").doc(creditEntryId);
 
         try {
-            await db.runTransaction(async (transaction) => {
-                const doc = await transaction.get(ledgerRef);
-                if (doc.exists) {
-                    logger.info(`Ledger entry for transfer ${transferId} already exists. Skipping.`);
+            await db.runTransaction(async (t) => {
+                // Idempotency Check: Read both to see if already processed
+                const debitDoc = await t.get(debitRef);
+                const creditDoc = await t.get(creditRef);
+
+                if (debitDoc.exists && creditDoc.exists) {
+                    logger.info(`Ledger entries for transaction ${transactionId} already exist. Skipping.`);
                     return;
                 }
 
-                const entry: LedgerEntry = {
-                    id: transferId, // 1:1 mapping for transfers for now
-                    transferId,
-                    fromWalletId: fromWallet,
-                    toWalletId: toWallet,
-                    amount,
-                    currency: currency || "SAR", // Default if missing
-                    timestamp,
-                    recordedAt: FieldValue.serverTimestamp(),
-                    type: "TRANSFER",
-                    metadata: {
-                        eventId: event.id,
-                        source: event.source,
-                    }
+                if (debitDoc.exists || creditDoc.exists) {
+                    // Partial state! This is bad, but re-writing shouldn't hurt if we set same data.
+                    logger.warn(`Partial ledger state detected for ${transactionId}. Repairing.`);
+                }
+
+                // Create DEBIT Entry (Sender)
+                const debitEntry: LedgerEntry = {
+                    ledgerEntryId: debitEntryId,
+                    transactionId: transactionId,
+                    walletId: senderWalletId,
+                    direction: 'DEBIT',
+                    amount: amount,
+                    currency: currency,
+                    occurredAt: occurredAt, // Use event time, not processing time
                 };
 
-                transaction.set(ledgerRef, entry);
+                // Create CREDIT Entry (Receiver)
+                const creditEntry: LedgerEntry = {
+                    ledgerEntryId: creditEntryId,
+                    transactionId: transactionId,
+                    walletId: receiverWalletId,
+                    direction: 'CREDIT',
+                    amount: amount,
+                    currency: currency,
+                    occurredAt: occurredAt,
+                };
+
+                t.set(debitRef, debitEntry);
+                t.set(creditRef, creditEntry);
             });
-            logger.info(`Ledger entry created for transfer ${transferId}`);
+
+            logger.info(`Successfully recorded ledger entries for transaction ${transactionId}`);
         } catch (error) {
-            logger.error(`Failed to create ledger entry for ${transferId}`, error);
-            // Throwing error prompts Pub/Sub retry mechanism
+            logger.error(`Failed to record ledger entries for ${transactionId}`, error);
+            // Throwing ensures Eventarc retries the delivery
             throw error;
         }
     }
