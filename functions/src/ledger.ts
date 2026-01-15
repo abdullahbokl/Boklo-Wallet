@@ -29,7 +29,10 @@ export const recordLedgerEntry = onCustomEventPublished(
 
         const { transactionId, senderWalletId, receiverWalletId, amount, currency, occurredAt } = payload;
 
-        // Define Ledger IDs deterministically for idempotency
+        // ID DETERMINISM:
+        // We construct proper Ledger Entry IDs using the TransactionID + Function (DR/CR).
+        // This guarantees that for any given TransactionID, we always generate the exact same Ledger IDs.
+        // This is CRITICAL for the idempotency check below.
         const debitEntryId = `${transactionId}_DR`;
         const creditEntryId = `${transactionId}_CR`;
 
@@ -43,13 +46,21 @@ export const recordLedgerEntry = onCustomEventPublished(
                 const creditDoc = await t.get(creditRef);
 
                 if (debitDoc.exists && creditDoc.exists) {
-                    logger.info(`Ledger entries for transaction ${transactionId} already exist. Skipping.`);
+                    // IDEMPOTENCY SAFETY:
+                    // If both entries exist, we have already processed this event.
+                    // We must return explicitly to avoid duplicate writes.
+                    // This handles cases where Eventarc delivers the same event multiple times (at-least-once delivery).
+                    logger.info(`[IDEMPOTENCY] Ledger entries for transaction ${transactionId} already exist. Skipping duplicate processing.`);
                     return;
                 }
 
                 if (debitDoc.exists || creditDoc.exists) {
-                    // Partial state! This is bad, but re-writing shouldn't hurt if we set same data.
-                    logger.warn(`Partial ledger state detected for ${transactionId}. Repairing.`);
+                    // PARTIAL STATE RECOVERY:
+                    // If only one exists, the previous transaction likely failed mid-commit or we have data corruption.
+                    // Strategy: We overwrite (upsert) both to ensure consistent state ("Repairing").
+                    // Since ledger entries are immutable and determined by the transactionId, checking for partial existence
+                    // and re-writing is safe and ensures eventual consistency.
+                    logger.warn(`[RECOVERY] Partial ledger state detected for ${transactionId}. Repairing by overwriting entries.`);
                 }
 
                 // Create DEBIT Entry (Sender)
