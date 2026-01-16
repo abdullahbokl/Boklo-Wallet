@@ -15,7 +15,7 @@ export { recordLedgerEntry } from "./ledger";
 export { onTransferCreated } from "./transfers";
 export { onEventCreated } from "./events_publisher";
 export { onTransactionCompletedLog } from "./smoke_test";
-export { notifyOnTransferComplete, notifyOnTransferFailed } from "./notifications";
+export { notifyOnTransferComplete, notifyOnTransferFailed, onNotificationQueued } from "./notifications";
 
 admin.initializeApp();
 // const db = admin.firestore(); // Not currently used in index.ts
@@ -27,3 +27,4 @@ admin.initializeApp();
 // `maxInstances` option in the function's options, e.g.
 // `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
 setGlobalOptions({ maxInstances: 10 });
+

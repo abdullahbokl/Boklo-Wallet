@@ -109,3 +109,51 @@ export const notifyOnTransferFailed = onCustomEventPublished(
         });
     }
 );
+
+// [NEW] Delivery Mechanism
+// Triggers when a new notification intent is written to Firestore.
+// In a real system, this would fetch FCM tokens and send the message.
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
+
+export const onNotificationQueued = onDocumentCreated(
+    "notifications/{notificationId}",
+    async (event) => {
+        const snapshot = event.data;
+        if (!snapshot) {
+            return;
+        }
+
+        const notification = snapshot.data() as NotificationIntent & { status: string };
+
+        // Idempotency / State Check
+        if (notification.status !== 'PENDING') {
+            return;
+        }
+
+        logger.info(`[DELIVERY] Processing notification ${event.params.notificationId} for user ${notification.userId}`);
+        
+        try {
+            // SIMULATION: FCM Delivery
+            // data: { ...notification.payload }
+            logger.info(`[DELIVERY] FCM Message Sent (Simulated):`, {
+                to: notification.userId,
+                title: notification.payload.titleKey,
+                body: notification.payload.bodyKey,
+                data: notification.payload.data
+            });
+
+            // Update status to SENT
+            await snapshot.ref.update({
+                status: 'SENT',
+                sentAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            
+        } catch (e) {
+            logger.error(`[DELIVERY] Failed to send notification ${event.params.notificationId}`, e);
+            await snapshot.ref.update({
+                status: 'FAILED',
+                error: e instanceof Error ? e.message : 'Unknown error'
+            });
+        }
+    }
+);
