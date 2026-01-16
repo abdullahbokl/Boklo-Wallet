@@ -15,6 +15,7 @@ export { recordLedgerEntry } from "./ledger";
 export { onTransferCreated } from "./transfers";
 export { onEventCreated } from "./events_publisher";
 export { onTransactionCompletedLog } from "./smoke_test";
+export { notifyOnTransferComplete, notifyOnTransferFailed } from "./notifications";
 
 admin.initializeApp();
 // const db = admin.firestore(); // Not currently used in index.ts
