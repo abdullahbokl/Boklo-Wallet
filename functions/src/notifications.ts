@@ -18,7 +18,10 @@ const publishNotification = async (intent: NotificationIntent) => {
         await db.runTransaction(async (t) => {
             const doc = await t.get(ref);
             if (doc.exists) {
-                logger.info(`Notification ${intent.notificationId} already exists. Skipping.`);
+                // IDEMPOTENCY CHECK:
+                // We use a deterministic ID (e.g., "{txId}_SENT") to ensure we only queue one notification
+                // per event, even if the event is delivered multiple times.
+                logger.info(`[IDEMPOTENCY] Notification ${intent.notificationId} already queued. Skipping.`);
                 return;
             }
             
@@ -125,8 +128,12 @@ export const onNotificationQueued = onDocumentCreated(
 
         const notification = snapshot.data() as NotificationIntent & { status: string };
 
-        // Idempotency / State Check
+        // IDEMPOTENCY / STATE CHECK:
+        // Ensure we only process notifications that are strictly PENDING.
+        // If status is SENT or FAILED, it means we (or a concurrent execution) already tried processing it.
+        // This prevents double-sending if the function is re-triggered.
         if (notification.status !== 'PENDING') {
+            logger.info(`[IDEMPOTENCY] Notification ${event.params.notificationId} is ${notification.status}. Skipping.`);
             return;
         }
 
