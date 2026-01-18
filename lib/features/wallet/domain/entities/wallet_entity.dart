@@ -9,5 +9,6 @@ class WalletEntity with _$WalletEntity {
     required double balance,
     required String currency,
     String? alias,
+    String? email,
   }) = _WalletEntity;
 }

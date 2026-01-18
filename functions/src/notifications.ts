@@ -140,19 +140,86 @@ export const onNotificationQueued = onDocumentCreated(
         logger.info(`[DELIVERY] Processing notification ${event.params.notificationId} for user ${notification.userId}`);
         
         try {
-            // SIMULATION: FCM Delivery
-            // data: { ...notification.payload }
-            logger.info(`[DELIVERY] FCM Message Sent (Simulated):`, {
-                to: notification.userId,
-                title: notification.payload.titleKey,
-                body: notification.payload.bodyKey,
-                data: notification.payload.data
-            });
+            // Fetch Tokens
+            const tokensSnapshot = await admin.firestore()
+                .collection('users')
+                .doc(notification.userId)
+                .collection('tokens')
+                .get();
+
+            if (tokensSnapshot.empty) {
+                logger.warn(`[DELIVERY] No tokens found for user ${notification.userId}`);
+                await snapshot.ref.update({
+                    status: 'SKIPPED_NO_TOKENS',
+                    processedAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+                return;
+            }
+
+            const tokens = tokensSnapshot.docs.map(d => d.data().token as string);
+            
+            
+            // Helper for basic localization (MVP)
+            const resolveText = (key: string, data: Record<string, string> = {}): string => {
+                const map: Record<string, string> = {
+                    'transfer_sent_success_title': 'Transfer Sent',
+                    'transfer_sent_success_body': 'You sent {amount} {currency}.',
+                    'transfer_received_title': 'Money Received',
+                    'transfer_received_body': 'You received {amount} {currency}.',
+                    'transfer_failed_title': 'Transfer Failed',
+                    'transfer_failed_body': 'Your transfer failed. {reason}',
+                };
+                let text = map[key] || key;
+                // Replace params
+                for (const [k, v] of Object.entries(data)) {
+                    text = text.replace(`{${k}}`, v);
+                }
+                return text;
+            };
+
+            // Send Multicast
+            const message: admin.messaging.MulticastMessage = {
+                tokens: tokens,
+                notification: {
+                    title: resolveText(notification.payload.titleKey, notification.payload.data),
+                    body: resolveText(notification.payload.bodyKey, notification.payload.data),
+                },
+                data: notification.payload.data,
+            };
+
+            const response = await admin.messaging().sendEachForMulticast(message);
+            
+            logger.info(`[DELIVERY] FCM Response: ${response.successCount} succeded, ${response.failureCount} failed.`);
+
+            // Handle invalid tokens
+            if (response.failureCount > 0) {
+                const invalidTokens: string[] = [];
+                response.responses.forEach((resp, idx) => {
+                    if (!resp.success && (
+                        resp.error?.code === 'messaging/registration-token-not-registered' ||
+                        resp.error?.code === 'messaging/invalid-registration-token'
+                    )) {
+                        invalidTokens.push(tokens[idx]);
+                    }
+                });
+
+                if (invalidTokens.length > 0) {
+                    logger.info(`[DELIVERY] Cleaning up ${invalidTokens.length} invalid tokens.`);
+                    const batch = db.batch();
+                    invalidTokens.forEach(t => {
+                        const tokenRef = db.collection('users').doc(notification.userId).collection('tokens').doc(t);
+                        batch.delete(tokenRef);
+                    });
+                    await batch.commit();
+                }
+            }
 
             // Update status to SENT
             await snapshot.ref.update({
                 status: 'SENT',
-                sentAt: admin.firestore.FieldValue.serverTimestamp()
+                sentAt: admin.firestore.FieldValue.serverTimestamp(),
+                successCount: response.successCount,
+                failureCount: response.failureCount
             });
             
         } catch (e) {

@@ -1,101 +1,288 @@
+
+## 📁 `.agent/workflows/production_deployment.md`
+
+```md
 ---
-description: Production Deployment Plan for Backend-Authoritative Transfers
+description: Production Deployment Workflow for Backend-Authoritative, Event-Driven Transfers
 ---
 
-# Production Deployment Plan: Backend-Authoritative Transfers
+# 🚀 Production Deployment Workflow — Boklo Wallet
 
-This workflow outlines the step-by-step process for deploying the new event-driven, backend-authoritative transfer system to production.
+This workflow defines the **ONLY approved production deployment process**
+for Boklo Wallet.
+
+⚠️ This workflow is **procedural, not generative**.
+The agent must NOT implement new features while executing it.
+
+---
 
 ## 🎯 Scope
 
-- Backend-authoritative transfer execution
-- Event-driven transaction lifecycle
-- Reactive transaction history
-- Strict security rules (client read-only balance)
+This deployment covers:
 
-## ⚠️ Pre-Check
+- Backend-authoritative transfer execution
+- Event-driven transaction lifecycle (Eventarc)
+- Ledger-based balance consistency
+- Reactive transaction history in Flutter
+- Strict security rules (client is read-only for balances)
+
+---
+
+## 🧠 Architectural Preconditions (HARD BLOCKERS)
+
+Deployment MUST NOT proceed unless all are true:
+
+- Flutter does **NOT** mutate balances
+- Backend is the **single authority** for:
+  - Balance updates
+  - Transaction finalization
+- Eventarc is used as **orchestrator only**
+- Ledger is append-only and immutable
+
+If any condition is violated → **STOP DEPLOYMENT**
+
+---
+
+## ⚠️ Pre-Deployment Checklist (MANDATORY)
 
 Before starting, ensure:
 
-- [ ] Feature flag `backendAuthoritativeTransfers` is enabled (`lib/core/di/app_module.dart`).
-- [ ] Working directory is clean and on the correct release branch.
-- [ ] You have `firebase-tools` installed and authenticated.
+- [ ] Working directory is clean
+- [ ] Correct release branch is checked out
+- [ ] Firebase CLI authenticated with **production project**
+- [ ] Emulator configuration is **disabled** in prod builds
+- [ ] Feature flag  
+  `backendAuthoritativeTransfers = true`
+  is enabled in:
+```
 
-## 🟩 STEP 1: Deploy Backend (Safe Order)
+lib/core/di/app\_module.dart
 
-### 1.1 Deploy Firestore Rules
+```
+- [ ] Production build uses:
+```
 
-First, lock down the database to prevent client-side balance mutations.
+lib/main\_prod.dart\
+\--flavor prod
+
+````
+
+---
+
+## 🟩 STEP 1 — Lock the Data Layer (FIRST, ALWAYS)
+
+### 1.1 Deploy Firestore Security Rules
+
+This prevents any client-side balance mutation.
 
 ```bash
 firebase deploy --only firestore:rules
-```
+````
 
-### 1.2 Deploy Cloud Functions
+✅ Verify:
 
-Deploy the new transfer authority and event handling logic.
+* Wallet balances are writable **only** by backend service account
+
+* Transfer documents are immutable after creation
+
+***
+
+## 🟩 STEP 2 — Deploy Backend Execution Layer
+
+### 2.1 Deploy Cloud Functions
+
+Deploy backend authority + event publishers.
 
 ```bash
 firebase deploy --only functions:transfers-onTransferCreated,events_publisher-onEventCreated,smoke_test-onTransactionCompletedLog
 ```
 
-### 1.3 Configure Eventarc
+✅ Verify in logs:
 
-Ensure triggers are correctly routed.
+* Transfer validation
+
+* Idempotent execution
+
+* Balance updates
+
+* Event emission
+
+***
+
+### 2.2 Verify Eventarc Routing
+
+Ensure events are correctly routed.
 
 ```bash
-# Verify triggers are active
 gcloud eventarc triggers list --location=us-central1
 ```
 
-## 🟩 STEP 2: Data Consistency Validation
+✅ Expected:
 
-1.  **Smoke Test**: Perform a transfer using a test account (if available) or verify via logs.
-2.  **Monitor Logs**: Check Cloud Logging for `transfers-onTransferCreated`.
-    - Verify `Transaction created` logs.
-    - Verify `Balance updated` logs.
-    - Verify event emission logs.
-3.  **Verify Idempotency**: Ensure no duplicate processing for the same transfer ID.
+* Trigger for transaction creation
 
-## 🟩 STEP 3: Deploy Flutter App
+* Trigger for transaction completion
 
-Once the backend is stable and verifying rules:
+Eventarc must:
 
-1.  **Build Production Release**:
-    ```bash
-    flutter build appbundle --release
-    # OR
-    flutter build ipa --release
-    ```
-2.  **Verify Feature Flag**: Ensure the build was created with `backendAuthoritativeTransfers = true` (checked in Pre-Check).
-3.  **Upload & Release**: Submit to Play Store / App Store.
+* Route events only
 
-## 🟩 STEP 4: Post-Deploy Monitoring
+* Contain NO business logic
 
-Monitor the following dashboards for the first 24 hours:
+***
 
-- **Firebase Console -> Functions**: Check for crash loops or timeout spikes.
-- **Google Cloud Logging**: Filter for `severity=ERROR`.
-- **Eventarc**: Verify event delivery success rates.
+## 🟩 STEP 3 — Data Consistency Validation
 
-## 🔄 Rollback Plan
+### 3.1 Smoke Test (Backend)
 
-If critical issues arise:
+* Create a transfer using a test account
 
-1.  **Switch Feature Flag**: Update `remote_config` (if available) or hot-patch `lib/core/di/app_module.dart` to `backendAuthoritativeTransfers: false` and re-deploy the App.
-    - _Note: This reverts the UI to optimistic updates, but backend might still reject writes if rules aren't reverted._
-2.  **Revert Firestore Rules**:
-    - Deploy previous `firestore.rules` that allowed client writes (if absolutely necessary to restore old behavior).
-    ```bash
-    git checkout <previous-commit-hash> -- firestore.rules
-    firebase deploy --only firestore:rules
-    ```
-3.  **Disable Functions**:
-    - Delete or disable the `onTransferCreated` function if it's causing data corruption.
+* Observe logs:
+
+Expected sequence:
+
+1. `transaction.created`
+
+2. Backend validation
+
+3. Ledger entry creation
+
+4. Balance update
+
+5. `transaction.completed`
+
+***
+
+### 3.2 Idempotency Verification
+
+* Re-emit same event / retry function
+
+* Ensure:
+
+  * No duplicate ledger entries
+
+  * No double balance mutation
+
+***
+
+## 🟩 STEP 4 — Deploy Flutter App (LAST)
+
+### 4.1 Build Production App
+
+```bash
+flutter build appbundle --release --flavor prod -t lib/main_prod.dart
+# OR
+flutter build ipa --release --flavor prod -t lib/main_prod.dart
+```
+
+⚠️ MUST be built with:
+
+* `backendAuthoritativeTransfers = true`
+
+* No emulator flags
+
+* Real Firebase Auth
+
+***
+
+### 4.2 Publish
+
+* Upload to Play Store / App Store
+
+* Release gradually (recommended)
+
+***
+
+## 🟩 STEP 5 — Post-Deployment Monitoring (24h)
+
+Monitor:
+
+### Backend
+
+* Firebase Console → Functions
+
+* Cloud Logging:
+
+  ```
+  severity=ERROR
+  ```
+
+### Events
+
+* Eventarc delivery success
+
+* No dropped or duplicated events
+
+### Data
+
+* Ledger entries match balances
+
+* No orphaned transactions
+
+***
+
+## 🔄 Rollback Strategy (SAFE ORDER)
+
+If a critical issue occurs:
+
+### Option 1 — Fast UI Rollback
+
+* Disable feature flag:
+
+  ```
+  backendAuthoritativeTransfers = false
+  ```
+
+* Release hotfix Flutter build
+
+⚠️ Backend rules may still block unsafe writes
+
+***
+
+### Option 2 — Backend Rollback (Dangerous, Last Resort)
+
+1. Disable Eventarc triggers
+
+2. Roll back Cloud Functions
+
+3. Restore previous Firestore rules **ONLY if required**
+
+```bash
+git checkout <previous_commit> -- firestore.rules
+firebase deploy --only firestore:rules
+```
+
+***
 
 ## ✅ Success Criteria
 
-- [ ] Transfers execute successfully.
-- [ ] Balances update only via backend.
-- [ ] Transaction history updates automatically in the UI without refresh.
-- [ ] No regression in other wallet features.
+Deployment is considered successful only if:
+
+* Transfers execute correctly
+
+* Balances change **only via backend**
+
+* Transaction history updates reactively (no refresh)
+
+* Notifications sent exactly once
+
+* No regression in wallet or auth flows
+
+***
+
+## 🏁 Final Rule
+
+This workflow must NEVER:
+
+* Introduce client-side balance mutation
+
+* Bypass backend validation
+
+* Add logic to Eventarc
+
+* Modify production behavior implicitly
+
+If uncertainty exists:\
+→ **STOP**\
+→ Request architectural approval
+

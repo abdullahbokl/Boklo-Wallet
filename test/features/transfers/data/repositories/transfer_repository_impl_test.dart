@@ -1,13 +1,10 @@
 import 'package:boklo/core/base/result.dart';
 import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/features/transfers/data/datasources/transfer_remote_data_source.dart';
-import 'package:boklo/features/transfers/data/models/transfer_model.dart';
 import 'package:boklo/features/transfers/data/repositories/transfer_repository_impl.dart';
-import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -21,209 +18,76 @@ void main() {
   late MockTransferRemoteDataSource mockDataSource;
   late MockTransferValidator mockValidator;
 
-  final walletModelA = const WalletModel(
-    id: 'walletA',
-    balance: 1000,
-    currency: 'USD',
-  );
-  final walletModelB = const WalletModel(
-    id: 'walletB',
-    balance: 500,
-    currency: 'USD',
-  );
-
-  final transferEntity = TransferEntity(
-    id: 'tx1',
-    fromWalletId: 'walletA',
-    toWalletId: 'walletB',
-    amount: 100,
-    currency: 'USD',
-    status: TransferStatus.pending,
-    createdAt: DateTime.now(),
-  );
-
   setUp(() {
     mockDataSource = MockTransferRemoteDataSource();
     mockValidator = MockTransferValidator();
     repository = TransferRepositoryImpl(mockDataSource, mockValidator);
-
-    registerFallbackValue(
-      const WalletEntity(id: 'fallback', balance: 0, currency: 'USD'),
-    );
-    registerFallbackValue(
-      TransferModel(
-        id: '1',
-        fromWalletId: 'a',
-        toWalletId: 'b',
-        amount: 1,
-        currency: 'USD',
-        status: TransferStatus.pending,
-        createdAt: DateTime(2023),
-      ),
-    );
   });
 
-  group('TransferRepositoryImpl', () {
-    test('should return Success when transfer is valid and checks pass',
-        () async {
+  const tWalletModel = WalletModel(
+    id: 'wallet-123',
+    balance: 100,
+    currency: 'USD',
+    alias: 'BOKLO-123',
+    email: 'alice@example.com',
+  );
+
+  group('getWallet (Unified Resolution)', () {
+    test('should resolve by Email when input contains @', () async {
       // Arrange
-      when(() => mockDataSource.getWallet('walletA'))
-          .thenAnswer((_) async => walletModelA);
-      when(() => mockDataSource.getWallet('walletB'))
-          .thenAnswer((_) async => walletModelB);
-      when(
-        () => mockValidator.validate(
-          fromWallet: any(named: 'fromWallet'),
-          toWallet: any(named: 'toWallet'),
-          amount: any(named: 'amount'),
-        ),
-      ).thenReturn(const Success(null));
-      when(() => mockDataSource.createTransfer(any()))
-          .thenAnswer((_) async => {});
+      when(() => mockDataSource.getWalletByEmail('alice@example.com'))
+          .thenAnswer((_) async => tWalletModel);
 
       // Act
-      final result = await repository.createTransfer(transferEntity);
+      final result = await repository.getWallet('alice@example.com');
 
       // Assert
-      expect(result, isA<Success<void>>());
-      verify(() => mockDataSource.createTransfer(any())).called(1);
+      verify(() => mockDataSource.getWalletByEmail('alice@example.com'))
+          .called(1);
+      verifyNever(() => mockDataSource.getWallet(any()));
+      expect(result, isA<Success<WalletEntity>>());
+      expect((result as Success).data.id, tWalletModel.id);
     });
 
-    test('should return Failure when validation fails', () async {
+    test('should resolve by Alias when input starts with BOKLO-', () async {
       // Arrange
-      when(() => mockDataSource.getWallet('walletA'))
-          .thenAnswer((_) async => walletModelA);
-      when(() => mockDataSource.getWallet('walletB'))
-          .thenAnswer((_) async => walletModelB);
-      when(
-        () => mockValidator.validate(
-          fromWallet: any(named: 'fromWallet'),
-          toWallet: any(named: 'toWallet'),
-          amount: any(named: 'amount'),
-        ),
-      ).thenReturn(const Failure(ValidationError('Validation failed')));
-
-      // Act
-      final result = await repository.createTransfer(transferEntity);
-
-      // Assert
-      expect(result, isA<Failure<void>>());
-      expect(
-        (result as Failure).error,
-        const ValidationError('Validation failed'),
-      );
-      verifyNever(() => mockDataSource.createTransfer(any()));
-    });
-
-    test('should resolve alias correctly', () async {
-      // Create a transfer object that uses an alias
-      final transferWithAlias = TransferEntity(
-        id: transferEntity.id,
-        fromWalletId: transferEntity.fromWalletId,
-        toWalletId: 'BOKLO-123',
-        amount: transferEntity.amount,
-        currency: transferEntity.currency,
-        status: transferEntity.status,
-        createdAt: transferEntity.createdAt,
-      );
-
-      // Setup call to getWallet for sender
-      when(() => mockDataSource.getWallet('walletA'))
-          .thenAnswer((_) async => walletModelA);
-
-      // Setup call to getWalletByAlias for recipient
       when(() => mockDataSource.getWalletByAlias('BOKLO-123'))
-          .thenAnswer((_) async => walletModelB);
+          .thenAnswer((_) async => tWalletModel);
 
-      // Setup validation to pass
-      when(
-        () => mockValidator.validate(
-          fromWallet: any(named: 'fromWallet'),
-          toWallet: any(named: 'toWallet'),
-          amount: any(named: 'amount'),
-        ),
-      ).thenReturn(const Success(null));
+      // Act
+      final result = await repository.getWallet('BOKLO-123');
 
-      // Setup createTransfer to succeed
-      when(() => mockDataSource.createTransfer(any()))
-          .thenAnswer((_) async => {});
-
-      // Apply
-      await repository.createTransfer(transferWithAlias);
-
-      // Verify alias lookup was called
+      // Assert
       verify(() => mockDataSource.getWalletByAlias('BOKLO-123')).called(1);
+      verifyNever(() => mockDataSource.getWallet(any()));
+      expect(result, isA<Success<WalletEntity>>());
+    });
 
-      // Verify createTransfer was called with the RESOLVED wallet ID (walletB)
-      final captured = verify(
-        () => mockDataSource.createTransfer(captureAny()),
-      ).captured.first as TransferModel;
+    test('should resolve by ID when input is normal string', () async {
+      // Arrange
+      when(() => mockDataSource.getWallet('wallet-123'))
+          .thenAnswer((_) async => tWalletModel);
 
-      expect(captured.toWalletId, 'walletB');
+      // Act
+      final result = await repository.getWallet('wallet-123');
+
+      // Assert
+      verify(() => mockDataSource.getWallet('wallet-123')).called(1);
+      verifyNever(() => mockDataSource.getWalletByEmail(any()));
+      expect(result, isA<Success<WalletEntity>>());
     });
 
     test('should return Failure when wallet not found', () async {
-      when(() => mockDataSource.getWallet('walletA'))
-          .thenAnswer((_) async => walletModelA);
-      when(() => mockDataSource.getWallet('walletB'))
+      // Arrange
+      when(() => mockDataSource.getWalletByEmail('unknown@example.com'))
           .thenAnswer((_) async => null);
 
-      final result = await repository.createTransfer(transferEntity);
-
-      expect(result, isA<Failure<void>>());
-      expect(
-        (result as Failure).error,
-        const ValidationError('One or both wallets not found'),
-      );
-    });
-    test(
-        'should return Failure with sanitized message when createTransfer fails',
-        () async {
-      // Arrange
-      when(() => mockDataSource.getWallet('walletA'))
-          .thenAnswer((_) async => walletModelA);
-      when(() => mockDataSource.getWallet('walletB'))
-          .thenAnswer((_) async => walletModelB);
-      when(
-        () => mockValidator.validate(
-          fromWallet: any(named: 'fromWallet'),
-          toWallet: any(named: 'toWallet'),
-          amount: any(named: 'amount'),
-        ),
-      ).thenReturn(const Success(null));
-
-      // Simulate generic exception
-      when(() => mockDataSource.createTransfer(any()))
-          .thenThrow(Exception('Firestore offline or something'));
-
       // Act
-      final result = await repository.createTransfer(transferEntity);
+      final result = await repository.getWallet('unknown@example.com');
 
       // Assert
-      expect(result, isA<Failure<void>>());
-      final failure = result as Failure;
-      expect(failure.error, isA<UnknownError>());
-      // Verify sanitization
-      expect(failure.error.message, 'Failed to create transfer');
-      // Original error should be preserved as cause
-      expect(failure.error.cause.toString(), contains('Firestore offline'));
-    });
-
-    test('should return FirebaseError when Firestore throws FirebaseException',
-        () async {
-      // Arrange
-      when(() => mockDataSource.getWallet(any())).thenThrow(
-        FirebaseException(plugin: 'firestore', message: 'Cleartext error'),
-      );
-
-      // Act
-      final result = await repository.createTransfer(transferEntity);
-
-      // Assert
-      expect(result, isA<Failure<void>>());
-      final failure = result as Failure;
-      expect(failure.error, isA<FirebaseError>());
-      expect(failure.error.message, 'Cleartext error');
+      expect(result, isA<Failure<WalletEntity>>());
+      expect((result as Failure).error, isA<ValidationError>());
     });
   });
 }

@@ -26,13 +26,8 @@ class TransferRepositoryImpl implements TransferRepository {
       final fromWalletModel =
           await _dataSource.getWallet(transfer.fromWalletId);
 
-      WalletModel? toWalletModel;
-      if (transfer.toWalletId.toUpperCase().startsWith('BOKLO-')) {
-        toWalletModel = await _dataSource
-            .getWalletByAlias(transfer.toWalletId.toUpperCase());
-      } else {
-        toWalletModel = await _dataSource.getWallet(transfer.toWalletId);
-      }
+      // Unified Resolution for recipient
+      final toWalletModel = await _resolveWallet(transfer.toWalletId);
 
       if (fromWalletModel == null || toWalletModel == null) {
         return const Failure(ValidationError('One or both wallets not found'));
@@ -52,7 +47,7 @@ class TransferRepositoryImpl implements TransferRepository {
             final transferModel = TransferModel(
               id: transfer.id,
               fromWalletId: transfer.fromWalletId,
-              toWalletId: toWalletModel!.id,
+              toWalletId: toWalletModel.id,
               amount: transfer.amount,
               currency: transfer.currency,
               status: TransferStatus.pending,
@@ -95,7 +90,7 @@ class TransferRepositoryImpl implements TransferRepository {
   @override
   Future<Result<WalletEntity>> getWallet(String id) async {
     try {
-      final model = await _dataSource.getWallet(id);
+      final model = await _resolveWallet(id);
       if (model == null) {
         return const Failure(ValidationError('Wallet not found'));
       }
@@ -103,5 +98,26 @@ class TransferRepositoryImpl implements TransferRepository {
     } on Object catch (e) {
       return Failure(UnknownError('Failed to get wallet', e));
     }
+  }
+
+  /// Unified Wallet Resolution Logic
+  /// 1. Email
+  /// 2. Alias
+  /// 3. ID
+  Future<WalletModel?> _resolveWallet(String input) async {
+    final cleanedInput = input.trim();
+
+    // 1. Email Resolution
+    if (cleanedInput.contains('@')) {
+      return _dataSource.getWalletByEmail(cleanedInput);
+    }
+
+    // 2. Alias Resolution
+    if (cleanedInput.toUpperCase().startsWith('BOKLO-')) {
+      return _dataSource.getWalletByAlias(cleanedInput.toUpperCase());
+    }
+
+    // 3. ID Resolution (Default)
+    return _dataSource.getWallet(cleanedInput);
   }
 }

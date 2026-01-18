@@ -8,6 +8,7 @@ abstract class TransferRemoteDataSource {
   Future<List<TransferModel>> getTransfers();
   Future<WalletModel?> getWallet(String id);
   Future<WalletModel?> getWalletByAlias(String alias);
+  Future<WalletModel?> getWalletByEmail(String email);
   Stream<TransferModel?> observeTransfer(String id);
 }
 
@@ -59,8 +60,32 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
     final query = await _firestore
         .collection('wallets')
         .where('alias', isEqualTo: alias)
-        .limit(1)
+        .limit(2)
         .get();
+
+    if (query.docs.length > 1) {
+      throw Exception(
+          'Data integrity error: Multiple wallets found with alias $alias');
+    }
+
+    if (query.docs.isNotEmpty) {
+      return WalletModel.fromJson(query.docs.first.data());
+    }
+    return null;
+  }
+
+  @override
+  Future<WalletModel?> getWalletByEmail(String email) async {
+    final query = await _firestore
+        .collection('wallets')
+        .where('email', isEqualTo: email.toLowerCase())
+        .limit(2)
+        .get();
+
+    if (query.docs.length > 1) {
+      throw Exception(
+          'Data integrity error: Multiple wallets found with email $email');
+    }
 
     if (query.docs.isNotEmpty) {
       return WalletModel.fromJson(query.docs.first.data());

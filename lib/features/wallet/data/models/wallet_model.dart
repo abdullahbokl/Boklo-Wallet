@@ -9,12 +9,14 @@ class WalletModel {
   final double balance;
   final String currency;
   final String? alias;
+  final String? email;
 
   const WalletModel({
     required this.id,
     required this.balance,
     required this.currency,
     this.alias,
+    this.email,
   });
 
   factory WalletModel.fromJson(Map<String, dynamic> json) =>
@@ -28,6 +30,7 @@ class WalletModel {
       balance: entity.balance,
       currency: entity.currency,
       alias: entity.alias,
+      email: entity.email,
     );
   }
 
@@ -37,6 +40,7 @@ class WalletModel {
       balance: balance,
       currency: currency,
       alias: alias,
+      email: email,
     );
   }
 }

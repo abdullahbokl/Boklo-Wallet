@@ -1,16 +1,14 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:boklo/config/routes/app_router.dart';
+import 'package:boklo/core/config/emulator_config.dart';
 import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/notification_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/l10n/generated/app_localizations.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,20 +25,17 @@ class AppBootstrap {
     );
 
     if (useFirebaseEmulator) {
-      await _configureEmulators();
-
-      // Force token check for emulators to avoid stale state issues
-      if (FirebaseAuth.instance.currentUser != null) {
-        try {
-          await FirebaseAuth.instance.currentUser!.reload();
-        } catch (e) {
-          log('ℹ️ Emulator: Stale auth token detected. Signing out... (This is normal for emulators)');
-          await FirebaseAuth.instance.signOut();
-        }
-      }
+      await EmulatorConfig.configure();
     }
 
     await configureDependencies(environment);
+
+    // Initialize Notifications
+    try {
+      await getIt<NotificationService>().initialize();
+    } catch (e) {
+      log('Failed to initialize notifications: $e');
+    }
 
     final authRepository = getIt<AuthRepository>();
     final userResult = await authRepository.getCurrentUser();
@@ -64,21 +59,6 @@ class AppBootstrap {
     getIt<AppRouter>().initialLocation = initialRoute;
 
     runApp(const MyApp());
-  }
-
-  static Future<void> _configureEmulators() async {
-    const authPort = 9099;
-    const firestorePort = 8080;
-
-    final host = (!kIsWeb && Platform.isAndroid) ? '10.0.2.2' : 'localhost';
-
-    log('🔥 Using Firebase Emulators at $host');
-
-    await FirebaseAuth.instance.useAuthEmulator(host, authPort);
-    // Fixes "Ignoring header X-Firebase-Locale because its value was null" warning
-    FirebaseAuth.instance.setLanguageCode('en');
-
-    FirebaseFirestore.instance.useFirestoreEmulator(host, firestorePort);
   }
 }
 
