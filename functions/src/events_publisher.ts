@@ -33,7 +33,7 @@ export const onEventCreated = onDocumentCreated("events/{eventId}", async (event
           "type": eventData.eventType,
           "text_data": JSON.stringify(eventData),
           "attributes": {
-            "content-type": { "ce_string": "application/json" }
+            "datacontenttype": { "ce_string": "application/json" }
           }
         }
       ]

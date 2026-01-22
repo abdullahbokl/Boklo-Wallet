@@ -15,19 +15,27 @@
   - Balance updates
   - Transfer execution
 - Flutter:
-  - Creates transactions with `PENDING` status
+  - Creates transactions with `PENDING` status only
   - Observes results (`COMPLETED` / `FAILED`)
   - **Never mutates balances**
 
-### Transaction Lifecycle
+### High-Level Flow
 
 ```
 
-Flutter → create transaction (PENDING)
-Backend → validate + execute
-Backend → update balances
-Backend → emit domain events
-Flutter → react to final state
+Flutter (Intent)
+↓
+Firestore (Transfer Request)
+↓
+Eventarc (Routing only)
+↓
+Cloud Functions (Authoritative execution)
+↓
+Ledger append + Wallet balance update
+↓
+Domain events
+↓
+Reactive UI + Notifications
 
 ```
 
@@ -44,6 +52,7 @@ Flutter → react to final state
   - Notifications
   - Fraud Detection
   - Audit / Compliance
+  - Analytics (Day-2)
 
 ### Core Events
 
@@ -54,8 +63,9 @@ Flutter → react to final state
 ### Event Rules
 
 - No business logic in Eventarc
-- Eventarc = routing only
-- Consumers must be:
+- Eventarc = **router only**
+- Event consumers must be:
+  - Stateless
   - Independent
   - Idempotent
 
@@ -64,51 +74,77 @@ Flutter → react to final state
 ## 3️⃣ Ledger Rules (Financial Truth)
 
 - Ledger is **append-only**
-- One ledger entry per wallet per completed transaction
+- One ledger entry per wallet per **completed** transaction
 - Ledger **never updates balances**
-- Balance = derived view
-- Ledger = **source of financial truth**
+- Balances are **derived views**
+- Ledger is the **single financial source of truth**
 
 ---
 
-## 4️⃣ Security Rules (Strict)
+## 4️⃣ Wallet Resolution (Unified Logic)
+
+- All wallet lookups go through a **single resolver**
+- Supported identifiers:
+  - Wallet ID
+  - User ID
+  - Email
+- Resolution pipeline:
+
+```
+
+Input → WalletResolver → Wallet Document
+
+```
+
+- No duplicated wallet lookup logic across features
+
+---
+
+## 5️⃣ Security Rules (Strict)
 
 ### Client (Flutter)
 
-- Can create transactions
-- Can read wallets and transactions
-- **Cannot**:
+- Can:
+  - Create transactions (`PENDING`)
+  - Read wallets, ledger, transactions
+- Cannot:
   - Update balances
   - Update transaction status
+  - Trigger notifications
 
 ### Backend
 
-- Can update balances
-- Can update transaction status
-- Uses service account only
+- Can:
+  - Validate transfers
+  - Update balances
+  - Finalize transactions
+- Uses **service accounts only**
+- All transfers must be **idempotent**
 
 ---
 
-## 5️⃣ State Management (Flutter)
+## 6️⃣ State Management (Flutter)
 
 - Cubit / Bloc only
 - No direct Firebase calls in UI
 - UI reacts to state changes only
 - No polling
 - No manual refresh
-- All lists (transactions) must be reactive
+- All lists (transactions, wallets) must be **reactive**
 
 ---
 
-## 6️⃣ Reusability Rules (Mandatory)
+## 7️⃣ Reusability Rules (Mandatory)
 
 - No direct usage of:
-  - `ScaffoldMessenger`
   - `Navigator`
+  - `ScaffoldMessenger`
 - Use:
-  - `SnackbarService`
   - `NavigationService`
-- DRY + SOC enforced
+  - `SnackbarService`
+- Enforce:
+  - DRY
+  - SOC
 - Widgets must be:
   - Small
   - Reusable
@@ -116,15 +152,14 @@ Flutter → react to final state
 
 ---
 
-## 7️⃣ Firebase Emulators — Dev Rules (Critical)
+## 8️⃣ Firebase Emulators — Dev Rules (Critical)
 
 ### General
 
-- Emulator config runs **only in dev**
-- Must run immediately after `Firebase.initializeApp()`
-- Must run **before any Firebase usage**
-
----
+- Emulator setup is **DEV-only**
+- Must run:
+  - After `Firebase.initializeApp()`
+  - Before any Firebase usage
 
 ### Emulator Host Rules
 
@@ -135,52 +170,82 @@ Flutter → react to final state
 | Web / Desktop    | Emulator      | Emulator                        |
 | Production       | Real          | Real                            |
 
-> Firebase Auth Emulator is **not reliably supported** on Android physical devices.
+> Firebase Auth Emulator is **not reliably supported** on physical Android devices.
 
----
+### Physical Device Networking
 
-### Android Networking Rules
+- Emulator host must be passed via:
 
-- Physical Android devices:
-  - Must allow cleartext HTTP traffic
+```
+
+--dart-define=EMULATOR_HOST=<LOCAL_MACHINE_IP>
+
+```
+
+- `localhost` **does NOT work**
 - `network_security_config.xml` is mandatory
 - Hot restart is **not sufficient** after network changes
 
 ---
 
-## 8️⃣ Firebase Auth (Source of Truth)
+## 9️⃣ Firebase Auth (Source of Truth)
 
-- Firebase Auth Emulator:
+- Auth Emulator:
   - Works reliably **only on Android Emulator**
-- Physical Android devices:
+- Physical Android:
   - Must use **real Firebase Auth**
-- reCAPTCHA errors on physical devices are a **Firebase limitation**
-- Do **not** attempt to force Auth Emulator on physical devices
+- reCAPTCHA errors are **Firebase limitations**
+- Do **not** force Auth Emulator on physical devices
 
 ---
 
-## 9️⃣ App Check Rules
+## 🔟 App Check Rules
 
-- App Check is disabled or uses Debug Provider in dev
-- App Check must not block emulator traffic
-- App Check is enabled only in production
+- Disabled or Debug Provider in DEV
+- Must not block emulator traffic
+- Enabled only in production
 
 ---
 
-## 🔟 Notifications Rules
+## 1️⃣1️⃣ Notifications Rules
 
-- Notifications are **event-driven**
-- Flutter never triggers notifications directly
-- Notifications must be:
+- Notifications are **backend-only**
+- Triggered strictly by **domain events**
+- Firebase Cloud Messaging (HTTP v1)
+- Requirements:
   - Idempotent
   - Non-blocking
   - Side-effect free
-- Android supported by default
-- iOS requires APNs setup (post-MVP)
+- Emulator:
+  - No delivery (expected)
+  - Logic verified via logs
+- Real devices:
+  - Fully functional
 
 ---
 
-## 1️⃣1️⃣ Deployment Rules
+## 1️⃣2️⃣ Testing Rules
+
+### Automated
+
+- Transfer validation tests
+- Wallet Cubit tests
+- Repository tests
+- Emulator smoke tests
+- Notification verification scripts
+
+### Manual
+
+- Login persistence
+- Wallet auto-load
+- Transfer success/failure
+- Balance update after backend event
+- Live transaction history
+- Push notification delivery
+
+---
+
+## 1️⃣3️⃣ Deployment Rules
 
 ### Deployment Order
 
@@ -197,28 +262,28 @@ Flutter → react to final state
 
 ---
 
-## 1️⃣2️⃣ Commit Message Convention
+## 1️⃣4️⃣ Commit Message Convention
 
-- Commits describe:
+- Commits must describe:
   - **What** changed
   - **Why** it changed
-- Not how it was implemented
+- Never describe implementation details
 
 Examples:
 
-- `feat(backend): enforce backend-authoritative transfers`
-- `fix(dev): stabilize firebase auth on physical android devices`
+- `feat(backend): backend-authoritative transfers`
+- `fix(dev): physical android auth stability`
 
 ---
 
-## 1️⃣3️⃣ What Must NEVER Be Done
+## 1️⃣5️⃣ What Must NEVER Be Done
 
-❌ Reintroduce client-side balance mutation  
-❌ Force Firebase Auth Emulator on physical devices  
-❌ Add business logic to Eventarc  
-❌ Bypass Cubit / Bloc  
-❌ Add polling or manual refresh  
-❌ Modify production behavior during dev fixes
+❌ Client-side balance mutation  
+❌ Forcing Auth Emulator on physical Android  
+❌ Business logic in Eventarc  
+❌ Polling or manual refresh  
+❌ Bypassing Cubit / Bloc  
+❌ Modifying production behavior for dev fixes
 
 ---
 
@@ -238,4 +303,4 @@ All decisions prioritize:
 
 ### 🔒 This document is the ultimate Source of Truth.
 
-Any deviation requires explicit architectural approval.
+Any deviation requires **explicit architectural approval**.
