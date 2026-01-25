@@ -1,12 +1,14 @@
-import 'package:boklo/shared/theme/tokens/app_radius.dart';
-import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
+import '../../../../config/theme/app_colors.dart';
+import '../../../../config/theme/app_dimens.dart';
+import '../../../../config/theme/app_typography.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({
     required this.controller,
     required this.hintText,
     super.key,
+    this.label,
     this.obscureText = false,
     this.keyboardType,
     this.validator,
@@ -18,6 +20,7 @@ class AppTextField extends StatelessWidget {
 
   final TextEditingController controller;
   final String hintText;
+  final String? label;
   final bool obscureText;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
@@ -28,42 +31,36 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      enabled: enabled,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
-      onFieldSubmitted: onSubmitted,
-      decoration: InputDecoration(
-        hintText: hintText,
-        prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
-        filled: true,
-        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-        contentPadding: const EdgeInsets.all(AppSpacing.m),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.m),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.m),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.m),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
-            width: 2,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label != null) ...[
+          Text(
+            label!,
+            style:
+                AppTypography.label.copyWith(color: AppColors.textPrimaryLight),
+          ),
+          const SizedBox(height: AppDimens.xs),
+        ],
+        TextFormField(
+          controller: controller,
+          enabled: enabled,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          validator: validator,
+          onFieldSubmitted: onSubmitted,
+          style: AppTypography.bodyLarge
+              .copyWith(color: AppColors.textPrimaryLight),
+          cursorColor: AppColors.primary,
+          decoration: InputDecoration(
+            hintText: hintText,
+            prefixIcon: prefixIcon,
+            suffixIcon: suffixIcon,
+            // Theme InputDecoration is applied here automatically from AppTheme
+            // We can override specifics if needed, but defaults should work.
           ),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.m),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.error,
-          ),
-        ),
-      ),
+      ],
     );
   }
 }

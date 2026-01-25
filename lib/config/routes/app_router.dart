@@ -4,6 +4,7 @@ import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/auth/presentation/pages/login_page.dart';
 import 'package:boklo/features/auth/presentation/pages/register_page.dart';
+import 'package:boklo/features/ledger_debug/presentation/pages/ledger_debug_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/pages/wallet_page.dart';
@@ -45,6 +46,10 @@ class AppRouter {
       GoRoute(
         path: '/transfer',
         builder: (context, state) => const TransferPage(),
+      ),
+      GoRoute(
+        path: '/ledger-debug',
+        builder: (context, state) => const LedgerDebugPage(),
       ),
     ],
   );

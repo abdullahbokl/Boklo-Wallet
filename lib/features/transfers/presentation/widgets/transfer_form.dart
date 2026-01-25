@@ -3,12 +3,15 @@ import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
-// import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
-import 'package:boklo/shared/theme/tokens/app_spacing.dart';
+import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
+import 'package:boklo/shared/widgets/atoms/app_button.dart';
+import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/config/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,12 +43,19 @@ class _TransferFormState extends State<TransferForm> {
       unawaited(
         getIt<NavigationService>().showDialog<void>(
           builder: (dialogContext) => AlertDialog(
-            title: const Text('Confirm Transfer'),
-            content: Text('Send $amount $currency to $recipient?'),
+            title: Text('Confirm Transfer', style: AppTypography.headline),
+            content: Text(
+              'Send $amount $currency to $recipient?',
+              style: AppTypography.bodyMedium,
+            ),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppDimens.radiusLg)),
             actions: [
               TextButton(
                 onPressed: () => getIt<NavigationService>().pop(),
-                child: const Text('Cancel'),
+                child: Text('Cancel',
+                    style: AppTypography.label
+                        .copyWith(color: AppColors.textSecondaryLight)),
               ),
               TextButton(
                 onPressed: () {
@@ -59,7 +69,9 @@ class _TransferFormState extends State<TransferForm> {
                         ),
                   );
                 },
-                child: const Text('Confirm'),
+                child: Text('Confirm',
+                    style:
+                        AppTypography.label.copyWith(color: AppColors.primary)),
               ),
             ],
           ),
@@ -94,73 +106,75 @@ class _TransferFormState extends State<TransferForm> {
                   return Form(
                     key: _formKey,
                     child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.m),
+                      padding: const EdgeInsets.all(AppDimens.md),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
-                            'Balance: ${wallet.balance} ${wallet.currency}',
-                            style: Theme.of(context).textTheme.headlineSmall,
-                            textAlign: TextAlign.center,
+                          Container(
+                            padding: const EdgeInsets.all(AppDimens.lg),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceLight,
+                              borderRadius:
+                                  BorderRadius.circular(AppDimens.radiusLg),
+                              border: Border.all(
+                                  color: AppColors.primary.withOpacity(0.1)),
+                              boxShadow: AppColors.shadowSm,
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Available Balance',
+                                  style: AppTypography.bodyMedium.copyWith(
+                                      color: AppColors.textSecondaryLight),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${wallet.currency} ${wallet.balance.toStringAsFixed(2)}',
+                                  style: AppTypography.headline
+                                      .copyWith(color: AppColors.primary),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: AppSpacing.l),
-                          TextFormField(
+                          const SizedBox(height: AppDimens.xl),
+                          AppTextField(
                             controller: _recipientController,
                             enabled: !isLoading,
-                            decoration: const InputDecoration(
-                              labelText:
-                                  'Recipient (Wallet ID, Alias, or Email)',
-                              border: OutlineInputBorder(),
-                            ),
+                            label: 'Recipient',
+                            hintText: 'Wallet ID, Alias, or Email',
+                            prefixIcon: const Icon(Icons.person_outline),
                             validator: (v) =>
                                 (v?.isEmpty ?? true) ? 'Required' : null,
                           ),
-                          const SizedBox(height: AppSpacing.m),
-                          TextFormField(
+                          const SizedBox(height: AppDimens.md),
+                          AppTextField(
                             controller: _amountController,
                             enabled: !isLoading,
-                            decoration: const InputDecoration(
-                              labelText: 'Amount',
-                              border: OutlineInputBorder(),
-                            ),
+                            label: 'Amount',
+                            hintText: '0.00',
+                            prefixIcon: const Icon(Icons.attach_money),
                             keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d*\.?\d*'),
-                              ),
-                            ],
+                                decimal: true),
                             validator: (v) {
                               if (v == null || v.isEmpty) return 'Required';
                               final amount = double.tryParse(v);
-                              if (amount == null) {
-                                return 'Invalid number';
-                              }
-                              if (amount <= 0) {
+                              if (amount == null) return 'Invalid number';
+                              if (amount <= 0)
                                 return 'Amount must be greater than 0';
-                              }
                               return null;
                             },
                           ),
-                          const SizedBox(height: AppSpacing.xl),
-                          FilledButton(
-                            onPressed: isLoading
-                                ? null
-                                : () => _onSubmit(wallet.id, wallet.currency),
-                            child: isLoading
-                                ? SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
-                                  )
-                                : const Text('Send Money'),
+                          const SizedBox(height: AppDimens.xl),
+                          SizedBox(
+                            height: 56, // Large touch target
+                            child: AppButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () => _onSubmit(wallet.id, wallet.currency),
+                              text: 'Confirm Transfer',
+                              isLoading: isLoading,
+                            ),
                           ),
                         ],
                       ),

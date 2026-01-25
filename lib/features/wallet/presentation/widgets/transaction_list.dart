@@ -1,14 +1,12 @@
-import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
-import 'package:boklo/features/wallet/presentation/widgets/transaction_item.dart';
+import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart'
+    as domain;
+import 'package:boklo/shared/widgets/molecules/transaction_tile.dart'; // NEW
+import 'package:boklo/shared/widgets/atoms/status_chip.dart'; // NEW Enum mapping
+import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-/// Renders a list of transactions fetched from the WalletRepository.
-///
-/// Data Flow:
-/// 1. WalletCubit calls GetTransactionsUseCase.
-/// 2. GetTransactionsUseCase calls WalletRepository.getTransactions.
-/// 3. Repository fetches from Remote/Local data source.
-/// 4. Data is emitted in WalletState and passed down here via WalletPage.
 class TransactionList extends StatelessWidget {
   const TransactionList({
     required this.transactions,
@@ -16,7 +14,7 @@ class TransactionList extends StatelessWidget {
     this.isLoading = false,
   });
 
-  final List<TransactionEntity> transactions;
+  final List<domain.TransactionEntity> transactions;
   final bool isLoading;
 
   @override
@@ -27,9 +25,12 @@ class TransactionList extends StatelessWidget {
 
     if (transactions.isEmpty) {
       return Center(
-        child: Text(
-          'No transactions yet',
-          style: Theme.of(context).textTheme.bodyLarge,
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimens.xl),
+          child: Text(
+            'No transactions yet',
+            style: AppTypography.bodyLarge.copyWith(color: Colors.grey),
+          ),
         ),
       );
     }
@@ -39,7 +40,30 @@ class TransactionList extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: transactions.length,
       itemBuilder: (context, index) {
-        return TransactionItem(transaction: transactions[index]);
+        final tx = transactions[index];
+        final isCredit = tx.type == domain.TransactionType.credit;
+
+        // Map Domain Status to UI Status
+        TransactionStatus uiStatus = TransactionStatus.pending;
+        switch (tx.status) {
+          case domain.TransactionStatus.pending:
+            uiStatus = TransactionStatus.pending;
+            break;
+          case domain.TransactionStatus.completed:
+            uiStatus = TransactionStatus.completed;
+            break;
+          case domain.TransactionStatus.failed:
+            uiStatus = TransactionStatus.failed;
+            break;
+        }
+
+        return TransactionTile(
+          title: isCredit ? 'Received Money' : 'Sent Money',
+          amount: '${tx.amount.toStringAsFixed(2)}',
+          date: DateFormat.yMMMd().add_jm().format(tx.timestamp),
+          status: uiStatus,
+          isCredit: isCredit,
+        );
       },
     );
   }

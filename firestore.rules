@@ -77,5 +77,13 @@ service cloud.firestore {
       //    BACKEND-AUTHORITY: Only Cloud Function updates status to COMPLETED/FAILED.
       allow update, delete: if false;
     }
+
+    // --- Ledger Collection (Dev/Debug) ---
+    match /ledger/{entryId} {
+        // Allow read for authenticated users for the Debug Page
+        allow read: if isAuthenticated();
+        // Deny all writes (backend-only)
+        allow write: if false;
+    }
   }
 }

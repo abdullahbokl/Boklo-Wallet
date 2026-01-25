@@ -9,10 +9,12 @@ import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_list.dart';
-import 'package:boklo/features/wallet/presentation/widgets/wallet_balance_card.dart';
+import 'package:boklo/shared/widgets/molecules/balance_card.dart'; // NEW
 import 'package:boklo/features/wallet/presentation/widgets/wallet_primary_action.dart';
 import 'package:boklo/shared/responsive/responsive_builder.dart';
-import 'package:boklo/shared/theme/tokens/app_spacing.dart';
+import 'package:boklo/config/theme/app_dimens.dart'; // UPDATED
+import 'package:boklo/config/theme/app_colors.dart'; // NEW
+import 'package:boklo/config/theme/app_typography.dart'; // NEW
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,7 +26,6 @@ class WalletPage extends StatelessWidget {
     return BlocListener<AuthCubit, BaseState<User?>>(
       listener: (context, state) {
         state.whenOrNull(
-          // AuthCubit emits success(null) on logout
           success: (user) {
             if (user == null) {
               getIt<NavigationService>().go('/login');
@@ -36,22 +37,78 @@ class WalletPage extends StatelessWidget {
           },
         );
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('My Wallet'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                context.read<AuthCubit>().logout();
-              },
-              tooltip: 'Logout',
+      child: BlocBuilder<WalletCubit, BaseState<WalletState>>(
+        builder: (context, state) {
+          final wallet = state.whenOrNull(success: (data) => data.wallet);
+          final alias = wallet?.alias;
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    alias != null ? 'Hello, $alias' : 'Hello there',
+                    style: AppTypography.headline.copyWith(
+                      color: AppColors.textPrimaryLight,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (alias == null)
+                    Text(
+                      'Welcome back',
+                      style: AppTypography.caption
+                          .copyWith(color: AppColors.textSecondaryLight),
+                    ),
+                ],
+              ),
+              centerTitle: false,
+              backgroundColor: AppColors.backgroundLight,
+              elevation: 0,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppDimens.md),
+                  child: InkWell(
+                    onTap: () {
+                      context.read<AuthCubit>().logout();
+                    },
+                    borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppDimens.md,
+                        vertical: AppDimens.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.logout_rounded,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Logout',
+                            style: AppTypography.label.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        body: BlocBuilder<WalletCubit, BaseState<WalletState>>(
-          builder: (context, state) {
-            return state.when(
+            body: state.when(
               initial: () => const Center(child: CircularProgressIndicator()),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error) => Center(child: Text(error.message)),
@@ -70,9 +127,9 @@ class WalletPage extends StatelessWidget {
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -86,30 +143,43 @@ class _WalletLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.m),
+      padding: const EdgeInsets.all(AppDimens.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          WalletBalanceCard(wallet: data.wallet),
+          // Entrance Animation for Balance Card
+          TweenAnimationBuilder<double>(
+            duration: const Duration(milliseconds: 600),
+            tween: Tween(begin: 0.9, end: 1.0),
+            curve: Curves.easeOutBack,
+            builder: (context, scale, child) => Transform.scale(
+              scale: scale,
+              child: child,
+            ),
+            child: BalanceCard(
+              balance: data.wallet.balance,
+              currency: data.wallet.currency,
+            ),
+          ),
+          const SizedBox(height: AppDimens.lg),
+          // Quick Actions
           WalletPrimaryAction(
             onSendMoney: () async {
               final navigationService = getIt<NavigationService>();
-              // result is expected to be boolean true
-              // if transfer was successful
               final result = await navigationService.push<bool>('/transfer');
 
               if ((result ?? false) && context.mounted) {
-                // Trigger refresh on the provided WalletCubit
                 unawaited(context.read<WalletCubit>().loadWallet());
               }
             },
           ),
-          const SizedBox(height: AppSpacing.l),
+          const SizedBox(height: AppDimens.xl),
           Text(
             'Recent Transactions',
-            style: Theme.of(context).textTheme.titleLarge,
+            style:
+                AppTypography.title.copyWith(color: AppColors.textPrimaryLight),
           ),
-          const SizedBox(height: AppSpacing.m),
+          const SizedBox(height: AppDimens.md),
           TransactionList(transactions: data.transactions),
         ],
       ),

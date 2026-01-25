@@ -7,7 +7,7 @@ import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/email_field.dart';
 import 'package:boklo/features/auth/presentation/widgets/password_field.dart';
-import 'package:boklo/shared/theme/tokens/app_spacing.dart';
+import 'package:boklo/config/theme/app_dimens.dart'; // UPDATED
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,13 +59,13 @@ class _LoginFormState extends State<LoginForm> {
                 controller: _emailController,
                 enabled: !isLoading,
               ),
-              const SizedBox(height: AppSpacing.m),
+              const SizedBox(height: AppDimens.md), // UPDATED SPACING
               PasswordField(
                 controller: _passwordController,
                 onSubmitted: isLoading ? null : (_) => _onLogin(),
                 enabled: !isLoading,
               ),
-              const SizedBox(height: AppSpacing.l),
+              const SizedBox(height: AppDimens.xl), // UPDATED SPACING
               Column(
                 children: [
                   SizedBox(
@@ -74,15 +74,17 @@ class _LoginFormState extends State<LoginForm> {
                       text: 'Sign In',
                       onPressed: _onLogin,
                       isLoading: isLoading,
+                      // New AppButton defaults to premium styling automatically
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.m),
-                  TextButton(
+                  const SizedBox(height: AppDimens.md),
+                  AppButton(
+                    text: "Don't have an account? Sign up",
+                    isSecondary: true, // Use secondary style for link
                     onPressed: isLoading
                         ? null
                         : () =>
                             getIt<NavigationService>().push<void>('/register'),
-                    child: const Text("Don't have an account? Sign up"),
                   ),
                 ],
               ),

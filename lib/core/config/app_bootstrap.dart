@@ -11,6 +11,7 @@ import 'package:boklo/l10n/generated/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:boklo/config/theme/app_theme.dart'; // NEW
 
 class AppBootstrap {
   static Future<void> bootstrap({
@@ -78,10 +79,7 @@ class MyApp extends StatelessWidget {
         scaffoldMessengerKey: snackbarService.scaffoldMessengerKey,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
+        theme: AppTheme.lightTheme, // Use the new theme
         routerConfig: appRouter.router,
       ),
     );

@@ -1,5 +1,6 @@
-import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
+import '../../../../config/theme/app_dimens.dart';
+import '../../../../shared/widgets/atoms/app_button.dart';
 
 class WalletPrimaryAction extends StatelessWidget {
   const WalletPrimaryAction({
@@ -11,20 +12,14 @@ class WalletPrimaryAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Layout decision: Using SizedBox(width: double.infinity) to make the button
-    // span the full available width, increasing touch target and visibility.
     return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.m),
+      padding: const EdgeInsets.only(top: AppDimens.md),
       child: SizedBox(
         width: double.infinity,
-        child: FilledButton.icon(
+        child: AppButton(
           onPressed: onSendMoney,
-          icon: const Icon(Icons.send_rounded),
-          label: const Text('Send Money'),
-          // Layout decision: large padding for easier tapping and visual hierarchy.
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
-          ),
+          text: 'Send Money',
+          icon: Icons.send_rounded,
         ),
       ),
     );
