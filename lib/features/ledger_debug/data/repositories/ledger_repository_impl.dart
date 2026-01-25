@@ -13,10 +13,11 @@ class LedgerRepositoryImpl implements LedgerRepository {
   LedgerRepositoryImpl(this._firestore);
 
   @override
-  Stream<Result<List<LedgerEntryEntity>>> watchLedgerEntries() {
-    // We listen to the global 'ledger' collection, which should work in DEV.
-    // In strict production with security rules, this might be restricted, but this is DEV-ONLY.
+  Stream<Result<List<LedgerEntryEntity>>> watchWalletLedger(
+      {required String walletId}) {
     return _firestore
+        .collection('wallets')
+        .doc(walletId)
         .collection('ledger')
         .orderBy('occurredAt', descending: true)
         .limit(100)

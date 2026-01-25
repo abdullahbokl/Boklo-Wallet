@@ -47,22 +47,16 @@ export const recordLedgerEntry = onCustomEventPublished(
                 const creditDoc = await t.get(creditRef);
 
                 if (debitDoc.exists && creditDoc.exists) {
-                    // IDEMPOTENCY SAFETY:
-                    // If both entries exist, we have already processed this event.
-                    // We must return explicitly to avoid duplicate writes.
-                    // This handles cases where Eventarc delivers the same event multiple times (at-least-once delivery).
                     logger.info(`[IDEMPOTENCY] Ledger entries for transaction ${transactionId} already exist. Skipping duplicate processing.`);
                     return;
                 }
 
                 if (debitDoc.exists || creditDoc.exists) {
-                    // PARTIAL STATE RECOVERY:
-                    // If only one exists, the previous transaction likely failed mid-commit or we have data corruption.
-                    // Strategy: We overwrite (upsert) both to ensure consistent state ("Repairing").
-                    // Since ledger entries are immutable and determined by the transactionId, checking for partial existence
-                    // and re-writing is safe and ensures eventual consistency.
                     logger.warn(`[RECOVERY] Partial ledger state detected for ${transactionId}. Repairing by overwriting entries.`);
                 }
+
+                const debitRefWallet = db.collection("wallets").doc(senderWalletId).collection("ledger").doc(debitEntryId);
+                const creditRefWallet = db.collection("wallets").doc(receiverWalletId).collection("ledger").doc(creditEntryId);
 
                 // Create DEBIT Entry (Sender)
                 const debitEntry: LedgerEntry = {
@@ -72,7 +66,7 @@ export const recordLedgerEntry = onCustomEventPublished(
                     direction: 'DEBIT',
                     amount: amount,
                     currency: currency,
-                    occurredAt: occurredAt, // Use event time, not processing time
+                    occurredAt: occurredAt, 
                 };
 
                 // Create CREDIT Entry (Receiver)
@@ -88,6 +82,8 @@ export const recordLedgerEntry = onCustomEventPublished(
 
                 t.set(debitRef, debitEntry);
                 t.set(creditRef, creditEntry);
+                t.set(debitRefWallet, debitEntry);
+                t.set(creditRefWallet, creditEntry);
             });
 
             logger.info(`[LEDGER] Successfully recorded ledger entries`, {

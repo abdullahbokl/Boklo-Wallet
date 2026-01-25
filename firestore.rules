@@ -51,6 +51,13 @@ service cloud.firestore {
         //    BACKEND-AUTHORITY: Only the Cloud Function creates transaction history.
         allow write: if false;
       }
+
+      // Ledger Subcollection (Dev/Debug)
+      match /ledger/{entryId} {
+        // Only allow the wallet owner to read their own ledger
+        allow read: if isOwner(walletId);
+        allow write: if false;
+      }
     }
     
     // --- Transfers Collection ---
@@ -78,12 +85,10 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // --- Ledger Collection (Dev/Debug) ---
+    // --- Global Ledger (Audit Only) ---
     match /ledger/{entryId} {
-        // Allow read for authenticated users for the Debug Page
-        allow read: if isAuthenticated();
-        // Deny all writes (backend-only)
-        allow write: if false;
+        // Disallow client reads to prevent seeing other users' data.
+        allow read, write: if false;
     }
   }
 }
