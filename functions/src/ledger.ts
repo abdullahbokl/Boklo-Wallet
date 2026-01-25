@@ -40,6 +40,9 @@ export const recordLedgerEntry = onCustomEventPublished(
         const debitRef = db.collection("ledger").doc(debitEntryId);
         const creditRef = db.collection("ledger").doc(creditEntryId);
 
+
+        const startTime = Date.now();
+
         try {
             await db.runTransaction(async (t) => {
                 // Idempotency Check: Read both to see if already processed
@@ -80,18 +83,20 @@ export const recordLedgerEntry = onCustomEventPublished(
                     occurredAt: occurredAt,
                 };
 
-                t.set(debitRef, debitEntry);
-                t.set(creditRef, creditEntry);
                 t.set(debitRefWallet, debitEntry);
                 t.set(creditRefWallet, creditEntry);
             });
 
-            logger.info(`[LEDGER] Successfully recorded ledger entries`, {
+            const durationMs = Date.now() - startTime;
+            logger.info(`Ledger recording completed`, {
+                event: "LEDGER_RECORDING",
+                status: "COMPLETED",
                 transactionId,
                 debitEntryId,
                 creditEntryId,
                 amount,
-                currency
+                currency,
+                durationMs
             });
 
             // Non-blocking Consistency Check
@@ -101,7 +106,14 @@ export const recordLedgerEntry = onCustomEventPublished(
                 .catch(err => logger.warn("Failed to run consistency check wrapper", err));
 
         } catch (error) {
-            logger.error(`Failed to record ledger entries for ${transactionId}`, error);
+            const durationMs = Date.now() - startTime;
+            logger.error(`Failed to record ledger entries`, {
+                event: "LEDGER_RECORDING",
+                status: "FAILED",
+                transactionId,
+                error: error instanceof Error ? error.message : 'Unknown error',
+                durationMs
+            });
             // Throwing ensures Eventarc retries the delivery
             throw error;
         }

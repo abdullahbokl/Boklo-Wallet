@@ -154,7 +154,7 @@ export const onNotificationQueued = onDocumentCreated(
             return;
         }
 
-        const notification = snapshot.data() as NotificationIntent & { status: string };
+        const notification = snapshot.data() as NotificationIntent & { status: string; retryCount?: number };
 
         // Attempt to extract transactionId (suffix removal)
         // notificationId format: {transactionId}_{SENT|RECEIVED|FAILED}
@@ -187,6 +187,24 @@ export const onNotificationQueued = onDocumentCreated(
         const startTime = Date.now();
         
         try {
+            // RETRY STRATEGY:
+            // Max retries = 3.
+            const failureCount = notification.retryCount || 0;
+            if (failureCount >= 3) {
+                 logger.error("Notification delivery failed (max retries exceeded)", {
+                    event: "NOTIFICATION_DELIVERY",
+                    status: "FAILED_MAX_RETRIES",
+                    transactionId: transactionId,
+                    notificationId: notificationId,
+                    retryCount: failureCount
+                });
+                await snapshot.ref.update({
+                    status: 'FAILED',
+                    failureReason: 'Max retries exceeded'
+                });
+                return;
+            }
+
             // Fetch Tokens
             const tokensSnapshot = await admin.firestore()
                 .collection('users')
@@ -236,8 +254,6 @@ export const onNotificationQueued = onDocumentCreated(
 
             const response = await admin.messaging().sendEachForMulticast(message);
             
-            logger.info(`[DELIVERY] FCM Response: ${response.successCount} succeded, ${response.failureCount} failed.`);
-
             // Handle invalid tokens
             if (response.failureCount > 0) {
                 const invalidTokens: string[] = [];
@@ -266,7 +282,8 @@ export const onNotificationQueued = onDocumentCreated(
                 status: 'SENT',
                 sentAt: admin.firestore.FieldValue.serverTimestamp(),
                 successCount: response.successCount,
-                failureCount: response.failureCount
+                failureCount: response.failureCount,
+                retryCount: failureCount // Preserve or reset if needed, but keeping it is fine history
             });
 
             logger.info("Notification delivery completed", {
@@ -282,16 +299,22 @@ export const onNotificationQueued = onDocumentCreated(
         } catch (e) {
             logger.error("Notification delivery failed", {
               event: "NOTIFICATION_DELIVERY",
-              status: "FAILED",
+              status: "FAILED_RETRYING",
               transactionId: transactionId,
               notificationId: notificationId,
               error: e instanceof Error ? e.message : 'Unknown error',
+              retryCount: (notification.retryCount || 0) + 1,
               durationMs: Date.now() - startTime
             });
+
+            // Increment retry count so next attempt knows
             await snapshot.ref.update({
-                status: 'FAILED',
-                error: e instanceof Error ? e.message : 'Unknown error'
+                retryCount: admin.firestore.FieldValue.increment(1),
+                lastError: e instanceof Error ? e.message : 'Unknown error'
             });
+
+            // Throw to trigger platform retry (Eventarc/Cloud Functions)
+            throw e; 
         }
     }
 );

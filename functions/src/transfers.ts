@@ -169,7 +169,7 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
       t.set(eventRef, completedEvent);
     });
 
-    logger.info("Transfer execution completed", {
+      logger.info("Transfer execution completed", {
         event: "TRANSFER_EXECUTION",
         status: "COMPLETED",
         transactionId: transferId,
@@ -226,7 +226,7 @@ async function updateAsFailed(
         event: "TRANSFER_STATUS_UPDATE",
         status: "FAILED",
         transactionId: transferId,
-        error: e
+        error: e instanceof Error ? e.message : 'Unknown error'
       });
   }
 }
