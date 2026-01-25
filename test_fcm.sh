@@ -4,7 +4,7 @@
 PROJECT_ID="boklo-wallet"
 ACCESS_TOKEN="YOUR_ACCESS_TOKEN_HERE"
 FCM_ENDPOINT="https://fcm.googleapis.com/v1/projects/$PROJECT_ID/messages:send"
-TARGET_TOKEN="ejqcCSlIQfiOlZQ5YBxVhG:APA91bHK27vhZMe_d0jZrIN8duw0Iy7-Ft-ckT37vN_NBu-Dx-HIbyIKUOdvmtFujtW4hadrXlgPpJAFSbHJI80Jv5JrZR9Gst1KRfoemTdwsz1QvORK4_8"
+TARGET_TOKEN="cEJTNAyGQgGMHred6IFmlj:APA91bGRe9X05Hmp0OpFX6oPIx7uOKr-D6CdjCIjPky5W7-uthzqrNdObpAyheVEmWatC5IDKiEhyqTlr3nt4n3qjmroxAG5z8R70b_2eU-v34LDk2LgRwQ"
 
 PAYLOAD='{
   "message": {

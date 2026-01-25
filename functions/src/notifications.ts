@@ -11,7 +11,16 @@ if (admin.apps.length === 0) {
 const db = admin.firestore();
 
 // Helper to write notification intent to Firestore idempotently
-const publishNotification = async (intent: NotificationIntent) => {
+const publishNotification = async (intent: NotificationIntent, transactionId: string) => {
+    logger.info("Notification enqueue started", {
+      event: "NOTIFICATION_ENQUEUE",
+      status: "STARTED",
+      transactionId: transactionId,
+      notificationId: intent.notificationId,
+      type: intent.type
+    });
+
+    const startTime = Date.now();
     const ref = db.collection("notifications").doc(intent.notificationId);
     
     try {
@@ -21,7 +30,13 @@ const publishNotification = async (intent: NotificationIntent) => {
                 // IDEMPOTENCY CHECK:
                 // We use a deterministic ID (e.g., "{txId}_SENT") to ensure we only queue one notification
                 // per event, even if the event is delivered multiple times.
-                logger.info(`[IDEMPOTENCY] Notification ${intent.notificationId} already queued. Skipping.`);
+                logger.info("Notification intent already queued (idempotency)", {
+                  event: "NOTIFICATION_ENQUEUE",
+                  status: "SKIPPED",
+                  transactionId: transactionId,
+                  notificationId: intent.notificationId,
+                  reason: "Already exists"
+                });
                 return;
             }
             
@@ -34,9 +49,22 @@ const publishNotification = async (intent: NotificationIntent) => {
                 status: 'PENDING'
             });
         });
-        logger.info(`Queued notification: ${intent.notificationId} (${intent.type})`);
+        logger.info("Notification enqueued successfully", {
+          event: "NOTIFICATION_ENQUEUE",
+          status: "COMPLETED",
+          transactionId: transactionId,
+          notificationId: intent.notificationId,
+          durationMs: Date.now() - startTime
+        });
     } catch (e) {
-        logger.error(`Failed to publish notification ${intent.notificationId}`, e);
+        logger.error("Notification enqueue failed", {
+          event: "NOTIFICATION_ENQUEUE",
+          status: "FAILED",
+          transactionId: transactionId,
+          notificationId: intent.notificationId,
+          error: e,
+          durationMs: Date.now() - startTime
+        });
         throw e; // Ensure retry
     }
 };
@@ -66,7 +94,7 @@ export const notifyOnTransferComplete = onCustomEventPublished(
                     currency: payload.currency 
                 }
             }
-        });
+        }, payload.transactionId);
 
         // 2. Notify Receiver (Received)
         await publishNotification({
@@ -81,7 +109,7 @@ export const notifyOnTransferComplete = onCustomEventPublished(
                     currency: payload.currency 
                 }
             }
-        });
+        }, payload.transactionId);
     }
 );
 
@@ -109,7 +137,7 @@ export const notifyOnTransferFailed = onCustomEventPublished(
                     reason: payload.failureReason 
                 }
             }
-        });
+        }, payload.transactionId);
     }
 );
 
@@ -128,16 +156,35 @@ export const onNotificationQueued = onDocumentCreated(
 
         const notification = snapshot.data() as NotificationIntent & { status: string };
 
+        // Attempt to extract transactionId (suffix removal)
+        // notificationId format: {transactionId}_{SENT|RECEIVED|FAILED}
+        const notificationId = event.params.notificationId;
+        const transactionId = notificationId.replace(/_(SENT|RECEIVED|FAILED)$/, "");
+
         // IDEMPOTENCY / STATE CHECK:
         // Ensure we only process notifications that are strictly PENDING.
         // If status is SENT or FAILED, it means we (or a concurrent execution) already tried processing it.
         // This prevents double-sending if the function is re-triggered.
         if (notification.status !== 'PENDING') {
-            logger.info(`[IDEMPOTENCY] Notification ${event.params.notificationId} is ${notification.status}. Skipping.`);
+            logger.info("Notification delivery skipped", {
+              event: "NOTIFICATION_DELIVERY",
+              status: "SKIPPED",
+              transactionId: transactionId,
+              notificationId: notificationId,
+              reason: `Status is ${notification.status}`
+            });
             return;
         }
 
-        logger.info(`[DELIVERY] Processing notification ${event.params.notificationId} for user ${notification.userId}`);
+        logger.info("Notification delivery started", {
+          event: "NOTIFICATION_DELIVERY",
+          status: "STARTED",
+          transactionId: transactionId,
+          notificationId: notificationId,
+          userId: notification.userId
+        });
+        
+        const startTime = Date.now();
         
         try {
             // Fetch Tokens
@@ -221,9 +268,26 @@ export const onNotificationQueued = onDocumentCreated(
                 successCount: response.successCount,
                 failureCount: response.failureCount
             });
+
+            logger.info("Notification delivery completed", {
+              event: "NOTIFICATION_DELIVERY",
+              status: "COMPLETED",
+              transactionId: transactionId,
+              notificationId: notificationId,
+              successCount: response.successCount,
+              failureCount: response.failureCount,
+              durationMs: Date.now() - startTime
+            });
             
         } catch (e) {
-            logger.error(`[DELIVERY] Failed to send notification ${event.params.notificationId}`, e);
+            logger.error("Notification delivery failed", {
+              event: "NOTIFICATION_DELIVERY",
+              status: "FAILED",
+              transactionId: transactionId,
+              notificationId: notificationId,
+              error: e instanceof Error ? e.message : 'Unknown error',
+              durationMs: Date.now() - startTime
+            });
             await snapshot.ref.update({
                 status: 'FAILED',
                 error: e instanceof Error ? e.message : 'Unknown error'

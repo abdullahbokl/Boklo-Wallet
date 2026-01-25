@@ -15,9 +15,24 @@ export const onEventCreated = onDocumentCreated("events/{eventId}", async (event
   const projectId = process.env.GCLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT;
   const location = "us-central1"; 
   const channel = `projects/${projectId}/locations/${location}/channels/firebase`;
-  const url = `https://eventarcpublishing.googleapis.com/v1/${channel}:publishEvents`;
+  let url = `https://eventarcpublishing.googleapis.com/v1/${channel}:publishEvents`;
 
-  logger.info(`Publishing event ${eventId} (${eventData.eventType}) to Eventarc channel: ${channel}`);
+  if (process.env.FUNCTIONS_EMULATOR === "true") {
+      const eventarcPort = 9299; 
+      // Emulator doesn't use /v1 prefix for publishEvents
+      url = `http://127.0.0.1:${eventarcPort}/${channel}:publishEvents`;
+      logger.info(`[Emulator] Redirecting Eventarc publish to ${url}`);
+  }
+
+  logger.info("Event publishing started", {
+    event: "EVENT_PUBLISH",
+    status: "STARTED",
+    eventId: eventId,
+    eventType: eventData.eventType,
+    transactionId: eventData.transactionId
+  });
+
+  const startTime = Date.now();
 
   try {
     const token = await admin.credential.applicationDefault().getAccessToken();
@@ -53,8 +68,23 @@ export const onEventCreated = onDocumentCreated("events/{eventId}", async (event
       throw new Error(`HTTP ${response.status}: ${text}`);
     }
 
-    logger.info(`Successfully published event: ${eventData.eventType}`);
+    logger.info("Event published successfully", {
+      event: "EVENT_PUBLISH",
+      status: "COMPLETED",
+      eventId: eventId,
+      eventType: eventData.eventType,
+      transactionId: eventData.transactionId,
+      durationMs: Date.now() - startTime
+    });
   } catch (error) {
-    logger.error("Failed to publish event to Eventarc", error);
+    logger.error("Event publishing failed", {
+      event: "EVENT_PUBLISH",
+      status: "FAILED",
+      eventId: eventId,
+      eventType: eventData.eventType,
+      transactionId: eventData.transactionId,
+      error: error instanceof Error ? error.message : JSON.stringify(error),
+      durationMs: Date.now() - startTime
+    });
   }
 });

@@ -33,9 +33,22 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
 
   // Idempotency: Only process if status is 'pending'
   if (currentStatus !== "pending") {
-    logger.info(`Transfer ${transferId} is already processed (status: ${currentStatus}). Skipping.`);
+    logger.info("Transfer execution skipped", {
+      event: "TRANSFER_EXECUTION",
+      status: "SKIPPED",
+      transactionId: transferId,
+      reason: `Status is ${currentStatus}`
+    });
     return;
   }
+
+  logger.info("Transfer execution started", {
+    event: "TRANSFER_EXECUTION",
+    status: "STARTED",
+    transactionId: transferId
+  });
+
+  const startTime = Date.now();
 
   const db = admin.firestore();
 
@@ -57,7 +70,12 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
   } catch (e: any) {
     // If it already exists, that's fine (idempotency).
     if (e.code !== 6 /* ALREADY_EXISTS */) {
-      logger.error("Failed to emit created event", e);
+      logger.error("Failed to emit created event", {
+        event: "EVENT_EMISSION",
+        status: "FAILED",
+        transactionId: transferId,
+        error: e.message
+      });
     }
   }
 
@@ -151,9 +169,20 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
       t.set(eventRef, completedEvent);
     });
 
-    logger.info(`Transfer ${transferId} completed successfully.`);
+    logger.info("Transfer execution completed", {
+        event: "TRANSFER_EXECUTION",
+        status: "COMPLETED",
+        transactionId: transferId,
+        durationMs: Date.now() - startTime
+      });
   } catch (error: any) {
-    logger.error(`Transfer ${transferId} failed to execute transaction`, error);
+    logger.error("Transfer execution failed", {
+        event: "TRANSFER_EXECUTION",
+        status: "FAILED",
+        transactionId: transferId,
+        error: error.message,
+        durationMs: Date.now() - startTime
+    });
     // Determine if we should mark as failed or just log (e.g. concurrent error vs logic error)
     // For "Transfer already processed", we exit gracefully.
     if (error.message === "Transfer already processed (concurrent)") {
@@ -193,6 +222,11 @@ async function updateAsFailed(
         t.set(eventRef, failedEvent);
     });
   } catch (e) {
-      logger.error(`Failed to mark transfer ${transferId} as failed`, e);
+      logger.error("Failed to mark transfer as failed", {
+        event: "TRANSFER_STATUS_UPDATE",
+        status: "FAILED",
+        transactionId: transferId,
+        error: e
+      });
   }
 }

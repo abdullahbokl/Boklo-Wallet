@@ -33,6 +33,10 @@
       "enabled": true,
       "host": "0.0.0.0"
     },
+    "eventarc": {
+      "port": 9299,
+      "host": "0.0.0.0"
+    },
     "singleProjectMode": true
   },
   "functions": [
