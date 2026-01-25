@@ -3,6 +3,7 @@ import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import { TransferEventType, TransactionCompletedEvent } from "./domain/events/transfer_events";
 import { LedgerEntry } from "./domain/ledger/ledger_entry";
+import { runConnectivityCheck } from "./consistency";
 
 // Initialize admin if not already done
 if (admin.apps.length === 0) {
@@ -96,6 +97,13 @@ export const recordLedgerEntry = onCustomEventPublished(
                 amount,
                 currency
             });
+
+            // Non-blocking Consistency Check
+            // We run this *after* the main logic to avoid delaying the response or failing the cloud function
+            // (though in Cloud Functions awaiting is usually good practice, we just catch errors to be "non-blocking" for logic flow)
+            runConnectivityCheck(db, transactionId, senderWalletId, receiverWalletId, amount, currency)
+                .catch(err => logger.warn("Failed to run consistency check wrapper", err));
+
         } catch (error) {
             logger.error(`Failed to record ledger entries for ${transactionId}`, error);
             // Throwing ensures Eventarc retries the delivery
