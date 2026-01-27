@@ -21,6 +21,30 @@ service cloud.firestore {
         allow write: if isOwner(userId);
         allow read: if isOwner(userId);
       }
+
+      // Contacts Subcollection
+      match /contacts/{contactId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Preferences Subcollection
+      match /preferences/{prefId} {
+        allow read, write: if isAuthenticated(); // DEBUG: Check if ownership is the issue
+      }
+    }
+    
+    // --- Payment Requests ---
+    match /payment_requests/{requestId} {
+      allow create: if isAuthenticated()
+                    && request.resource.data.requesterId == request.auth.uid
+                    && request.resource.data.status == 'PENDING';
+                    
+      allow read: if isAuthenticated() && (
+        resource.data.requesterId == request.auth.uid ||
+        resource.data.payerId == request.auth.uid
+      );
+      
+      allow update, delete: if false; // Backend only via Callable
     }
     
     // --- Wallets Collection ---

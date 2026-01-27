@@ -9,5 +9,7 @@ class WalletState with _$WalletState {
   const factory WalletState({
     required WalletEntity wallet,
     @Default([]) List<TransactionEntity> transactions,
+    TransactionType? filterType,
+    TransactionStatus? filterStatus,
   }) = _WalletState;
 }

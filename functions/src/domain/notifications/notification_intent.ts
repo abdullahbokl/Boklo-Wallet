@@ -24,6 +24,7 @@ export enum NotificationType {
     TRANSFER_RECEIVED = 'TRANSFER_RECEIVED',
     TRANSFER_SENT_SUCCESS = 'TRANSFER_SENT_SUCCESS',
     TRANSFER_FAILED = 'TRANSFER_FAILED',
+    PAYMENT_REQUEST_RECEIVED = 'PAYMENT_REQUEST_RECEIVED' // New
 }
 
 // Maps domain events to notification intents

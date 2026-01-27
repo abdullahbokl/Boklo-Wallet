@@ -2,7 +2,12 @@
 import { onCustomEventPublished } from "firebase-functions/v2/eventarc";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
-import { TransferEventType, TransactionCompletedEvent, TransactionFailedEvent } from "./domain/events/transfer_events";
+import { TransferEventType,  TransactionCompletedEvent,
+  TransactionFailedEvent,
+} from "./domain/events/transfer_events";
+// Add PaymentRequestEventType locally or in domain if strictly needed.
+// For now, extending NotificationType.
+
 import { NotificationType, NotificationIntent } from "./domain/notifications/notification_intent";
 
 if (admin.apps.length === 0) {
@@ -10,8 +15,52 @@ if (admin.apps.length === 0) {
 }
 const db = admin.firestore();
 
+// Helper to check user preferences
+const shouldSendNotification = async (userId: string, type: NotificationType): Promise<boolean> => {
+    try {
+        const snapshot = await db.collection('users')
+            .doc(userId)
+            .collection('preferences')
+            .doc('notifications')
+            .get();
+
+        if (!snapshot.exists) return true;
+        
+        const prefs = snapshot.data();
+        if (!prefs) return true;
+
+        // Outgoing: Sent, Failed
+        if (type === NotificationType.TRANSFER_SENT_SUCCESS || 
+            type === NotificationType.TRANSFER_FAILED) {
+            return prefs.enableOutgoing !== false; // Default true
+        }
+
+        // Incoming: Received, Requests
+        if (type === NotificationType.TRANSFER_RECEIVED ||
+            type === NotificationType.PAYMENT_REQUEST_RECEIVED) {
+            return prefs.enableIncoming !== false; // Default true
+        }
+
+        return true;
+    } catch (e) {
+        logger.warn(`Failed to read notification prefs for ${userId}`, { error: e });
+        return true; // Fail open
+    }
+};
+
 // Helper to write notification intent to Firestore idempotently
 const publishNotification = async (intent: NotificationIntent, transactionId: string) => {
+    // Check Preferences
+    const allowed = await shouldSendNotification(intent.userId, intent.type);
+    if (!allowed) {
+        logger.info("Notification skipped by user preference", {
+            event: "NOTIFICATION_SKIPPED",
+            userId: intent.userId,
+            type: intent.type
+        });
+        return;
+    }
+
     logger.info("Notification enqueue started", {
       event: "NOTIFICATION_ENQUEUE",
       status: "STARTED",
@@ -141,6 +190,36 @@ export const notifyOnTransferFailed = onCustomEventPublished(
     }
 );
 
+export const notifyOnPaymentRequest = onCustomEventPublished(
+    {
+        eventType: "PAYMENT_REQUEST_CREATED",
+        retry: true,
+    },
+    async (event) => {
+        const payload = event.data as any; // Typed as needed
+        if (!payload?.requestId) {
+             logger.error("Invalid payment request event payload", payload);
+             return;
+        }
+
+        // Notify Payer (Receiver of the REQUEST)
+        await publishNotification({
+            notificationId: `${payload.requestId}_REQUESTED`,
+            userId: payload.payerId,
+            type: NotificationType.PAYMENT_REQUEST_RECEIVED,
+            payload: {
+                titleKey: 'payment_request_title',
+                bodyKey: 'payment_request_body',
+                data: {
+                    amount: payload.amount.toString(),
+                    currency: payload.currency,
+                    requesterId: payload.requesterId
+                }
+            }
+        }, payload.requestId);
+    }
+); // End notifyOnPaymentRequest
+
 // [NEW] Delivery Mechanism
 // Triggers when a new notification intent is written to Firestore.
 // In a real system, this would fetch FCM tokens and send the message.
@@ -233,6 +312,8 @@ export const onNotificationQueued = onDocumentCreated(
                     'transfer_received_body': 'You received {amount} {currency}.',
                     'transfer_failed_title': 'Transfer Failed',
                     'transfer_failed_body': 'Your transfer failed. {reason}',
+                    'payment_request_title': 'Payment Requested',
+                    'payment_request_body': '{requesterId} requested {amount} {currency}.',
                 };
                 let text = map[key] || key;
                 // Replace params

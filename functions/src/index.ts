@@ -16,6 +16,12 @@ export { onTransferCreated } from "./transfers";
 export { onEventCreated } from "./events_publisher";
 export { onTransactionCompletedLog } from "./smoke_test";
 export { notifyOnTransferComplete, notifyOnTransferFailed, onNotificationQueued } from "./notifications";
+export { 
+    onPaymentRequestCreated, 
+    acceptPaymentRequest, 
+    declinePaymentRequest 
+} from "./requests";
+export * from "./contacts";
 export { reconcileWallets } from "./reconciliation";
 
 admin.initializeApp();

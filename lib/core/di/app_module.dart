@@ -3,6 +3,7 @@ import 'package:boklo/core/config/feature_flags.dart';
 import 'package:boklo/core/network/interceptors/auth_interceptor.dart';
 import 'package:boklo/core/network/interceptors/logger_interceptor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -44,6 +45,9 @@ abstract class AppModule {
 
   @lazySingleton
   FirebaseFirestore get firebaseFirestore => FirebaseFirestore.instance;
+
+  @lazySingleton
+  FirebaseFunctions get firebaseFunctions => FirebaseFunctions.instance;
 
   @singleton
   @Environment(Environment.dev)

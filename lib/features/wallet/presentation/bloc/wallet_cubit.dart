@@ -51,10 +51,18 @@ class WalletCubit extends BaseCubit<WalletState> {
                 // Use the wallet from the closure if state is not yet Success (initial load)
                 currentWallet ??= wallet;
 
+                final currentType = state.data?.filterType;
+                final currentStatus = state.data?.filterStatus;
+
+                final filtered = _applyFilters(
+                    _lastTransactions, currentType, currentStatus);
+
                 emitSuccess(
                   WalletState(
                     wallet: currentWallet,
-                    transactions: transactions,
+                    transactions: filtered,
+                    filterType: currentType,
+                    filterStatus: currentStatus,
                   ),
                 );
               },
@@ -62,15 +70,65 @@ class WalletCubit extends BaseCubit<WalletState> {
           });
         } else {
           // 3. Refresh: Use new wallet and cached transactions
+          final currentType = state.data?.filterType;
+          final currentStatus = state.data?.filterStatus;
+          final filtered =
+              _applyFilters(_lastTransactions, currentType, currentStatus);
+
           emitSuccess(
             WalletState(
               wallet: wallet,
-              transactions: _lastTransactions,
+              transactions: filtered,
+              filterType: currentType,
+              filterStatus: currentStatus,
             ),
           );
         }
       },
     );
+  }
+
+  void setFilterType(TransactionType? type) {
+    if (state.data == null) return;
+
+    final currentStatus = state.data!.filterStatus;
+    final filtered = _applyFilters(_lastTransactions, type, currentStatus);
+
+    emitSuccess(state.data!.copyWith(
+      filterType: type,
+      transactions: filtered,
+    ));
+  }
+
+  void setFilterStatus(TransactionStatus? status) {
+    if (state.data == null) return;
+
+    final currentType = state.data!.filterType;
+    final filtered = _applyFilters(_lastTransactions, currentType, status);
+
+    emitSuccess(state.data!.copyWith(
+      filterStatus: status,
+      transactions: filtered,
+    ));
+  }
+
+  void clearFilters() {
+    if (state.data == null) return;
+
+    emitSuccess(state.data!.copyWith(
+      filterType: null,
+      filterStatus: null,
+      transactions: _lastTransactions,
+    ));
+  }
+
+  List<TransactionEntity> _applyFilters(List<TransactionEntity> transactions,
+      TransactionType? type, TransactionStatus? status) {
+    return transactions.where((tx) {
+      if (type != null && tx.type != type) return false;
+      if (status != null && tx.status != status) return false;
+      return true;
+    }).toList();
   }
 
   @override

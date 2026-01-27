@@ -1,20 +1,22 @@
-import 'dart:async';
+import 'dart:async'; // Added for unawaited
 
+import 'package:boklo/config/theme/app_colors.dart';
+import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
+import 'package:boklo/features/wallet/presentation/widgets/quick_actions_row.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_list.dart';
-import 'package:boklo/shared/widgets/molecules/balance_card.dart'; // NEW
 import 'package:boklo/features/wallet/presentation/widgets/wallet_primary_action.dart';
 import 'package:boklo/shared/responsive/responsive_builder.dart';
-import 'package:boklo/config/theme/app_dimens.dart'; // UPDATED
-import 'package:boklo/config/theme/app_colors.dart'; // NEW
-import 'package:boklo/config/theme/app_typography.dart'; // NEW
+import 'package:boklo/shared/widgets/molecules/balance_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -70,7 +72,7 @@ class WalletPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: AppDimens.md),
                   child: InkWell(
                     onTap: () {
-                      context.read<AuthCubit>().logout();
+                      unawaited(context.read<AuthCubit>().logout());
                     },
                     borderRadius: BorderRadius.circular(AppDimens.radiusMd),
                     child: Container(
@@ -79,16 +81,16 @@ class WalletPage extends StatelessWidget {
                         vertical: AppDimens.xs,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(AppDimens.radiusMd),
                         border: Border.all(
-                          color: AppColors.primary.withOpacity(0.2),
+                          color: AppColors.primary.withValues(alpha: 0.2),
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.logout_rounded,
                             size: 18,
                             color: AppColors.primary,
@@ -150,7 +152,7 @@ class _WalletLayout extends StatelessWidget {
           // Entrance Animation for Balance Card
           TweenAnimationBuilder<double>(
             duration: const Duration(milliseconds: 600),
-            tween: Tween(begin: 0.9, end: 1.0),
+            tween: Tween(begin: 0.9, end: 1),
             curve: Curves.easeOutBack,
             builder: (context, scale, child) => Transform.scale(
               scale: scale,
@@ -165,12 +167,21 @@ class _WalletLayout extends StatelessWidget {
           // Quick Actions
           WalletPrimaryAction(
             onSendMoney: () async {
-              final navigationService = getIt<NavigationService>();
-              final result = await navigationService.push<bool>('/transfer');
-
-              if ((result ?? false) && context.mounted) {
-                unawaited(context.read<WalletCubit>().loadWallet());
-              }
+              getIt<NavigationService>().go('/transfer');
+            },
+          ),
+          const SizedBox(height: AppDimens.md),
+          QuickActionsRow(
+            onPaymentRequestsTap: () {
+              unawaited(getIt<NavigationService>().push('/payment-requests'));
+            },
+            onContactsTap: () {
+              unawaited(getIt<NavigationService>().push('/contacts'));
+            },
+            onNotificationsTap: () {
+              unawaited(
+                getIt<NavigationService>().push('/notification-settings'),
+              );
             },
           ),
           const SizedBox(height: AppDimens.xl),
@@ -178,6 +189,41 @@ class _WalletLayout extends StatelessWidget {
             'Recent Transactions',
             style:
                 AppTypography.title.copyWith(color: AppColors.textPrimaryLight),
+          ),
+          const SizedBox(height: AppDimens.md),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                FilterChip(
+                  label: const Text('All'),
+                  selected: data.filterType == null,
+                  onSelected: (bool selected) {
+                    context.read<WalletCubit>().setFilterType(null);
+                  },
+                ),
+                const SizedBox(width: AppDimens.sm),
+                FilterChip(
+                  label: const Text('Income'),
+                  selected: data.filterType == TransactionType.credit,
+                  onSelected: (bool selected) {
+                    context.read<WalletCubit>().setFilterType(
+                          selected ? TransactionType.credit : null,
+                        );
+                  },
+                ),
+                const SizedBox(width: AppDimens.sm),
+                FilterChip(
+                  label: const Text('Expense'),
+                  selected: data.filterType == TransactionType.debit,
+                  onSelected: (bool selected) {
+                    context.read<WalletCubit>().setFilterType(
+                          selected ? TransactionType.debit : null,
+                        );
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: AppDimens.md),
           TransactionList(transactions: data.transactions),
