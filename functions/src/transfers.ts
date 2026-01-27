@@ -8,6 +8,7 @@ import {
   TransactionCompletedEvent,
   TransactionFailedEvent,
 } from "./domain/events/transfer_events";
+import { evaluateRisk, RISK_MODE, createRiskReview } from "./fraud.js";
 
 // Helper to create event objects
 const createEventPayload = (
@@ -88,6 +89,74 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
     await updateAsFailed(db, transferId, "Sender and receiver cannot be the same", transferData);
     return;
   }
+
+  // --- FRAUD DETECTION & RISK ASSESSMENT ---
+  try {
+    const riskContext = {
+      fromWalletId,
+      amount,
+      currency: transferData.currency || 'USD', // Default to USD if missing
+      userId: transferData.userId // Optional
+    };
+
+    const riskAssessment = await evaluateRisk(db, riskContext);
+    
+    // Log risk assessment
+    logger.info("Transfer risk evaluated", {
+      event: "RISK_ASSESSMENT",
+      transactionId: transferId,
+      riskLevel: riskAssessment.riskLevel,
+      action: riskAssessment.action,
+      score: 0, 
+      reasons: riskAssessment.reasons
+    });
+
+    // Write risk metadata to the transfer document
+    await db.collection("transfers").doc(transferId).update({
+      riskAssessment: riskAssessment,
+      riskMode: RISK_MODE
+    });
+
+    // Create Admin Review Item if necessary
+    if (riskAssessment.action === 'FLAG' || riskAssessment.action === 'BLOCK') {
+        await createRiskReview(db, transferId, riskAssessment);
+    }
+
+    // BLOCKING LOGIC
+    if (riskAssessment.action === 'BLOCK') {
+       if (RISK_MODE === 'ENFORCE') {
+         logger.warn(`Transfer BLOCKED due to high risk`, {
+           event: "TRANSFER_BLOCKED",
+           transactionId: transferId,
+           reasons: riskAssessment.reasons
+         });
+         
+         await updateAsFailed(db, transferId, "Transfer blocked by fraud protection", {
+             failureReason: "RISK_BLOCKED",
+             riskReasons: riskAssessment.reasons
+         });
+         return;
+       } else {
+         logger.info(`Transfer flagged as HIGH RISK but allowed (Monitor Mode)`, {
+            event: "TRANSFER_FLAGGED",
+            transactionId: transferId
+         });
+       }
+    }
+
+  } catch (error) {
+    // Fail safe: If fraud check fails, do we block or allow? 
+    // For now, log error and allow, or block? 
+    // "Fail open" is usually safer for availability, "Fail closed" for security.
+    // Let's log error and allow for MVP, but mark as "risk_check_failed".
+    logger.error("Fraud check failed (failing open)", {
+        event: "FRAUD_CHECK_ERROR",
+        transactionId: transferId,
+        error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+  // -----------------------------------------
+
 
   try {
     await db.runTransaction(async (t) => {

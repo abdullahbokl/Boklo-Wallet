@@ -1,93 +1,179 @@
-import { onMessagePublished } from "firebase-functions/v2/pubsub";
-import * as logger from "firebase-functions/logger";
-import * as admin from "firebase-admin";
 
-// Ensure admin is initialized
-if (admin.apps.length === 0) {
-    admin.initializeApp();
+import * as admin from 'firebase-admin';
+import * as logger from 'firebase-functions/logger';
+
+export interface RiskAssessment {
+    riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    action: 'ALLOW' | 'FLAG' | 'BLOCK';
+    reasons: string[];
+    evidence: Record<string, any>;
 }
-const db = admin.firestore();
 
-const HIGH_AMOUNT_THRESHOLD = 5000; // Example threshold
-const VELOCITY_WINDOW_MINUTES = 60;
-const VELOCITY_COUNT_THRESHOLD = 5;
+export interface FraudCheckContext {
+    fromWalletId: string;
+    amount: number;
+    currency: string;
+    userId?: string; // If available, for user-level velocity
+}
 
-export const detectFraud = onMessagePublished(
-    {
-        topic: "transaction-created",
-        retry: true, // Enable retries for compliance/audit reliability
-    },
-    async (event) => {
-        logger.info("Received transaction.created fraud check event via Pub/Sub", event.id);
+// Configurable Risk Mode
+export const RISK_MODE: 'ENFORCE' | 'MONITOR' = process.env.RISK_MODE === 'MONITOR' ? 'MONITOR' : 'ENFORCE';
 
-        // Extract payload. 
-        // When Eventarc routes to Pub/Sub, the message body typically contains the event.
-        // If content-type is application/json, .json works.
-        // We assume the CloudEvent logic puts the business data in the "data" field of the CloudEvent,
-        // OR simply as the JSON body if binding is simple. 
-        // Given our manual structure in index.ts, the 'data' passed to CloudEvent constructor is usually what we need.
-        // We'll try to extract `data` field if it looks like a CloudEvent, otherwise use the body.
-        
-        let eventData = event.data.message.json;
-        if (eventData && eventData.data) {
-             // Handle structured CloudEvent in body
-             eventData = eventData.data;
-        }
+// Hardcoded limits for MVP - move to Remote Config later
+const LIMITS = {
+    VELOCITY_1H: 5,       // Max 5 transfers per hour
+    VELOCITY_24H: 20,     // Max 20 transfers per 24 hours
+    AMOUNT_SINGLE: 5000,  // Max amount per single transfer
+    AMOUNT_24H: 10000,    // Max cumulative amount per 24 hours (optional, maybe Phase 2.1)
+    FAILURE_RATE_1H: 3    // Max 3 failed attempts per hour
+};
 
-        const { transferId, fromWallet, amount, timestamp } = eventData || {};
 
-        if (!transferId || !fromWallet || !amount) {
-            logger.warn("Invalid event data for fraud check", eventData);
-            return;
-        }
+/**
+ * Evaluates the risk of a transfer request.
+ * 
+ * @param db Firestore database instance
+ * @param context context for the fraud check
+ * @returns RiskAssessment object
+ */
+export async function evaluateRisk(
+    db: admin.firestore.Firestore,
+    context: FraudCheckContext
+): Promise<RiskAssessment> {
+    const { fromWalletId, amount } = context;
+    const reasons: string[] = [];
+    const evidence: Record<string, any> = {};
+    let riskScore = 0;
 
-        const alerts: string[] = [];
-
-        // 1. High Amount Check
-        if (amount > HIGH_AMOUNT_THRESHOLD) {
-            alerts.push(`High amount transaction: ${amount}`);
-        }
-
-        // 2. Velocity Check (Simple implementation)
-        // Check how many transfers this wallet created in the last window
-        try {
-            const windowStart = new Date(new Date(timestamp).getTime() - VELOCITY_WINDOW_MINUTES * 60000);
-            
-            // Note: This requires an index on (fromWalletId, createdAt)
-            // If index is missing, this might fail or be slow. 
-            // For now, we wrap in try-catch and log warning.
-            
-            // We use 'transfers' collection where we assume createdAt is stored as ISO string or timestamp
-            // In the Flutter app, we store createdAt.
-            
-            const recentTransfers = await db.collection("transfers")
-                .where("fromWalletId", "==", fromWallet)
-                .where("createdAt", ">=", windowStart.toISOString()) 
-                .count()
-                .get();
-
-            if (recentTransfers.data().count > VELOCITY_COUNT_THRESHOLD) {
-                alerts.push(`High velocity: ${recentTransfers.data().count} transfers in ${VELOCITY_WINDOW_MINUTES}m`);
-            }
-
-        } catch (e) {
-            logger.warn("Failed to perform velocity check (likely missing index)", e);
-        }
-
-        if (alerts.length > 0) {
-            logger.warn(`[FRAUD ALERT] Suspicious activity detected for transfer ${transferId}: ${alerts.join(", ")}`);
-            
-            // Record alert
-            await db.collection("fraud_alerts").add({
-                transferId,
-                fromWallet,
-                amount,
-                alerts,
-                timestamp: admin.firestore.FieldValue.serverTimestamp(),
-                status: "investigating"
-            });
-        } else {
-            logger.info(`Transfer ${transferId} passed fraud checks.`);
-        }
+    // 1. Amount Check
+    if (amount > LIMITS.AMOUNT_SINGLE) {
+        reasons.push(`Amount ${amount} exceeds single transfer limit of ${LIMITS.AMOUNT_SINGLE}`);
+        riskScore += 50; // High impact
+        evidence.amountExceeded = true;
     }
-);
+
+    // 2. Velocity Checks (Firestore Queries)
+    // We need to count recent transfers. 
+    // Ideally, this should use a counter or a dedicated aggregation, 
+    // but for "Fraud-lite" we'll do a count query with a limit.
+    
+    const now = admin.firestore.Timestamp.now();
+    const oneHourAgo = new admin.firestore.Timestamp(now.seconds - 3600, 0);
+    const twentyFourHoursAgo = new admin.firestore.Timestamp(now.seconds - 86400, 0);
+
+    // Run queries in parallel
+    const [transfersLastHour, transfersLast24h] = await Promise.all([
+        getTransferCount(db, fromWalletId, oneHourAgo),
+        getTransferCount(db, fromWalletId, twentyFourHoursAgo)
+    ]);
+
+    evidence.velocity1h = transfersLastHour;
+    evidence.velocity24h = transfersLast24h;
+
+    if (transfersLastHour >= LIMITS.VELOCITY_1H) {
+        reasons.push(`Velocity (1h) exceeded: ${transfersLastHour}/${LIMITS.VELOCITY_1H}`);
+        riskScore += 30;
+    }
+
+    if (transfersLast24h >= LIMITS.VELOCITY_24H) {
+        reasons.push(`Velocity (24h) exceeded: ${transfersLast24h}/${LIMITS.VELOCITY_24H}`);
+        riskScore += 20;
+    }
+
+    // 3. Failure Rate Check
+    // High number of failures might indicate guessing or system abuse
+    const failedTransfersLastHour = await getFailedTransferCount(db, fromWalletId, oneHourAgo);
+    evidence.failedTransfers1h = failedTransfersLastHour;
+
+    if (failedTransfersLastHour >= LIMITS.FAILURE_RATE_1H) {
+        reasons.push(`Failure rate (1h) exceeded: ${failedTransfersLastHour}/${LIMITS.FAILURE_RATE_1H}`);
+        riskScore += 40; // Significant risk
+    }
+
+    // 4. Determine Risk Level & Action
+    let riskLevel: RiskAssessment['riskLevel'] = 'LOW';
+    let action: RiskAssessment['action'] = 'ALLOW';
+
+    if (riskScore >= 50) {
+        riskLevel = 'HIGH';
+        action = 'BLOCK'; // Default to BLOCK for high risk in MVP
+    } else if (riskScore >= 20) {
+        riskLevel = 'MEDIUM';
+        action = 'FLAG';
+    }
+
+    // Log the evaluation
+    logger.info("Risk evaluation completed", {
+        event: "RISK_EVALUATION",
+        fromWalletId,
+        amount,
+        riskScore,
+        riskLevel,
+        action,
+        reasons
+    });
+
+    return {
+        riskLevel,
+        action,
+        reasons,
+        evidence
+    };
+}
+
+
+/**
+ * Creates a review item in the 'risk_reviews' collection.
+ */
+export async function createRiskReview(
+    db: admin.firestore.Firestore,
+    transferId: string,
+    riskAssessment: RiskAssessment
+): Promise<void> {
+    try {
+        await db.collection('risk_reviews').doc(transferId).set({
+            transferId,
+            status: 'PENDING', // PENDING, RESOLVED, IGNORED
+            riskLevel: riskAssessment.riskLevel,
+            reasons: riskAssessment.reasons,
+            evidence: riskAssessment.evidence,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        logger.error("Failed to create risk review", {
+            event: "RISK_REVIEW_CREATION_FAILED",
+            transactionId: transferId,
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+}
+
+async function getTransferCount(
+    db: admin.firestore.Firestore, 
+    walletId: string, 
+    since: admin.firestore.Timestamp
+): Promise<number> {
+    const snapshot = await db.collection('transfers')
+        .where('fromWalletId', '==', walletId)
+        .where('createdAt', '>=', since)
+        .count()
+        .get();
+        
+    return snapshot.data().count;
+}
+
+async function getFailedTransferCount(
+    db: admin.firestore.Firestore,
+    walletId: string,
+    since: admin.firestore.Timestamp
+): Promise<number> {
+    const snapshot = await db.collection('transfers')
+        .where('fromWalletId', '==', walletId)
+        .where('status', '==', 'FAILED')
+        .where('createdAt', '>=', since)
+        .count()
+        .get();
+        
+    return snapshot.data().count;
+}
