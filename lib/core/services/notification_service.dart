@@ -145,7 +145,8 @@ class NotificationService {
       log('Showing Local Notification: ${notification.title}');
 
       _localNotifications.show(
-        notification.hashCode,
+        // Use a unique ID to allow multiple notifications to stack
+        DateTime.now().millisecondsSinceEpoch % 100000,
         notification.title,
         notification.body,
         NotificationDetails(
@@ -250,6 +251,29 @@ class NotificationService {
       log('FCM Token saved to Firestore');
     } catch (e) {
       log('Error saving FCM token: $e');
+    }
+  }
+
+  Future<void> deleteToken() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    try {
+      final token = await _messaging.getToken();
+      if (token != null) {
+        await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .collection('tokens')
+            .doc(token)
+            .delete();
+        log('FCM Token deleted from Firestore');
+      }
+
+      // Clear any local notifications from the system tray
+      await _localNotifications.cancelAll();
+    } catch (e) {
+      log('Error deleting FCM token: $e');
     }
   }
 }

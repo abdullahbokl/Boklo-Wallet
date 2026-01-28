@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
 import 'package:boklo/features/contacts/domain/repo/contact_repository.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_state.dart';
 import 'package:injectable/injectable.dart';
@@ -38,8 +39,14 @@ class ContactCubit extends BaseCubit<ContactState> {
         emitSuccess(current.copyWith(isAdding: false));
       },
       (contact) {
-        emitSuccess(current.copyWith(isAdding: false));
-        // Success handled by stream update or UI
+        // Optimistic Update: Add to list immediately
+        final updatedList = List<ContactEntity>.from(current.contacts)
+          ..insert(0, contact); // Add to top
+
+        emitSuccess(current.copyWith(
+          isAdding: false,
+          contacts: updatedList,
+        ));
       },
     );
   }

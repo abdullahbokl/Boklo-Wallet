@@ -12,7 +12,10 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:boklo/features/auth/domain/usecases/register_usecase.dart';
 
+import 'package:boklo/core/services/notification_service.dart';
 import 'package:boklo/core/services/analytics_service.dart';
+
+class MockNotificationService extends Mock implements NotificationService {}
 
 class MockAnalyticsService extends Mock implements AnalyticsService {}
 
@@ -31,6 +34,7 @@ void main() {
   late MockGetCurrentUserUseCase mockGetCurrentUserUseCase;
   late MockRegisterUseCase mockRegisterUseCase;
   late MockAnalyticsService mockAnalyticsService;
+  late MockNotificationService mockNotificationService;
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
@@ -38,9 +42,12 @@ void main() {
     mockGetCurrentUserUseCase = MockGetCurrentUserUseCase();
     mockRegisterUseCase = MockRegisterUseCase();
     mockAnalyticsService = MockAnalyticsService();
+    mockNotificationService = MockNotificationService();
 
     when(() => mockAnalyticsService.logLogin(method: any(named: 'method')))
         .thenAnswer((_) async {});
+
+    when(() => mockNotificationService.deleteToken()).thenAnswer((_) async {});
 
     cubit = AuthCubit(
       mockLoginUseCase,
@@ -48,6 +55,7 @@ void main() {
       mockGetCurrentUserUseCase,
       mockRegisterUseCase,
       mockAnalyticsService,
+      mockNotificationService,
     );
   });
 

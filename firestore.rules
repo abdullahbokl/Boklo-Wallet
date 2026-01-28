@@ -29,7 +29,7 @@ service cloud.firestore {
 
       // Preferences Subcollection
       match /preferences/{prefId} {
-        allow read, write: if isAuthenticated(); // DEBUG: Check if ownership is the issue
+        allow read, write: if isOwner(userId);
       }
     }
     

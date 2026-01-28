@@ -92,7 +92,8 @@ class _TransferFormState extends State<TransferForm> {
                 state.whenOrNull(
                   success: (_) {
                     getIt<SnackbarService>().showSuccess('Transfer successful');
-                    getIt<NavigationService>().pop(true);
+                    // Navigate back to the wallet (home) screen
+                    getIt<NavigationService>().go('/wallet');
                   },
                   error: (error) {
                     getIt<SnackbarService>().showError(error.message);

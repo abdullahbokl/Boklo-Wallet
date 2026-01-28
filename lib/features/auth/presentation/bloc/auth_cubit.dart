@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/services/analytics_service.dart';
+import 'package:boklo/core/services/notification_service.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/login_usecase.dart';
@@ -18,6 +19,7 @@ class AuthCubit extends BaseCubit<User?> {
     this._getCurrentUserUseCase,
     this._registerUseCase,
     this._analyticsService,
+    this._notificationService,
   ) : super(const BaseState.initial());
 
   final LoginUseCase _loginUseCase;
@@ -25,6 +27,7 @@ class AuthCubit extends BaseCubit<User?> {
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final RegisterUseCase _registerUseCase;
   final AnalyticsService _analyticsService;
+  final NotificationService _notificationService;
 
   Future<void> login(String email, String password) async {
     emitLoading();
@@ -49,6 +52,7 @@ class AuthCubit extends BaseCubit<User?> {
 
   Future<void> logout() async {
     emitLoading();
+    await _notificationService.deleteToken();
     final result = await _logoutUseCase();
     result.fold(
       emitError,
