@@ -85,6 +85,44 @@ class WalletBalanceCard extends StatelessWidget {
                 ),
               ),
             ],
+            // Wallet ID copy section
+            const SizedBox(height: AppSpacing.s),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.s,
+                vertical: AppSpacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest
+                    .withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(AppRadius.s),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'ID: ${wallet.id.length > 8 ? '${wallet.id.substring(0, 8)}...' : wallet.id}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontFamily: 'Monospace',
+                          color: Colors.grey[600],
+                        ),
+                  ),
+                  const SizedBox(width: AppSpacing.s),
+                  InkWell(
+                    onTap: () {
+                      unawaited(
+                        Clipboard.setData(ClipboardData(text: wallet.id)),
+                      );
+                      getIt<SnackbarService>()
+                          .showInfo('Wallet ID copied to clipboard');
+                    },
+                    child: Icon(Icons.copy, size: 14, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

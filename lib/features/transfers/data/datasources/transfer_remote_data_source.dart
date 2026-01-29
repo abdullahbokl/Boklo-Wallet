@@ -76,21 +76,26 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
 
   @override
   Future<WalletModel?> getWalletByEmail(String email) async {
-    final query = await _firestore
-        .collection('wallets')
+    // Step 1: Find user by email (wallets don't store email, users do)
+    final userQuery = await _firestore
+        .collection('users')
         .where('email', isEqualTo: email.toLowerCase())
-        .limit(2)
+        .limit(1)
         .get();
 
-    if (query.docs.length > 1) {
-      throw Exception(
-          'Data integrity error: Multiple wallets found with email $email');
+    if (userQuery.docs.isEmpty) {
+      return null;
     }
 
-    if (query.docs.isNotEmpty) {
-      return WalletModel.fromJson(query.docs.first.data());
+    // Step 2: Get wallet by user ID (wallet ID = user ID in 1:1 mapping)
+    final userId = userQuery.docs.first.id;
+    final walletDoc = await _firestore.collection('wallets').doc(userId).get();
+
+    if (!walletDoc.exists || walletDoc.data() == null) {
+      return null;
     }
-    return null;
+
+    return WalletModel.fromJson(walletDoc.data()!);
   }
 
   @override

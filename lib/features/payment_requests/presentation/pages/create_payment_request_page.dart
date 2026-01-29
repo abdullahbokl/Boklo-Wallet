@@ -9,7 +9,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 
 class CreatePaymentRequestPage extends StatefulWidget {
-  const CreatePaymentRequestPage({super.key});
+  final String? prefilledPayerId;
+
+  const CreatePaymentRequestPage({super.key, this.prefilledPayerId});
 
   @override
   State<CreatePaymentRequestPage> createState() =>
@@ -23,6 +25,14 @@ class _CreatePaymentRequestPageState extends State<CreatePaymentRequestPage> {
   final _amountController = TextEditingController();
   final _currencyController = TextEditingController(text: 'USD'); // Default
   final _noteController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.prefilledPayerId != null) {
+      _payerIdController.text = widget.prefilledPayerId!;
+    }
+  }
 
   @override
   void dispose() {

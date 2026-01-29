@@ -9,8 +9,9 @@ import 'package:injectable/injectable.dart';
 class NavigationService {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  Future<T?> push<T extends Object?>(String route) {
-    return GoRouter.of(navigatorKey.currentContext!).push<T>(route);
+  Future<T?> push<T extends Object?>(String route, {Object? extra}) {
+    return GoRouter.of(navigatorKey.currentContext!)
+        .push<T>(route, extra: extra);
   }
 
   void pushReplacement(String route) {

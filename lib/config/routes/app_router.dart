@@ -4,6 +4,7 @@ import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/auth/presentation/pages/login_page.dart';
 import 'package:boklo/features/auth/presentation/pages/register_page.dart';
+import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
 import 'package:boklo/features/ledger_debug/presentation/pages/ledger_debug_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
@@ -49,7 +50,11 @@ class AppRouter {
       ),
       GoRoute(
         path: '/transfer',
-        builder: (context, state) => const TransferPage(),
+        builder: (context, state) {
+          // Extract contact email if passed from contacts page
+          final contact = state.extra as ContactEntity?;
+          return TransferPage(prefilledRecipient: contact?.email);
+        },
       ),
       GoRoute(
         path: '/ledger-debug',
@@ -61,7 +66,11 @@ class AppRouter {
         routes: [
           GoRoute(
             path: 'create',
-            builder: (context, state) => const CreatePaymentRequestPage(),
+            builder: (context, state) {
+              // Extract contact UID if passed from contacts page
+              final contact = state.extra as ContactEntity?;
+              return CreatePaymentRequestPage(prefilledPayerId: contact?.uid);
+            },
           ),
         ],
       ),

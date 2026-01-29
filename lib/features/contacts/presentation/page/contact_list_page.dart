@@ -1,5 +1,7 @@
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/navigation_service.dart';
+import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_cubit.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_state.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +55,32 @@ class ContactListPage extends StatelessWidget {
                   ),
                   title: Text(contact.displayName),
                   subtitle: Text(contact.email),
+                  trailing: PopupMenuButton<String>(
+                    onSelected: (action) =>
+                        _handleContactAction(action, contact),
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'send',
+                        child: Row(
+                          children: [
+                            Icon(Icons.send, size: 20),
+                            SizedBox(width: 8),
+                            Text('Send Money'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'request',
+                        child: Row(
+                          children: [
+                            Icon(Icons.request_page, size: 20),
+                            SizedBox(width: 8),
+                            Text('Request Payment'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             );
@@ -60,6 +88,15 @@ class ContactListPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _handleContactAction(String action, ContactEntity contact) {
+    if (action == 'send') {
+      getIt<NavigationService>().push('/transfer', extra: contact);
+    } else if (action == 'request') {
+      getIt<NavigationService>()
+          .push('/payment-requests/create', extra: contact);
+    }
   }
 
   void _showAddContactDialog(BuildContext context) {

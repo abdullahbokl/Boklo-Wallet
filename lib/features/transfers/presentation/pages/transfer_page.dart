@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransferPage extends StatelessWidget {
-  const TransferPage({super.key});
+  final String? prefilledRecipient;
+
+  const TransferPage({super.key, this.prefilledRecipient});
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +29,19 @@ class TransferPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(title: const Text('Send Money')),
         body: ResponsiveBuilder(
-          mobile: (_, __) => const TransferForm(),
-          tablet: (_, __) => const Center(
-            child: SizedBox(width: 600, child: TransferForm()),
+          mobile: (_, __) =>
+              TransferForm(prefilledRecipient: prefilledRecipient),
+          tablet: (_, __) => Center(
+            child: SizedBox(
+              width: 600,
+              child: TransferForm(prefilledRecipient: prefilledRecipient),
+            ),
           ),
-          desktop: (_, __) => const Center(
-            child: SizedBox(width: 600, child: TransferForm()),
+          desktop: (_, __) => Center(
+            child: SizedBox(
+              width: 600,
+              child: TransferForm(prefilledRecipient: prefilledRecipient),
+            ),
           ),
         ),
       ),

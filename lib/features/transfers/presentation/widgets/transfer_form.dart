@@ -17,7 +17,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TransferForm extends StatefulWidget {
-  const TransferForm({super.key});
+  final String? prefilledRecipient;
+
+  const TransferForm({super.key, this.prefilledRecipient});
 
   @override
   State<TransferForm> createState() => _TransferFormState();
@@ -27,6 +29,14 @@ class _TransferFormState extends State<TransferForm> {
   final _formKey = GlobalKey<FormState>();
   final _recipientController = TextEditingController();
   final _amountController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.prefilledRecipient != null) {
+      _recipientController.text = widget.prefilledRecipient!;
+    }
+  }
 
   @override
   void dispose() {
