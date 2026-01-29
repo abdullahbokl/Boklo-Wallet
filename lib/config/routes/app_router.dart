@@ -76,7 +76,11 @@ class AppRouter {
       ),
       GoRoute(
         path: '/contacts',
-        builder: (context, state) => const ContactListPage(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return ContactListPage(
+              isPickMode: (extra?['pickMode'] as bool?) ?? false);
+        },
       ),
       GoRoute(
         path: '/notification-settings',

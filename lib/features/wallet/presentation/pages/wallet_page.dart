@@ -167,7 +167,7 @@ class _WalletLayout extends StatelessWidget {
           // Quick Actions
           WalletPrimaryAction(
             onSendMoney: () async {
-              getIt<NavigationService>().go('/transfer');
+              getIt<NavigationService>().push('/transfer');
             },
           ),
           const SizedBox(height: AppDimens.md),

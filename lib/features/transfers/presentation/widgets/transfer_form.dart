@@ -12,6 +12,7 @@ import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/config/theme/app_colors.dart';
+import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -90,6 +91,17 @@ class _TransferFormState extends State<TransferForm> {
     }
   }
 
+  Future<void> _pickContact() async {
+    final contact = await getIt<NavigationService>()
+        .push<ContactEntity>('/contacts', extra: {'pickMode': true});
+
+    if (contact != null && mounted) {
+      setState(() {
+        _recipientController.text = contact.email;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<WalletCubit, BaseState<WalletState>>(
@@ -155,6 +167,10 @@ class _TransferFormState extends State<TransferForm> {
                             label: 'Recipient',
                             hintText: 'Wallet ID, Alias, or Email',
                             prefixIcon: const Icon(Icons.person_outline),
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.contacts),
+                              onPressed: isLoading ? null : _pickContact,
+                            ),
                             validator: (v) =>
                                 (v?.isEmpty ?? true) ? 'Required' : null,
                           ),

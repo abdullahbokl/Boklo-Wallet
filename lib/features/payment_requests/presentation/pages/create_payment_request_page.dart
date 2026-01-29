@@ -4,9 +4,11 @@ import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
+import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
+import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:boklo/config/theme/app_dimens.dart';
 
 class CreatePaymentRequestPage extends StatefulWidget {
   final String? prefilledPayerId;
@@ -43,6 +45,17 @@ class _CreatePaymentRequestPageState extends State<CreatePaymentRequestPage> {
     super.dispose();
   }
 
+  Future<void> _pickContact() async {
+    final contact = await getIt<NavigationService>()
+        .push<ContactEntity>('/contacts', extra: {'pickMode': true});
+
+    if (contact != null && mounted) {
+      setState(() {
+        _payerIdController.text = contact.email;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -68,16 +81,23 @@ class _CreatePaymentRequestPageState extends State<CreatePaymentRequestPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  TextFormField(
+                  AppTextField(
                     controller: _payerIdController,
-                    decoration:
-                        const InputDecoration(labelText: 'Payer ID (User ID)'),
+                    label: 'Payer ID or Email',
+                    hintText: 'User ID or Email',
+                    prefixIcon: const Icon(Icons.person_outline),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.contacts),
+                      onPressed: _pickContact,
+                    ),
                     validator: (v) => v?.isNotEmpty == true ? null : 'Required',
                   ),
                   const SizedBox(height: AppDimens.md),
-                  TextFormField(
+                  AppTextField(
                     controller: _amountController,
-                    decoration: const InputDecoration(labelText: 'Amount'),
+                    label: 'Amount',
+                    hintText: '0.00',
+                    prefixIcon: const Icon(Icons.attach_money),
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                     validator: (v) {
@@ -88,16 +108,17 @@ class _CreatePaymentRequestPageState extends State<CreatePaymentRequestPage> {
                     },
                   ),
                   const SizedBox(height: AppDimens.md),
-                  TextFormField(
+                  AppTextField(
                     controller: _currencyController,
-                    decoration: const InputDecoration(labelText: 'Currency'),
+                    label: 'Currency',
+                    hintText: 'USD',
                     validator: (v) => v?.isNotEmpty == true ? null : 'Required',
                   ),
                   const SizedBox(height: AppDimens.md),
-                  TextFormField(
+                  AppTextField(
                     controller: _noteController,
-                    decoration:
-                        const InputDecoration(labelText: 'Note (Optional)'),
+                    label: 'Note (Optional)',
+                    hintText: 'What is this for?',
                   ),
                   const Spacer(),
                   BlocBuilder<PaymentRequestCubit,

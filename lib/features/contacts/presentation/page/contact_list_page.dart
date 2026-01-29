@@ -10,7 +10,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 
 class ContactListPage extends StatelessWidget {
-  const ContactListPage({super.key});
+  const ContactListPage({super.key, this.isPickMode = false});
+
+  final bool isPickMode;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class ContactListPage extends StatelessWidget {
         return cubit;
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Contacts')),
+        appBar: AppBar(title: Text(isPickMode ? 'Select Contact' : 'Contacts')),
         floatingActionButton: Builder(
           builder: (context) => FloatingActionButton(
             onPressed: () => _showAddContactDialog(context),
@@ -45,6 +47,9 @@ class ContactListPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final contact = contacts[index];
                 return ListTile(
+                  onTap: isPickMode
+                      ? () => getIt<NavigationService>().pop(contact)
+                      : null,
                   leading: CircleAvatar(
                     backgroundImage: contact.photoUrl != null
                         ? NetworkImage(contact.photoUrl!)
@@ -55,32 +60,34 @@ class ContactListPage extends StatelessWidget {
                   ),
                   title: Text(contact.displayName),
                   subtitle: Text(contact.email),
-                  trailing: PopupMenuButton<String>(
-                    onSelected: (action) =>
-                        _handleContactAction(action, contact),
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'send',
-                        child: Row(
-                          children: [
-                            Icon(Icons.send, size: 20),
-                            SizedBox(width: 8),
-                            Text('Send Money'),
+                  trailing: isPickMode
+                      ? null
+                      : PopupMenuButton<String>(
+                          onSelected: (action) =>
+                              _handleContactAction(action, contact),
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'send',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.send, size: 20),
+                                  SizedBox(width: 8),
+                                  Text('Send Money'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'request',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.request_page, size: 20),
+                                  SizedBox(width: 8),
+                                  Text('Request Payment'),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'request',
-                        child: Row(
-                          children: [
-                            Icon(Icons.request_page, size: 20),
-                            SizedBox(width: 8),
-                            Text('Request Payment'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
                 );
               },
             );

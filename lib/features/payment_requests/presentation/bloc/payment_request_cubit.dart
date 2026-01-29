@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
 import 'package:boklo/features/payment_requests/domain/repo/payment_request_repository.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
 import 'package:injectable/injectable.dart';
@@ -9,10 +10,14 @@ import 'package:injectable/injectable.dart';
 @injectable
 class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
   final PaymentRequestRepository _repository;
+  final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
   StreamSubscription<dynamic>? _incomingSub;
   StreamSubscription<dynamic>? _outgoingSub;
 
-  PaymentRequestCubit(this._repository) : super(const BaseState.initial());
+  PaymentRequestCubit(
+    this._repository,
+    this._resolveWalletByEmailUseCase,
+  ) : super(const BaseState.initial());
 
   void init() {
     emitLoading();
@@ -31,7 +36,7 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
         });
       },
       onError: (Object error) {
-        print('[CUBIT ERROR] watchIncomingRequests: $error');
+        // Log error
       },
     );
   }
@@ -46,7 +51,7 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
         });
       },
       onError: (Object error) {
-        print('[CUBIT ERROR] watchOutgoingRequests: $error');
+        // Log error
       },
     );
   }
@@ -60,50 +65,56 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
     final currentState = state.data ?? const PaymentRequestState();
     emitSuccess(currentState.copyWith(isCreating: true));
 
+    var targetPayerId = payerId.trim();
+
+    // 1. Resolve Email if needed
+    if (targetPayerId.contains('@')) {
+      final resolution = await _resolveWalletByEmailUseCase(targetPayerId);
+      final error = resolution.fold((l) => l, (r) => null);
+      if (error != null) {
+        emitError(error);
+        emitSuccess(currentState.copyWith(isCreating: false));
+        return;
+      }
+      targetPayerId = resolution.fold((l) => '', (r) => r);
+    }
+
+    // 2. Create Request
     final result = await _repository.createRequest(
-        payerId: payerId, amount: amount, currency: currency, note: note);
+        payerId: targetPayerId, amount: amount, currency: currency, note: note);
 
     result.fold((error) {
       emitError(error);
-      // Revert loading state? Or just show error and keep state?
-      // Usually emitError shows snackbar/dialog.
       emitSuccess(currentState.copyWith(isCreating: false));
     }, (id) {
       emitSuccess(currentState.copyWith(isCreating: false));
-      // Navigate back or show success handled by UI listener
     });
   }
 
   Future<void> acceptRequest(String requestId) async {
-    print('[DEBUG] acceptRequest called for requestId: $requestId');
     final currentState = state.data ?? const PaymentRequestState();
     emitSuccess(currentState.copyWith(isActing: true));
 
     final result = await _repository.acceptRequest(requestId);
 
     result.fold((error) {
-      print('[ERROR] acceptRequest failed: ${error.message}');
       emitError(error);
       emitSuccess(currentState.copyWith(isActing: false));
     }, (_) {
-      print('[DEBUG] acceptRequest success');
       emitSuccess(currentState.copyWith(isActing: false));
     });
   }
 
   Future<void> declineRequest(String requestId) async {
-    print('[DEBUG] declineRequest called for requestId: $requestId');
     final currentState = state.data ?? const PaymentRequestState();
     emitSuccess(currentState.copyWith(isActing: true));
 
     final result = await _repository.declineRequest(requestId);
 
     result.fold((error) {
-      print('[ERROR] declineRequest failed: ${error.message}');
       emitError(error);
       emitSuccess(currentState.copyWith(isActing: false));
     }, (_) {
-      print('[DEBUG] declineRequest success');
       emitSuccess(currentState.copyWith(isActing: false));
     });
   }
