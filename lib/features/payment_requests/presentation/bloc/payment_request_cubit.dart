@@ -22,23 +22,33 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
 
   void _watchIncoming() {
     _incomingSub?.cancel();
-    _incomingSub = _repository.watchIncomingRequests().listen((result) {
-      result.fold((error) => emitError(error), (data) {
-        // Merge with current state or create new success
-        final currentState = state.data ?? const PaymentRequestState();
-        emitSuccess(currentState.copyWith(incomingRequests: data));
-      });
-    });
+    _incomingSub = _repository.watchIncomingRequests().listen(
+      (result) {
+        result.fold((error) => emitError(error), (data) {
+          // Merge with current state or create new success
+          final currentState = state.data ?? const PaymentRequestState();
+          emitSuccess(currentState.copyWith(incomingRequests: data));
+        });
+      },
+      onError: (Object error) {
+        print('[CUBIT ERROR] watchIncomingRequests: $error');
+      },
+    );
   }
 
   void _watchOutgoing() {
     _outgoingSub?.cancel();
-    _outgoingSub = _repository.watchOutgoingRequests().listen((result) {
-      result.fold((error) => emitError(error), (data) {
-        final currentState = state.data ?? const PaymentRequestState();
-        emitSuccess(currentState.copyWith(outgoingRequests: data));
-      });
-    });
+    _outgoingSub = _repository.watchOutgoingRequests().listen(
+      (result) {
+        result.fold((error) => emitError(error), (data) {
+          final currentState = state.data ?? const PaymentRequestState();
+          emitSuccess(currentState.copyWith(outgoingRequests: data));
+        });
+      },
+      onError: (Object error) {
+        print('[CUBIT ERROR] watchOutgoingRequests: $error');
+      },
+    );
   }
 
   Future<void> createRequest({
@@ -65,29 +75,35 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
   }
 
   Future<void> acceptRequest(String requestId) async {
+    print('[DEBUG] acceptRequest called for requestId: $requestId');
     final currentState = state.data ?? const PaymentRequestState();
     emitSuccess(currentState.copyWith(isActing: true));
 
     final result = await _repository.acceptRequest(requestId);
 
     result.fold((error) {
+      print('[ERROR] acceptRequest failed: ${error.message}');
       emitError(error);
       emitSuccess(currentState.copyWith(isActing: false));
     }, (_) {
+      print('[DEBUG] acceptRequest success');
       emitSuccess(currentState.copyWith(isActing: false));
     });
   }
 
   Future<void> declineRequest(String requestId) async {
+    print('[DEBUG] declineRequest called for requestId: $requestId');
     final currentState = state.data ?? const PaymentRequestState();
     emitSuccess(currentState.copyWith(isActing: true));
 
     final result = await _repository.declineRequest(requestId);
 
     result.fold((error) {
+      print('[ERROR] declineRequest failed: ${error.message}');
       emitError(error);
       emitSuccess(currentState.copyWith(isActing: false));
     }, (_) {
+      print('[DEBUG] declineRequest success');
       emitSuccess(currentState.copyWith(isActing: false));
     });
   }

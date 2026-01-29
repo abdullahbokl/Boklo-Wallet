@@ -40,12 +40,16 @@ class PaymentRequestRepositoryImpl implements PaymentRequestRepository {
               Result<List<PaymentRequestEntity>>>.fromHandlers(
             handleData: (data, sink) {
               try {
+                print(
+                    '[REPO DEBUG] watchIncomingRequests received ${data.length} items');
                 sink.add(Success(data.map((e) => e.toEntity()).toList()));
               } catch (e) {
+                print('[REPO ERROR] watchIncomingRequests transform error: $e');
                 sink.add(Failure(UnknownError(e.toString())));
               }
             },
             handleError: (error, stack, sink) {
+              print('[REPO ERROR] watchIncomingRequests stream error: $error');
               sink.add(Failure(UnknownError(error.toString())));
             },
           ),
@@ -59,12 +63,16 @@ class PaymentRequestRepositoryImpl implements PaymentRequestRepository {
               Result<List<PaymentRequestEntity>>>.fromHandlers(
             handleData: (data, sink) {
               try {
+                print(
+                    '[REPO DEBUG] watchOutgoingRequests received ${data.length} items');
                 sink.add(Success(data.map((e) => e.toEntity()).toList()));
               } catch (e) {
+                print('[REPO ERROR] watchOutgoingRequests transform error: $e');
                 sink.add(Failure(UnknownError(e.toString())));
               }
             },
             handleError: (error, stack, sink) {
+              print('[REPO ERROR] watchOutgoingRequests stream error: $error');
               sink.add(Failure(UnknownError(error.toString())));
             },
           ),
@@ -74,9 +82,13 @@ class PaymentRequestRepositoryImpl implements PaymentRequestRepository {
   @override
   Future<Result<void>> acceptRequest(String requestId) async {
     try {
+      print('[REPO DEBUG] acceptRequest called for: $requestId');
       await _remoteDataSource.acceptRequest(requestId);
+      print('[REPO DEBUG] acceptRequest SUCCESS');
       return const Success(null);
-    } catch (e) {
+    } catch (e, stack) {
+      print('[REPO ERROR] acceptRequest failed: $e');
+      print('[REPO ERROR] Stack: $stack');
       return Failure(UnknownError(e.toString()));
     }
   }
@@ -84,9 +96,13 @@ class PaymentRequestRepositoryImpl implements PaymentRequestRepository {
   @override
   Future<Result<void>> declineRequest(String requestId) async {
     try {
+      print('[REPO DEBUG] declineRequest called for: $requestId');
       await _remoteDataSource.declineRequest(requestId);
+      print('[REPO DEBUG] declineRequest SUCCESS');
       return const Success(null);
-    } catch (e) {
+    } catch (e, stack) {
+      print('[REPO ERROR] declineRequest failed: $e');
+      print('[REPO ERROR] Stack: $stack');
       return Failure(UnknownError(e.toString()));
     }
   }

@@ -122,23 +122,31 @@ export const acceptPaymentRequest = onCall(async (request) => {
             }
 
             // 3. Resolve Wallets
-            // We need Payer's wallet ID.
-            // Assuming 1:1 user-wallet for MVP or we look it up.
-            // Let's assume we can fetch wallet via `wallets` collection query where userId == uid
-            // OR the client passes `payerWalletId`? 
-            // Better security: Look it up backend side.
-            const walletQuery = await t.get(db.collection('wallets').where('userId', '==', uid).limit(1));
-            if (walletQuery.empty) {
-                throw new HttpsError('failed-precondition', 'Payer wallet not found');
+            // Wallet document ID = User ID (1:1 mapping)
+            logger.info("Looking up payer wallet", { uid, walletPath: `wallets/${uid}` });
+            const payerWalletRef = db.collection('wallets').doc(uid);
+            const payerWalletDoc = await t.get(payerWalletRef);
+            logger.info("Payer wallet lookup result", { exists: payerWalletDoc.exists, uid });
+            if (!payerWalletDoc.exists) {
+                logger.error("Payer wallet not found", { uid, walletPath: `wallets/${uid}` });
+                throw new HttpsError('failed-precondition', `Payer wallet not found for uid: ${uid}`);
             }
-            const payerWalletId = walletQuery.docs[0].id;
+            const payerWalletId = payerWalletDoc.id;
+            
+            // Look up Requester's wallet (wallet ID = requester's user ID)
+            const requesterWalletRef = db.collection('wallets').doc(data.requesterId);
+            const requesterWalletDoc = await t.get(requesterWalletRef);
+            if (!requesterWalletDoc.exists) {
+                throw new HttpsError('failed-precondition', 'Requester wallet not found');
+            }
+            const requesterWalletId = requesterWalletDoc.id;
             
             // 4. Create Transfer
             // Payer (Scanner/Accepter) sends money TO Requester.
             const transferRef = db.collection('transfers').doc();
             const transferData = {
                 fromWalletId: payerWalletId,
-                toWalletId: data.requesterWalletId,
+                toWalletId: requesterWalletId,
                 amount: data.amount,
                 currency: data.currency,
                 description: data.note || 'Payment Request Accepted',

@@ -40,32 +40,61 @@ class PaymentRequestRemoteDataSourceImpl
   @override
   Stream<List<PaymentRequestModel>> watchIncomingRequests() {
     final uid = _auth.currentUser?.uid;
-    if (uid == null) return Stream.value([]);
+    print('[DEBUG] watchIncomingRequests: uid=$uid');
+    if (uid == null) {
+      print('[DEBUG] watchIncomingRequests: No user, returning empty');
+      return Stream.value([]);
+    }
 
     return _firestore
         .collection('payment_requests')
         .where('payerId', isEqualTo: uid)
-        .orderBy('createdAt', descending: true)
+        // Temporarily removing orderBy to test if index is the issue
+        // .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => PaymentRequestModel.fromSnapshot(
-                doc)) // Ensure this constructor exists or map data
-            .toList());
+        .map((snapshot) {
+      // Debug log
+      print(
+          '[DEBUG] watchIncomingRequests: ${snapshot.docs.length} docs for payerId=$uid');
+      for (var doc in snapshot.docs) {
+        print('[DEBUG] Incoming doc: ${doc.id} - ${doc.data()}');
+      }
+      return snapshot.docs
+          .map((doc) => PaymentRequestModel.fromSnapshot(doc))
+          .toList();
+    }).handleError((Object error) {
+      print('[ERROR] watchIncomingRequests error: $error');
+    });
   }
 
   @override
   Stream<List<PaymentRequestModel>> watchOutgoingRequests() {
     final uid = _auth.currentUser?.uid;
-    if (uid == null) return Stream.value([]);
+    print('[DEBUG] watchOutgoingRequests: uid=$uid');
+    if (uid == null) {
+      print('[DEBUG] watchOutgoingRequests: No user, returning empty');
+      return Stream.value([]);
+    }
 
     return _firestore
         .collection('payment_requests')
         .where('requesterId', isEqualTo: uid)
-        .orderBy('createdAt', descending: true)
+        // Temporarily removing orderBy to test if index is the issue
+        // .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => PaymentRequestModel.fromSnapshot(doc))
-            .toList());
+        .map((snapshot) {
+      // Debug log
+      print(
+          '[DEBUG] watchOutgoingRequests: ${snapshot.docs.length} docs for requesterId=$uid');
+      for (var doc in snapshot.docs) {
+        print('[DEBUG] Outgoing doc: ${doc.id} - ${doc.data()}');
+      }
+      return snapshot.docs
+          .map((doc) => PaymentRequestModel.fromSnapshot(doc))
+          .toList();
+    }).handleError((Object error) {
+      print('[ERROR] watchOutgoingRequests error: $error');
+    });
   }
 
   @override
