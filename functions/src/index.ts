@@ -23,6 +23,8 @@ export {
 } from "./requests";
 export * from "./contacts";
 export { reconcileWallets } from "./reconciliation";
+export { streamTransferToBigQuery, streamLedgerToBigQuery } from "./bigquery";
+export { onAdminJobCreated } from "./admin";
 
 admin.initializeApp();
 // const db = admin.firestore(); // Not currently used in index.ts

@@ -9,6 +9,7 @@ import {
   TransactionFailedEvent,
 } from "./domain/events/transfer_events";
 import { evaluateRisk, RISK_MODE, createRiskReview } from "./fraud.js";
+import { checkTransferRateLimit } from "./utils/rate_limiter";
 
 // Helper to create event objects
 const createEventPayload = (
@@ -52,6 +53,23 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
   const startTime = Date.now();
 
   const db = admin.firestore();
+
+  // --- RATE LIMIT CHECK ---
+  try {
+    if (transferData.fromWalletId) {
+       await checkTransferRateLimit(transferData.fromWalletId);
+    }
+  } catch (error: any) {
+    logger.warn("Transfer rejected due to rate limit", {
+        event: "RATE_LIMIT_EXCEEDED",
+        transactionId: transferId,
+        walletId: transferData.fromWalletId,
+        error: error.message
+    });
+    await updateAsFailed(db, transferId, error.message, transferData);
+    return;
+  }
+  // -----------------------
 
   // EMIT: transaction.created
   // We use a deterministic ID to prevent duplicate events on retries

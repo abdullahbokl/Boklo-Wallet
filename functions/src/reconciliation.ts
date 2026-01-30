@@ -32,6 +32,7 @@ export const reconcileWallets = onSchedule("every day 00:00", async (event) => {
     let verifiedCount = 0;
     let mismatchCount = 0;
     let errorCount = 0;
+    const mismatches: any[] = [];
 
     try {
         const walletsSnapshot = await db.collection("wallets").get();
@@ -78,6 +79,15 @@ export const reconcileWallets = onSchedule("every day 00:00", async (event) => {
                         difference: currentBalance - calculatedBalance,
                         currency: currency
                     });
+                    if (mismatches.length < 10) { // Limit samples
+                        mismatches.push({
+                            walletId,
+                            currentBalance,
+                            calculatedBalance,
+                            difference: currentBalance - calculatedBalance,
+                            currency
+                        });
+                    }
                 } else {
                     verifiedCount++;
                 }
@@ -100,6 +110,18 @@ export const reconcileWallets = onSchedule("every day 00:00", async (event) => {
             verifiedWithNoIssues: verifiedCount,
             mismatchesFound: mismatchCount,
             errorsChecking: errorCount
+        });
+
+        // Write Report
+        const reportId = new Date().toISOString().split('T')[0];
+        await db.collection("reconciliation_reports").doc(reportId).set({
+            date: reportId,
+            totalWallets: walletsSnapshot.size,
+            verifiedCount,
+            mismatchCount,
+            errorCount,
+            mismatches, // Sample
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
         });
 
     } catch (e) {
