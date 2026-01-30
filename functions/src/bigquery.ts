@@ -4,7 +4,7 @@ import { BigQuery } from "@google-cloud/bigquery";
 
 // Initialize BigQuery client
 const bigquery = new BigQuery();
-const DATASET_ID = "boklo_analytics";
+const DATASET_ID = process.env.BIGQUERY_DATASET || "boklo_analytics";
 
 // Helper for safe insertion
 async function insertRows(tableId: string, rows: any[]) {
@@ -13,12 +13,14 @@ async function insertRows(tableId: string, rows: any[]) {
             .dataset(DATASET_ID)
             .table(tableId)
             .insert(rows);
+        logger.info(`BigQuery insert success: ${tableId}`, { count: rows.length });
     } catch (err: any) {
         if (err.name === 'PartialFailureError') {
             logger.error(`BigQuery partial insert error for table ${tableId}`, err.errors);
         } else {
-            logger.error(`BigQuery insert failed for table ${tableId}`, err);
+            logger.error(`BigQuery insert failed for table ${tableId}`, { error: err });
         }
+        // Swallow error to prevent function retries for analytical failures
     }
 }
 

@@ -37,17 +37,16 @@ export const recordLedgerEntry = onCustomEventPublished(
         const debitEntryId = `${transactionId}_DR`;
         const creditEntryId = `${transactionId}_CR`;
 
-        const debitRef = db.collection("ledger").doc(debitEntryId);
-        const creditRef = db.collection("ledger").doc(creditEntryId);
-
+        const debitRefWallet = db.collection("wallets").doc(senderWalletId).collection("ledger").doc(debitEntryId);
+        const creditRefWallet = db.collection("wallets").doc(receiverWalletId).collection("ledger").doc(creditEntryId);
 
         const startTime = Date.now();
 
         try {
             await db.runTransaction(async (t) => {
                 // Idempotency Check: Read both to see if already processed
-                const debitDoc = await t.get(debitRef);
-                const creditDoc = await t.get(creditRef);
+                const debitDoc = await t.get(debitRefWallet);
+                const creditDoc = await t.get(creditRefWallet);
 
                 if (debitDoc.exists && creditDoc.exists) {
                     logger.info(`[IDEMPOTENCY] Ledger entries for transaction ${transactionId} already exist. Skipping duplicate processing.`);
@@ -57,9 +56,6 @@ export const recordLedgerEntry = onCustomEventPublished(
                 if (debitDoc.exists || creditDoc.exists) {
                     logger.warn(`[RECOVERY] Partial ledger state detected for ${transactionId}. Repairing by overwriting entries.`);
                 }
-
-                const debitRefWallet = db.collection("wallets").doc(senderWalletId).collection("ledger").doc(debitEntryId);
-                const creditRefWallet = db.collection("wallets").doc(receiverWalletId).collection("ledger").doc(creditEntryId);
 
                 // Create DEBIT Entry (Sender)
                 const debitEntry: LedgerEntry = {

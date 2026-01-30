@@ -1,0 +1,11 @@
+[
+  { "name": "transfer_id", "type": "STRING", "mode": "REQUIRED" },
+  { "name": "from_wallet_id", "type": "STRING", "mode": "REQUIRED" },
+  { "name": "to_wallet_id", "type": "STRING", "mode": "REQUIRED" },
+  { "name": "amount", "type": "FLOAT", "mode": "REQUIRED" },
+  { "name": "currency", "type": "STRING", "mode": "REQUIRED" },
+  { "name": "status", "type": "STRING", "mode": "REQUIRED" },
+  { "name": "timestamp", "type": "TIMESTAMP", "mode": "REQUIRED" },
+  { "name": "risk_level", "type": "STRING", "mode": "NULLABLE" },
+  { "name": "ingest_time", "type": "TIMESTAMP", "mode": "NULLABLE" }
+]

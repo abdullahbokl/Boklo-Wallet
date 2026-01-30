@@ -39,19 +39,18 @@ export const onAdminJobCreated = onDocumentCreated("admin_jobs/{jobId}", async (
             const data = doc.data();
             const txId = doc.id;
 
-            // Check if events exist (using deterministic ID pattern from transfers.ts)
+            // 1. Replay CREATED event
             const createdEventId = `${txId}_created`;
-            const eventDoc = await db.collection("events").doc(createdEventId).get();
+            const createdDoc = await db.collection("events").doc(createdEventId).get();
 
-            if (!eventDoc.exists) {
+            if (!createdDoc.exists) {
                 replayedCount++;
-                logger.info(`Job ${jobId}: Missing event for transfer ${txId}. Replaying...`);
+                logger.info(`Job ${jobId}: Missing CREATED event for transfer ${txId}. Replaying...`);
                 
                 if (!dryRun) {
                     await db.collection("events").doc(createdEventId).set({
                         eventId: createdEventId,
                         eventType: "transaction.created",
-                        // Use original timestamp if available, else job time
                         occurredAt: data.createdAt && typeof data.createdAt.toDate === 'function' ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
                         transactionId: txId,
                         senderWalletId: data.fromWalletId,
@@ -62,6 +61,55 @@ export const onAdminJobCreated = onDocumentCreated("admin_jobs/{jobId}", async (
                         replayedJobId: jobId
                     });
                 }
+            }
+
+            // 2. Replay COMPLETED event if applicable
+            if (data.status === 'completed') {
+                const completedEventId = `${txId}_completed`;
+                const completedDoc = await db.collection("events").doc(completedEventId).get();
+                if (!completedDoc.exists) {
+                    replayedCount++;
+                    logger.info(`Job ${jobId}: Missing COMPLETED event for transfer ${txId}. Replaying...`);
+                    if (!dryRun) {
+                        await db.collection("events").doc(completedEventId).set({
+                            eventId: completedEventId,
+                            eventType: "transaction.completed",
+                            occurredAt: data.completedAt && typeof data.completedAt.toDate === 'function' ? data.completedAt.toDate().toISOString() : new Date().toISOString(),
+                            transactionId: txId,
+                            senderWalletId: data.fromWalletId,
+                            receiverWalletId: data.toWalletId,
+                            amount: data.amount,
+                            currency: data.currency,
+                            replayed: true,
+                            replayedJobId: jobId
+                        });
+                    }
+                }
+            }
+
+            // 3. Replay FAILED event if applicable
+            if (data.status === 'failed') {
+                 const failedEventId = `${txId}_failed`;
+                 const failedDoc = await db.collection("events").doc(failedEventId).get();
+                 if (!failedDoc.exists) {
+                    replayedCount++;
+                    logger.info(`Job ${jobId}: Missing FAILED event for transfer ${txId}. Replaying...`);
+                    if (!dryRun) {
+                        await db.collection("events").doc(failedEventId).set({
+                            eventId: failedEventId,
+                            eventType: "transaction.failed",
+                            occurredAt: data.updatedAt && typeof data.updatedAt.toDate === 'function' ? data.updatedAt.toDate().toISOString() : new Date().toISOString(), // Fallback
+                            transactionId: txId,
+                            senderWalletId: data.fromWalletId,
+                            receiverWalletId: data.toWalletId,
+                            amount: data.amount,
+                            currency: data.currency,
+                            failureReason: data.failureReason || 'Unknown',
+                            replayed: true,
+                            replayedJobId: jobId
+                        });
+                    }
+                 }
             }
         }
 
