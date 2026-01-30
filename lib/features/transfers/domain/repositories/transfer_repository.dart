@@ -6,5 +6,5 @@ abstract class TransferRepository {
   Future<Result<void>> createTransfer(TransferEntity transfer);
   Future<Result<List<TransferEntity>>> getTransfers();
   Future<Result<WalletEntity>> getWallet(String id);
-  Stream<TransferStatus> observeTransferStatus(String transferId);
+  Stream<TransferEntity?> observeTransfer(String transferId);
 }

@@ -1,9 +1,11 @@
-import 'dart:math';
+import 'dart:async';
+import 'dart:developer';
 
 import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/features/wallet/data/models/transaction_model.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
@@ -12,14 +14,16 @@ abstract class WalletRemoteDataSource {
   Future<List<TransactionModel>> getTransactions();
   Stream<List<TransactionModel>> watchTransactions();
   Stream<WalletModel> watchWallet();
+  Future<void> provisionWallet();
 }
 
 @LazySingleton(as: WalletRemoteDataSource)
 class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
-  WalletRemoteDataSourceImpl(this._firestore, this._auth);
+  WalletRemoteDataSourceImpl(this._firestore, this._auth, this._functions);
 
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final FirebaseFunctions _functions;
 
   @override
   Stream<WalletModel> watchWallet() {
@@ -28,17 +32,27 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       return Stream.error(const ValidationError('User not logged in'));
     }
 
-    return _firestore.collection('wallets').doc(userId).snapshots().map((doc) {
-      if (doc.exists) {
-        return WalletModel.fromJson(doc.data()!);
-      } else {
-        // If it doesn't exist, we might want to create it, but streams shouldn't side-effect easily.
-        // For now, return a default/empty model or error.
-        // Given getWallet creates it, we assume it exists or will be created by getWallet first.
-        // Or we throw error.
-        throw const ValidationError('Wallet not found');
-      }
-    });
+    return _firestore.collection('wallets').doc(userId).snapshots().transform(
+            StreamTransformer<DocumentSnapshot<Map<String, dynamic>>,
+                WalletModel>.fromHandlers(
+          handleData: (doc, sink) {
+            if (doc.exists && doc.data() != null) {
+              try {
+                sink.add(WalletModel.fromJson(doc.data()!));
+              } catch (e) {
+                // If deserialization fails, it's a real error
+                sink.addError(ValidationError('Invalid wallet data: $e'));
+              }
+            } else {
+              // Document does not exist yet (backend creation in progress).
+              // We do NOT emit an error here. We stay silent.
+              // The stream will stay active and emit when the backend creates the doc.
+            }
+          },
+          handleError: (error, stack, sink) {
+            sink.addError(UnknownError('Wallet stream error: $error'));
+          },
+        ));
   }
 
   @override
@@ -49,26 +63,16 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     final docRef = _firestore.collection('wallets').doc(userId);
     final doc = await docRef.get();
 
-    if (doc.exists) {
+    if (doc.exists && doc.data() != null) {
       return WalletModel.fromJson(doc.data()!);
     } else {
-      final alias =
-          'BOKLO-${Random().nextInt(9999).toString().padLeft(4, '0')}';
-      final newWallet = WalletModel(
-        id: userId,
-        balance: 1000,
-        currency: 'USD',
-        alias: alias,
-        email: _auth.currentUser?.email,
-      );
-      await docRef.set(newWallet.toJson());
-      return newWallet;
+      // Backend is authoritative. If not found, it's a sync issue or delay.
+      throw const ValidationError('Wallet not found (creation pending?)');
     }
   }
 
   @override
   Future<List<TransactionModel>> getTransactions() async {
-    // ... existing implementation
     final userId = _auth.currentUser?.uid;
     if (userId == null) throw Exception('User not logged in');
 
@@ -104,5 +108,24 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
               .map((doc) => TransactionModel.fromJson(doc.data()))
               .toList(),
         );
+  }
+
+  @override
+  Future<void> provisionWallet() async {
+    try {
+      final callable = _functions.httpsCallable('provisionWallet');
+      log('🔧 Calling provisionWallet function...');
+
+      final result = await callable.call<Map<String, dynamic>>();
+      final created = result.data['created'] as bool? ?? false;
+
+      log('✅ provisionWallet ${created ? 'created new wallet' : 'wallet existed'}');
+    } on FirebaseFunctionsException catch (e) {
+      log('❌ provisionWallet failed: [${e.code}] ${e.message}');
+      throw UnknownError('Failed to provision wallet: ${e.message}');
+    } catch (e) {
+      log('❌ provisionWallet unexpected error: $e');
+      throw UnknownError('Failed to provision wallet: $e');
+    }
   }
 }

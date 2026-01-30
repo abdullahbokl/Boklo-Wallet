@@ -9,6 +9,7 @@ abstract class TransferRemoteDataSource {
   Future<WalletModel?> getWallet(String id);
   Future<WalletModel?> getWalletByAlias(String alias);
   Future<WalletModel?> getWalletByEmail(String email);
+  Future<WalletModel?> getWalletByUsername(String username);
   Stream<TransferModel?> observeTransfer(String id);
 }
 
@@ -90,6 +91,31 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
     // Step 2: Get wallet by user ID (wallet ID = user ID in 1:1 mapping)
     final userId = userQuery.docs.first.id;
     final walletDoc = await _firestore.collection('wallets').doc(userId).get();
+
+    if (!walletDoc.exists || walletDoc.data() == null) {
+      return null;
+    }
+
+    return WalletModel.fromJson(walletDoc.data()!);
+  }
+
+  @override
+  Future<WalletModel?> getWalletByUsername(String username) async {
+    final usernameDoc = await _firestore
+        .collection('usernames')
+        .doc(username.toLowerCase())
+        .get();
+
+    if (!usernameDoc.exists) {
+      return null;
+    }
+
+    final uid = usernameDoc.data()?['uid'] as String?;
+    if (uid == null) {
+      return null;
+    }
+
+    final walletDoc = await _firestore.collection('wallets').doc(uid).get();
 
     if (!walletDoc.exists || walletDoc.data() == null) {
       return null;

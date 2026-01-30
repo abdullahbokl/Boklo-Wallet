@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:boklo/features/auth/domain/usecases/register_usecase.dart';
-
+import 'package:boklo/features/auth/domain/usecases/set_user_profile_usecase.dart';
 import 'package:boklo/core/services/notification_service.dart';
 import 'package:boklo/core/services/analytics_service.dart';
 
@@ -27,12 +27,15 @@ class MockGetCurrentUserUseCase extends Mock implements GetCurrentUserUseCase {}
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
+class MockSetUserProfileUseCase extends Mock implements SetUserProfileUseCase {}
+
 void main() {
   late AuthCubit cubit;
   late MockLoginUseCase mockLoginUseCase;
   late MockLogoutUseCase mockLogoutUseCase;
   late MockGetCurrentUserUseCase mockGetCurrentUserUseCase;
   late MockRegisterUseCase mockRegisterUseCase;
+  late MockSetUserProfileUseCase mockSetUserProfileUseCase;
   late MockAnalyticsService mockAnalyticsService;
   late MockNotificationService mockNotificationService;
 
@@ -41,6 +44,7 @@ void main() {
     mockLogoutUseCase = MockLogoutUseCase();
     mockGetCurrentUserUseCase = MockGetCurrentUserUseCase();
     mockRegisterUseCase = MockRegisterUseCase();
+    mockSetUserProfileUseCase = MockSetUserProfileUseCase();
     mockAnalyticsService = MockAnalyticsService();
     mockNotificationService = MockNotificationService();
 
@@ -54,6 +58,7 @@ void main() {
       mockLogoutUseCase,
       mockGetCurrentUserUseCase,
       mockRegisterUseCase,
+      mockSetUserProfileUseCase,
       mockAnalyticsService,
       mockNotificationService,
     );
@@ -185,6 +190,30 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockRegisterUseCase.call(tEmail, tPassword)).called(1);
+      },
+    );
+
+    blocTest<AuthCubit, BaseState<User?>>(
+      'emits [loading, loading, success] when setUserProfile is successful',
+      build: () {
+        when(() => mockSetUserProfileUseCase.call(
+              username: 'testuser',
+              name: 'Test Name',
+            )).thenAnswer((_) async => const Success<void>(null));
+        when(() => mockGetCurrentUserUseCase.call())
+            .thenAnswer((_) async => const Success<User?>(tUser));
+        return cubit;
+      },
+      act: (cubit) =>
+          cubit.setUserProfile(username: 'testuser', name: 'Test Name'),
+      expect: () => const [
+        BaseState<User?>.loading(),
+        BaseState<User?>.success(tUser),
+      ],
+      verify: (_) {
+        verify(() => mockSetUserProfileUseCase.call(
+            username: 'testuser', name: 'Test Name')).called(1);
+        verify(() => mockGetCurrentUserUseCase.call()).called(1);
       },
     );
   });

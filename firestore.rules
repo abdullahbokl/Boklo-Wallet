@@ -14,7 +14,13 @@ service cloud.firestore {
     // --- Users Collection ---
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      // Updates must go through backend for critical fields, allowing client to update trivial stuff?
+      // Requirement: "Backend-authoritative profile update flow"
+      // So we deny client writes to username/name directly ideally.
+      // But maybe we allow other fields. For now, strict:
+      allow create: if false; // backend creates
+      allow update: if false; // backend updates via setUserProfile
+      allow delete: if false;
       
       // Allow users to manage their own FCM tokens
       match /tokens/{token} {
@@ -31,6 +37,12 @@ service cloud.firestore {
       match /preferences/{prefId} {
         allow read, write: if isOwner(userId);
       }
+    }
+    
+    // --- Usernames Registry ---
+    match /usernames/{username} {
+        allow read: if isAuthenticated(); // Allow reading to check existence (though backend provides check, simple read is checking existence) OR resolving
+        allow write: if false; // Backend only
     }
     
     // --- Payment Requests ---
@@ -52,8 +64,8 @@ service cloud.firestore {
       // 1. Read: Publicly readable for authenticated users (required for discovery)
       allow read: if isAuthenticated();
       
-      // 2. Create: Only the owner can create their wallet
-      allow create: if isOwner(walletId);
+      // 2. Create: Deny. Backend creates wallet on user signup.
+      allow create: if false;
       
       // 3. Update:
       //    BACKEND-AUTHORITY:
@@ -113,6 +125,11 @@ service cloud.firestore {
     match /ledger/{entryId} {
         // Disallow client reads to prevent seeing other users' data.
         allow read, write: if false;
+    }
+    
+    // --- Events (Audit Only) ---
+    match /events/{eventId} {
+         allow read, write: if false;
     }
   }
 }

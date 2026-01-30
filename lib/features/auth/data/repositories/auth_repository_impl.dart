@@ -20,8 +20,13 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<User>> login(String email, String password) async {
     try {
-      final user = await remoteDataSource.login(email, password);
-      return Success(user.toEntity());
+      final userModel = await remoteDataSource.login(email, password);
+      // Fetch full profile from Firestore
+      final profile = await userRemoteDataSource.getUser(userModel.id);
+      if (profile != null) {
+        return Success(profile.toEntity());
+      }
+      return Success(userModel.toEntity());
     } on FirebaseAuthException catch (e) {
       return Failure(_mapFirebaseError(e));
     } on Object catch (e) {
@@ -33,14 +38,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<User>> register(String email, String password) async {
     try {
       final userModel = await remoteDataSource.register(email, password);
-
-      try {
-        await userRemoteDataSource.createUser(userModel);
-      } on Object catch (e) {
-        // If DB fails, we still return Failure as per requirements.
-        return Failure(DatabaseError(e.toString()));
-      }
-
+      // Backend creates user document via Cloud Function.
+      // We don't create it client-side anymore.
       return Success(userModel.toEntity());
     } on FirebaseAuthException catch (e) {
       return Failure(_mapFirebaseError(e));
@@ -65,7 +64,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<User?>> getCurrentUser() async {
     try {
       final userModel = await remoteDataSource.getCurrentUser();
-      return Success(userModel?.toEntity());
+      if (userModel == null) return const Success(null);
+
+      final profile = await userRemoteDataSource.getUser(userModel.id);
+      if (profile != null) {
+        return Success(profile.toEntity());
+      }
+      return Success(userModel.toEntity());
     } on FirebaseAuthException catch (e) {
       return Failure(_mapFirebaseError(e));
     } on Object catch (e) {

@@ -22,9 +22,12 @@ export {
     declinePaymentRequest 
 } from "./requests";
 export * from "./contacts";
-export { reconcileWallets } from "./reconciliation";
+export { reconcileWallets, triggerReconciliationNow } from "./reconciliation";
 export { streamTransferToBigQuery, streamLedgerToBigQuery } from "./bigquery";
 export { onAdminJobCreated } from "./admin";
+export { onUserCreated } from "./users";
+export { setUserProfile } from "./profile";
+export { provisionWallet } from "./wallet";
 
 admin.initializeApp();
 // const db = admin.firestore(); // Not currently used in index.ts

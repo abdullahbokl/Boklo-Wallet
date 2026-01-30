@@ -24,10 +24,16 @@ class LoginPage extends StatelessWidget {
           },
           success: (user) {
             if (user != null) {
-              getIt<NavigationService>().go('/wallet');
-              getIt<SnackbarService>().showSuccess(
-                'Welcome ${user.displayName ?? "User"}',
-              );
+              if (user.username == null) {
+                getIt<NavigationService>().go('/profile-setup');
+                getIt<SnackbarService>()
+                    .showSuccess('Please set up your profile');
+              } else {
+                getIt<NavigationService>().go('/wallet');
+                getIt<SnackbarService>().showSuccess(
+                  'Welcome ${user.displayName ?? "User"}',
+                );
+              }
             }
           },
         );

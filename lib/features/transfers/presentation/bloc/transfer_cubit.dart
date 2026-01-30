@@ -6,6 +6,7 @@ import 'package:boklo/core/config/feature_flags.dart';
 import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
+import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
@@ -19,6 +20,7 @@ class TransferCubit extends BaseCubit<TransferState> {
     this._createTransferUseCase,
     this._requestTransferUseCase,
     this._resolveWalletByEmailUseCase,
+    this._resolveWalletByUsernameUseCase,
     this._observeTransferStatusUseCase,
     this._analyticsService,
     this._featureFlags,
@@ -27,6 +29,7 @@ class TransferCubit extends BaseCubit<TransferState> {
   final CreateTransferUseCase _createTransferUseCase;
   final RequestTransferUseCase _requestTransferUseCase;
   final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
+  final ResolveWalletByUsernameUseCase _resolveWalletByUsernameUseCase;
   final ObserveTransferStatusUseCase _observeTransferStatusUseCase;
   final AnalyticsService _analyticsService;
   final FeatureFlags _featureFlags;
@@ -59,26 +62,57 @@ class TransferCubit extends BaseCubit<TransferState> {
       if (recipient.contains('@')) {
         final resolution = await _resolveWalletByEmailUseCase(recipient);
 
-        AppError? resolutionError;
+        AppError? emailError;
 
-        final resolvedId = resolution.fold(
-          (error) {
-            resolutionError = error;
-            return null;
-          },
-          (id) => id,
+        resolution.fold<void>(
+          (error) => emailError = error,
+          (id) => toWalletId = id,
         );
 
-        if (resolutionError != null) {
+        if (emailError != null) {
           unawaited(
             _analyticsService.logTransferFailure(
-              reason: resolutionError!.message,
+              reason: emailError!.message,
             ),
           );
-          emitError(resolutionError!);
+          emitError(emailError!);
           return;
         }
-        toWalletId = resolvedId!;
+      } else if (recipient.length < 28 &&
+          !recipient.contains(RegExp(r'[^a-zA-Z0-9_.]'))) {
+        // 1.5 Resolve Recipient if Username (approx heuristic: short, valid chars)
+        final resolution = await _resolveWalletByUsernameUseCase(recipient);
+
+        AppError? usernameError;
+
+        resolution.fold<void>(
+          (error) => usernameError = error,
+          (id) => toWalletId = id,
+        );
+
+        // If username resolution fails, we fall back to treating it as Wallet ID
+        // (but only if it looks like a Wallet ID, which is usually 28 chars)
+        // Actually, if it fails, we should probably fail?
+        // But maybe "recipient" IS a Wallet ID?
+        // If it's short, it's likely a username.
+
+        if (usernameError != null) {
+          // If it failed, check if it COULD be a wallet ID.
+          // Wallet IDs are usually longer (20-30 chars).
+          // Usernames are 3-20.
+          // If it is 28 chars, it's likely a UID.
+          // If it failed username resolution, and it's NOT a UID length, error out.
+          if (recipient.length != 28) {
+            unawaited(
+              _analyticsService.logTransferFailure(
+                reason: usernameError!.message,
+              ),
+            );
+            emitError(usernameError!);
+            return;
+          }
+          // If it IS 28 chars, ignore username error and try as Wallet ID
+        }
       }
 
       if (_featureFlags.backendAuthoritativeTransfers) {
@@ -139,29 +173,45 @@ class TransferCubit extends BaseCubit<TransferState> {
   }
 
   Future<void> _waitForBackendResult(
-      String transferId, double amount, String currency) async {
+    String transferId,
+    double amount,
+    String currency,
+  ) async {
     try {
-      final status = await _observeTransferStatusUseCase(transferId)
+      final transfer = await _observeTransferStatusUseCase(transferId)
           .firstWhere(
-            (s) => s == TransferStatus.completed || s == TransferStatus.failed,
+            (t) =>
+                t?.status == TransferStatus.completed ||
+                t?.status == TransferStatus.failed,
           )
           .timeout(const Duration(seconds: 15));
 
-      if (status == TransferStatus.completed) {
-        unawaited(_analyticsService.logTransferInitiated(
-            amount: amount, currency: currency));
+      if (transfer?.status == TransferStatus.completed) {
+        unawaited(
+          _analyticsService.logTransferInitiated(
+            amount: amount,
+            currency: currency,
+          ),
+        );
         emitSuccess(const TransferState());
       } else {
-        unawaited(_analyticsService.logTransferFailure(
-            reason: 'Transfer failed on backend'));
-        emitError(const UnknownError('Transfer processing failed'));
+        // Log detailed failure reason from backend
+        final reason = transfer?.failureReason ?? 'Transfer failed on backend';
+        unawaited(_analyticsService.logTransferFailure(reason: reason));
+
+        // Emit error with the specific reason
+        emitError(UnknownError(reason));
       }
+    } on TimeoutException catch (_) {
+      unawaited(
+        _analyticsService.logTransferFailure(reason: 'Transfer timed out'),
+      );
+      emitError(const UnknownError('Transfer processing timed out'));
     } catch (e) {
       unawaited(
-          _analyticsService.logTransferFailure(reason: 'Transfer timed out'));
-      // We emit error, but maybe we should show "Processing..."?
-      // For now, adhere to "React to COMPLETED and FAILED states".
-      emitError(const UnknownError('Transfer processing timed out'));
+        _analyticsService.logTransferFailure(reason: e.toString()),
+      );
+      emitError(const UnknownError('Transfer processing failed'));
     }
   }
 
@@ -188,10 +238,5 @@ class TransferCubit extends BaseCubit<TransferState> {
         emitSuccess(const TransferState());
       },
     );
-  }
-
-  @override
-  Future<void> close() {
-    return super.close();
   }
 }

@@ -5,35 +5,46 @@ import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
-import 'package:boklo/features/wallet/domain/usecases/get_wallet_usecase.dart';
+import 'package:boklo/features/wallet/domain/usecases/provision_wallet_usecase.dart';
+import 'package:boklo/features/wallet/domain/usecases/watch_wallet_usecase.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockGetWalletUseCase extends Mock implements GetWalletUseCase {}
+class MockWatchWalletUseCase extends Mock implements WatchWalletUseCase {}
 
 class MockGetTransactionsUseCase extends Mock
     implements GetTransactionsUseCase {}
 
+class MockProvisionWalletUseCase extends Mock
+    implements ProvisionWalletUseCase {}
+
 void main() {
   late WalletCubit cubit;
-  late MockGetWalletUseCase mockGetWalletUseCase;
+  late MockWatchWalletUseCase mockWatchWalletUseCase;
   late MockGetTransactionsUseCase mockGetTransactionsUseCase;
+  late MockProvisionWalletUseCase mockProvisionWalletUseCase;
 
   setUp(() {
-    mockGetWalletUseCase = MockGetWalletUseCase();
+    mockWatchWalletUseCase = MockWatchWalletUseCase();
     mockGetTransactionsUseCase = MockGetTransactionsUseCase();
+    mockProvisionWalletUseCase = MockProvisionWalletUseCase();
     cubit = WalletCubit(
-      mockGetWalletUseCase,
+      mockWatchWalletUseCase,
       mockGetTransactionsUseCase,
+      mockProvisionWalletUseCase,
     );
+  });
+
+  tearDown(() {
+    cubit.close();
   });
 
   const tWallet = WalletEntity(
     id: '1',
     balance: 1000.0,
-    currency: 'USD',
+    currency: 'SAR',
   );
 
   final tTransactions = [
@@ -53,62 +64,111 @@ void main() {
     });
 
     blocTest<WalletCubit, BaseState<WalletState>>(
-      'emits [loading, success] when data is fetched successfully',
+      'emits [loading, success] when wallet is received immediately',
       build: () {
-        when(() => mockGetWalletUseCase.call())
-            .thenAnswer((_) async => const Success(tWallet));
+        when(() => mockWatchWalletUseCase.call())
+            .thenAnswer((_) => Stream.value(const Success(tWallet)));
         when(() => mockGetTransactionsUseCase.watch())
             .thenAnswer((_) => Stream.value(Success(tTransactions)));
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
+      wait: const Duration(milliseconds: 100),
       expect: () => [
         const BaseState<WalletState>.loading(),
+        const BaseState<WalletState>.success(
+          WalletState(wallet: tWallet, transactions: []),
+        ),
         BaseState<WalletState>.success(
           WalletState(wallet: tWallet, transactions: tTransactions),
         ),
       ],
       verify: (_) {
-        verify(() => mockGetWalletUseCase.call()).called(1);
+        verify(() => mockWatchWalletUseCase.call()).called(1);
         verify(() => mockGetTransactionsUseCase.watch()).called(1);
+        // provisionWallet should NOT be called if wallet received immediately
+        verifyNever(() => mockProvisionWalletUseCase.call());
       },
     );
 
     blocTest<WalletCubit, BaseState<WalletState>>(
-      'emits [loading, error] when fetch wallet fails',
+      'emits [loading, error] when wallet stream emits failure',
       build: () {
-        when(() => mockGetWalletUseCase.call())
-            .thenAnswer((_) async => const Failure(tError));
-        return cubit;
-      },
-      act: (cubit) => cubit.loadWallet(),
-      expect: () => const [
-        BaseState<WalletState>.loading(),
-        BaseState<WalletState>.error(tError),
-      ],
-      verify: (_) {
-        verify(() => mockGetWalletUseCase.call()).called(1);
-        verifyNever(() => mockGetTransactionsUseCase.watch());
-      },
-    );
-
-    blocTest<WalletCubit, BaseState<WalletState>>(
-      'emits [loading, error] when fetch transactions fails',
-      build: () {
-        when(() => mockGetWalletUseCase.call())
-            .thenAnswer((_) async => const Success(tWallet));
-        when(() => mockGetTransactionsUseCase.watch())
+        when(() => mockWatchWalletUseCase.call())
             .thenAnswer((_) => Stream.value(const Failure(tError)));
+        when(() => mockGetTransactionsUseCase.watch())
+            .thenAnswer((_) => Stream.empty());
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
+      wait: const Duration(milliseconds: 100),
       expect: () => const [
         BaseState<WalletState>.loading(),
         BaseState<WalletState>.error(tError),
       ],
       verify: (_) {
-        verify(() => mockGetWalletUseCase.call()).called(1);
-        verify(() => mockGetTransactionsUseCase.watch()).called(1);
+        verify(() => mockWatchWalletUseCase.call()).called(1);
+      },
+    );
+
+    blocTest<WalletCubit, BaseState<WalletState>>(
+      'calls provisionWallet after 3s if wallet not received',
+      build: () {
+        // Wallet stream never emits, simulating missing wallet
+        when(() => mockWatchWalletUseCase.call())
+            .thenAnswer((_) => Stream.empty());
+        when(() => mockGetTransactionsUseCase.watch())
+            .thenAnswer((_) => Stream.empty());
+        when(() => mockProvisionWalletUseCase.call())
+            .thenAnswer((_) async => const Success(null));
+        return cubit;
+      },
+      act: (cubit) => cubit.loadWallet(),
+      wait: const Duration(seconds: 4), // Wait past the 3s provision trigger
+      expect: () => const [
+        BaseState<WalletState>.loading(),
+      ],
+      verify: (_) {
+        verify(() => mockWatchWalletUseCase.call()).called(1);
+        verify(() => mockProvisionWalletUseCase.call()).called(1);
+      },
+    );
+
+    blocTest<WalletCubit, BaseState<WalletState>>(
+      'emits success after provisionWallet creates wallet',
+      build: () {
+        // First the stream is empty, then after provision it emits wallet
+        var callCount = 0;
+        when(() => mockWatchWalletUseCase.call()).thenAnswer((_) {
+          callCount++;
+          if (callCount == 1) {
+            // Initially return stream that emits wallet after delay
+            return Stream.fromFuture(
+              Future.delayed(
+                const Duration(seconds: 4),
+                () => const Success(tWallet),
+              ),
+            );
+          }
+          return Stream.value(const Success(tWallet));
+        });
+        when(() => mockGetTransactionsUseCase.watch())
+            .thenAnswer((_) => Stream.empty());
+        when(() => mockProvisionWalletUseCase.call())
+            .thenAnswer((_) async => const Success(null));
+        return cubit;
+      },
+      act: (cubit) => cubit.loadWallet(),
+      wait: const Duration(seconds: 5),
+      expect: () => [
+        const BaseState<WalletState>.loading(),
+        const BaseState<WalletState>.success(
+          WalletState(wallet: tWallet, transactions: []),
+        ),
+      ],
+      verify: (_) {
+        verify(() => mockWatchWalletUseCase.call()).called(1);
+        verify(() => mockProvisionWalletUseCase.call()).called(1);
       },
     );
   });

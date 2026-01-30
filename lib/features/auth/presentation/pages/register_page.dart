@@ -24,10 +24,17 @@ class RegisterPage extends StatelessWidget {
           },
           success: (user) {
             if (user != null) {
-              getIt<NavigationService>().go('/wallet');
-              getIt<SnackbarService>().showSuccess(
-                'Registration successful! Welcome.',
-              );
+              if (user.username == null) {
+                getIt<NavigationService>().go('/profile-setup');
+                getIt<SnackbarService>().showSuccess(
+                  'Registration successful! Please set up your profile.',
+                );
+              } else {
+                getIt<NavigationService>().go('/wallet');
+                getIt<SnackbarService>().showSuccess(
+                  'Registration successful! Welcome.',
+                );
+              }
             }
           },
         );

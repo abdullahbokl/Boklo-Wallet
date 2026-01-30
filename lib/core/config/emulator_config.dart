@@ -20,8 +20,12 @@ class EmulatorConfig {
   // Allow passing host via command line: --dart-define=EMULATOR_HOST=192.168.1.X
   static const String _envHost = String.fromEnvironment('EMULATOR_HOST');
 
+  static String? _resolvedHost;
+  static String? get resolvedHost => _resolvedHost;
+
   static Future<void> configure() async {
     final host = await _resolveHost();
+    _resolvedHost = host;
 
     bool isPhysicalAndroid = false;
     if (!kIsWeb && Platform.isAndroid) {
@@ -44,8 +48,9 @@ class EmulatorConfig {
     // 2. Firestore
     FirebaseFirestore.instance.useFirestoreEmulator(host, _firestorePort);
 
-    // 3. Functions
-    FirebaseFunctions.instance.useFunctionsEmulator(host, _functionsPort);
+    // 3. Functions (use explicit region to match app_module.dart)
+    FirebaseFunctions.instanceFor(region: 'us-central1')
+        .useFunctionsEmulator(host, _functionsPort);
 
     // 4. Storage
     FirebaseStorage.instance.useStorageEmulator(host, _storagePort);

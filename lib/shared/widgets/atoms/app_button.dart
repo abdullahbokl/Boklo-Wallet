@@ -68,7 +68,6 @@ class AppButton extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
-    print('hello');
     if (isLoading) {
       return SizedBox(
         height: 20,

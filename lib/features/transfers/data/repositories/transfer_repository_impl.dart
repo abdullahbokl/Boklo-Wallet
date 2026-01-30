@@ -81,9 +81,9 @@ class TransferRepositoryImpl implements TransferRepository {
   }
 
   @override
-  Stream<TransferStatus> observeTransferStatus(String transferId) {
+  Stream<TransferEntity?> observeTransfer(String transferId) {
     return _dataSource.observeTransfer(transferId).map((model) {
-      return model?.status ?? TransferStatus.pending;
+      return model?.toEntity();
     });
   }
 

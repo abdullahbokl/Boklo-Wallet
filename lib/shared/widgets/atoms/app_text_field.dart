@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../../config/theme/app_colors.dart';
 import '../../../../config/theme/app_dimens.dart';
 import '../../../../config/theme/app_typography.dart';
@@ -16,6 +17,7 @@ class AppTextField extends StatelessWidget {
     this.suffixIcon,
     this.onSubmitted,
     this.enabled = true,
+    this.inputFormatters,
   });
 
   final TextEditingController controller;
@@ -28,6 +30,7 @@ class AppTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final void Function(String)? onSubmitted;
   final bool enabled;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +52,7 @@ class AppTextField extends StatelessWidget {
           keyboardType: keyboardType,
           validator: validator,
           onFieldSubmitted: onSubmitted,
+          inputFormatters: inputFormatters,
           style: AppTypography.bodyLarge
               .copyWith(color: AppColors.textPrimaryLight),
           cursorColor: AppColors.primary,

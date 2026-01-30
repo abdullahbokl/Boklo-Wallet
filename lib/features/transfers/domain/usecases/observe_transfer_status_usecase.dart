@@ -8,7 +8,7 @@ class ObserveTransferStatusUseCase {
 
   final TransferRepository repository;
 
-  Stream<TransferStatus> call(String transferId) {
-    return repository.observeTransferStatus(transferId);
+  Stream<TransferEntity?> call(String transferId) {
+    return repository.observeTransfer(transferId);
   }
 }

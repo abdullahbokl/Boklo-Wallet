@@ -15,6 +15,7 @@ class TransferEntity extends Equatable {
     required this.currency,
     required this.status,
     required this.createdAt,
+    this.failureReason,
   });
 
   final String id;
@@ -24,6 +25,7 @@ class TransferEntity extends Equatable {
   final String currency;
   final TransferStatus status;
   final DateTime createdAt;
+  final String? failureReason;
 
   @override
   List<Object?> get props => [
@@ -34,5 +36,6 @@ class TransferEntity extends Equatable {
         currency,
         status,
         createdAt,
+        failureReason,
       ];
 }

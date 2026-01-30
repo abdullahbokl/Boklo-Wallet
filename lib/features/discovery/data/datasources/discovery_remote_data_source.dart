@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 abstract class DiscoveryRemoteDataSource {
   Future<UserPublicProfileModel> resolveWalletByEmail(String email);
   Future<String> resolveWalletIdByAlias(String alias);
+  Future<UserPublicProfileModel> resolveWalletByUsername(String username);
 }
 
 @LazySingleton(as: DiscoveryRemoteDataSource)
@@ -51,5 +52,31 @@ class DiscoveryRemoteDataSourceImpl implements DiscoveryRemoteDataSource {
 
     // The document ID is the Wallet ID (User ID)
     return snapshot.docs.first.id;
+  }
+
+  @override
+  Future<UserPublicProfileModel> resolveWalletByUsername(
+      String username) async {
+    final usernameDoc = await _firestore
+        .collection('usernames')
+        .doc(username.toLowerCase())
+        .get();
+
+    if (!usernameDoc.exists) {
+      throw Exception('Username not found');
+    }
+
+    final uid = usernameDoc.data()?['uid'] as String?;
+    if (uid == null) {
+      throw Exception('Invalid username record');
+    }
+
+    final userDoc = await _firestore.collection('users').doc(uid).get();
+
+    if (!userDoc.exists) {
+      throw Exception('User profile not found');
+    }
+
+    return UserPublicProfileModel.fromJson(userDoc.data()!);
   }
 }

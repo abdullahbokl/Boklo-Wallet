@@ -13,6 +13,7 @@ class TransferModel {
     required this.currency,
     required this.status,
     required this.createdAt,
+    this.failureReason,
   });
 
   factory TransferModel.fromJson(Map<String, dynamic> json) =>
@@ -27,6 +28,7 @@ class TransferModel {
       currency: entity.currency,
       status: entity.status,
       createdAt: entity.createdAt,
+      failureReason: entity.failureReason,
     );
   }
 
@@ -37,6 +39,7 @@ class TransferModel {
   final String currency;
   final TransferStatus status;
   final DateTime createdAt;
+  final String? failureReason;
 
   Map<String, dynamic> toJson() => _$TransferModelToJson(this);
 
@@ -49,6 +52,7 @@ class TransferModel {
       currency: currency,
       status: status,
       createdAt: createdAt,
+      failureReason: failureReason,
     );
   }
 }

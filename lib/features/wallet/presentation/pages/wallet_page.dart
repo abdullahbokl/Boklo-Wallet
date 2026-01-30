@@ -98,7 +98,16 @@ class WalletPage extends StatelessWidget {
             ),
             body: state.when(
               initial: () => const Center(child: CircularProgressIndicator()),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: AppDimens.md),
+                    Text('Setting up your wallet...'),
+                  ],
+                ),
+              ),
               error: (error) => Center(child: Text(error.message)),
               success: (data) => ResponsiveBuilder(
                 mobile: (context, _) => _WalletLayout(data: data),

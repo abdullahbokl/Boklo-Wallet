@@ -1,14 +1,4 @@
 
-import { onSchedule } from "firebase-functions/v2/scheduler";
-import * as logger from "firebase-functions/logger";
-import * as admin from "firebase-admin";
-
-// Initialize admin if not already done
-if (admin.apps.length === 0) {
-    admin.initializeApp();
-}
-const db = admin.firestore();
-
 /**
  * Scheduled Reconciliation Job
  * Runs every day at midnight.
@@ -22,26 +12,38 @@ const db = admin.firestore();
  * NOTE: This job is READ-ONLY. It does not auto-fix balances to prevent
  * accidental mass-corruption if logic is flawed.
  */
-export const reconcileWallets = onSchedule("every day 00:00", async (event) => {
-    logger.info("Reconciliation job started", {
-        event: "RECONCILIATION_JOB",
-        status: "STARTED"
-    });
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { onRequest } from "firebase-functions/v2/https";
+import * as logger from "firebase-functions/logger";
+import * as admin from "firebase-admin";
 
+if (admin.apps.length === 0) {
+    admin.initializeApp();
+}
+const db = admin.firestore();
+
+/**
+ * Core Reconciliation Logic
+ * Reusable by both Schedule and HTTP trigger.
+ */
+async function runReconciliationLogic() {
     const startTime = Date.now();
     let verifiedCount = 0;
     let mismatchCount = 0;
     let errorCount = 0;
-    const mismatches: any[] = [];
+    const mismatches: any[] = []; // Typed slightly better in real code
 
     try {
         const walletsSnapshot = await db.collection("wallets").get();
-        logger.info(`Found ${walletsSnapshot.size} wallets to reconcile.`);
+        const totalWallets = walletsSnapshot.size;
+        
+        logger.info(`Starting reconciliation for ${totalWallets} wallets...`);
 
         for (const walletDoc of walletsSnapshot.docs) {
             const walletId = walletDoc.id;
-            const currentBalance = walletDoc.data().balance || 0;
-            const currency = walletDoc.data().currency || 'USD';
+            const data = walletDoc.data();
+            const currentBalance = data.balance || 0;
+            const currency = data.currency || 'USD';
 
             try {
                 // Calculate balance from ledger (Source of Truth)
@@ -53,38 +55,34 @@ export const reconcileWallets = onSchedule("every day 00:00", async (event) => {
 
                 let calculatedBalance = 0;
                 ledgerSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    const amount = Number(data.amount) || 0;
-                    if (data.direction === 'CREDIT') {
+                    const entry = doc.data();
+                    const amount = Number(entry.amount) || 0;
+                    if (entry.direction === 'CREDIT') {
                         calculatedBalance += amount;
-                    } else if (data.direction === 'DEBIT') {
+                    } else if (entry.direction === 'DEBIT') {
                         calculatedBalance -= amount;
                     }
                 });
 
-                // Round to avoid floating point precision issues
-                // calculatedBalance = Math.round(calculatedBalance * 100) / 100;
-
-                // Compare
-                // We allow a very small epsilon for floating point math
+                // Compare with epsilon
                 const diff = Math.abs(currentBalance - calculatedBalance);
                 
                 if (diff > 0.001) {
                     mismatchCount++;
                     logger.error(`Balance mismatch detected`, {
                         event: "RECONCILIATION_MISMATCH",
-                        walletId: walletId,
-                        currentBalance: currentBalance,
-                        calculatedBalance: calculatedBalance,
-                        difference: currentBalance - calculatedBalance,
-                        currency: currency
+                        walletId,
+                        expected: calculatedBalance,
+                        actual: currentBalance,
+                        diff
                     });
-                    if (mismatches.length < 10) { // Limit samples
+                    
+                    if (mismatches.length < 10) {
                         mismatches.push({
                             walletId,
                             currentBalance,
                             calculatedBalance,
-                            difference: currentBalance - calculatedBalance,
+                            diff,
                             currency
                         });
                     }
@@ -94,42 +92,68 @@ export const reconcileWallets = onSchedule("every day 00:00", async (event) => {
 
             } catch (walletError) {
                 errorCount++;
-                logger.error(`Failed to reconcile wallet ${walletId}`, {
-                    event: "RECONCILIATION_ERROR",
-                    walletId: walletId,
-                    error: walletError instanceof Error ? walletError.message : String(walletError)
-                });
+                logger.error(`Failed to reconcile wallet ${walletId}`, { error: walletError });
             }
         }
 
-        logger.info("Reconciliation job completed", {
-            event: "RECONCILIATION_JOB",
-            status: "COMPLETED",
-            durationMs: Date.now() - startTime,
-            totalWallets: walletsSnapshot.size,
-            verifiedWithNoIssues: verifiedCount,
-            mismatchesFound: mismatchCount,
-            errorsChecking: errorCount
-        });
+        const status = mismatchCount > 0 ? "WARNING" : (errorCount > 0 ? "WARNING" : "SUCCESS");
 
         // Write Report
         const reportId = new Date().toISOString().split('T')[0];
-        await db.collection("reconciliation_reports").doc(reportId).set({
+        const reportData = {
             date: reportId,
-            totalWallets: walletsSnapshot.size,
+            status,
+            totalWallets,
+            checkedWalletCount: totalWallets, // Synonymous here
             verifiedCount,
             mismatchCount,
+            mismatchedWalletCount: mismatchCount, // Alias for clarity
             errorCount,
-            mismatches, // Sample
-            timestamp: admin.firestore.FieldValue.serverTimestamp()
+            sampleMismatches: mismatches,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            durationMs: Date.now() - startTime
+        };
+
+        await db.collection("reconciliation_reports").doc(reportId).set(reportData);
+
+        logger.info("Reconciliation run completed", {
+            event: "reconciliation.run",
+            dateKey: reportId,
+            checkedWalletCount: totalWallets,
+            mismatchedWalletCount: mismatchCount,
+            status
         });
 
-    } catch (e) {
-        logger.error("Reconciliation job failed fatally", {
-            event: "RECONCILIATION_JOB",
-            status: "FAILED",
-            error: e instanceof Error ? e.message : String(e),
-            durationMs: Date.now() - startTime
+        return reportData;
+
+    } catch (e: any) {
+        logger.error("Reconciliation run failed fatally", { error: e.message });
+        throw e;
+    }
+}
+
+/**
+ * Scheduled Job: Daily Midnight
+ */
+export const reconcileWallets = onSchedule("every day 00:00", async (event) => {
+    await runReconciliationLogic();
+});
+
+/**
+ * HTTP Trigger: Manual Run (DEV/Admin Only)
+ */
+export const triggerReconciliationNow = onRequest(async (req, res) => {
+    // Basic security check: Only allow if explicitly enabled or mostly for dev
+    // In production, you'd check req.auth or specialized header/token.
+    // For this task, we assume the caller has IAM permission to invoke the function.
+    
+    try {
+        const report = await runReconciliationLogic();
+        res.status(200).json({ 
+            message: "Reconciliation triggered successfully", 
+            report 
         });
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
     }
 });

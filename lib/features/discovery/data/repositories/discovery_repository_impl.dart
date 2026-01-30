@@ -44,4 +44,19 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
       return Failure(UnknownError('Failed to resolve wallet alias', e));
     }
   }
+
+  @override
+  Future<Result<UserPublicProfile>> resolveWalletByUsername(
+      String username) async {
+    try {
+      final model = await _dataSource.resolveWalletByUsername(username);
+      return Success(model);
+    } catch (e) {
+      final message = e.toString();
+      if (message.contains('Username not found')) {
+        return const Failure(ValidationError('Username not found'));
+      }
+      return Failure(UnknownError('Failed to resolve username', e));
+    }
+  }
 }

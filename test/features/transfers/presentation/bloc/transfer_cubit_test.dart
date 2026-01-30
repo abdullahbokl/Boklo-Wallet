@@ -13,6 +13,8 @@ import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
+
 class MockCreateTransferUseCase extends Mock implements CreateTransferUseCase {}
 
 class MockRequestTransferUseCase extends Mock
@@ -20,6 +22,9 @@ class MockRequestTransferUseCase extends Mock
 
 class MockResolveWalletByEmailUseCase extends Mock
     implements ResolveWalletByEmailUseCase {}
+
+class MockResolveWalletByUsernameUseCase extends Mock
+    implements ResolveWalletByUsernameUseCase {}
 
 class MockObserveTransferStatusUseCase extends Mock
     implements ObserveTransferStatusUseCase {}
@@ -33,6 +38,7 @@ void main() {
   late MockCreateTransferUseCase mockCreateTransferUseCase;
   late MockRequestTransferUseCase mockRequestTransferUseCase;
   late MockResolveWalletByEmailUseCase mockResolveWalletByEmailUseCase;
+  late MockResolveWalletByUsernameUseCase mockResolveWalletByUsernameUseCase;
   late MockObserveTransferStatusUseCase mockObserveTransferStatusUseCase;
   late MockAnalyticsService mockAnalyticsService;
   late MockFeatureFlags mockFeatureFlags;
@@ -41,9 +47,13 @@ void main() {
     mockCreateTransferUseCase = MockCreateTransferUseCase();
     mockRequestTransferUseCase = MockRequestTransferUseCase();
     mockResolveWalletByEmailUseCase = MockResolveWalletByEmailUseCase();
+    mockResolveWalletByUsernameUseCase = MockResolveWalletByUsernameUseCase();
     mockObserveTransferStatusUseCase = MockObserveTransferStatusUseCase();
     mockAnalyticsService = MockAnalyticsService();
     mockFeatureFlags = MockFeatureFlags();
+
+    when(() => mockAnalyticsService.logTransferFailure(
+        reason: any(named: 'reason'))).thenAnswer((_) async {});
 
     registerFallbackValue(
       TransferEntity(
@@ -61,6 +71,7 @@ void main() {
       mockCreateTransferUseCase,
       mockRequestTransferUseCase,
       mockResolveWalletByEmailUseCase,
+      mockResolveWalletByUsernameUseCase,
       mockObserveTransferStatusUseCase,
       mockAnalyticsService,
       mockFeatureFlags,
@@ -68,7 +79,8 @@ void main() {
   });
 
   const tFromId = 'wallet1';
-  const tToId = 'wallet2';
+  // Use a 28-char ID to bypass username resolution logic and treat as Direct Wallet ID
+  const tToId = '1234567890123456789012345678';
   const tAmount = 100.0;
   const tCurrency = 'SAR';
 
@@ -137,8 +149,24 @@ void main() {
       // Mock Observation Stream
       when(() => mockObserveTransferStatusUseCase.call(any())).thenAnswer(
         (_) => Stream.fromIterable([
-          TransferStatus.pending,
-          TransferStatus.completed,
+          TransferEntity(
+            id: 'new_id',
+            fromWalletId: tFromId,
+            toWalletId: tToId,
+            amount: tAmount,
+            currency: tCurrency,
+            status: TransferStatus.pending,
+            createdAt: DateTime.now(),
+          ),
+          TransferEntity(
+            id: 'new_id',
+            fromWalletId: tFromId,
+            toWalletId: tToId,
+            amount: tAmount,
+            currency: tCurrency,
+            status: TransferStatus.completed,
+            createdAt: DateTime.now(),
+          ),
         ]),
       );
 

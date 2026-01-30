@@ -9,6 +9,7 @@ import 'package:boklo/features/auth/domain/usecases/get_current_user_usecase.dar
 import 'package:boklo/features/auth/domain/usecases/login_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/register_usecase.dart';
+import 'package:boklo/features/auth/domain/usecases/set_user_profile_usecase.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -18,6 +19,7 @@ class AuthCubit extends BaseCubit<User?> {
     this._logoutUseCase,
     this._getCurrentUserUseCase,
     this._registerUseCase,
+    this._setUserProfileUseCase,
     this._analyticsService,
     this._notificationService,
   ) : super(const BaseState.initial());
@@ -26,6 +28,7 @@ class AuthCubit extends BaseCubit<User?> {
   final LogoutUseCase _logoutUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final RegisterUseCase _registerUseCase;
+  final SetUserProfileUseCase _setUserProfileUseCase;
   final AnalyticsService _analyticsService;
   final NotificationService _notificationService;
 
@@ -66,6 +69,24 @@ class AuthCubit extends BaseCubit<User?> {
     result.fold(
       emitError,
       emitSuccess,
+    );
+  }
+
+  Future<void> setUserProfile({
+    required String username,
+    String? name,
+  }) async {
+    emitLoading();
+    final result = await _setUserProfileUseCase(
+      username: username,
+      name: name,
+    );
+    result.fold(
+      emitError,
+      (_) async {
+        // Refresh user to get updated fields
+        await checkAuthStatus();
+      },
     );
   }
 }

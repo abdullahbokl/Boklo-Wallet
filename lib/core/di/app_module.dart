@@ -47,7 +47,8 @@ abstract class AppModule {
   FirebaseFirestore get firebaseFirestore => FirebaseFirestore.instance;
 
   @lazySingleton
-  FirebaseFunctions get firebaseFunctions => FirebaseFunctions.instance;
+  FirebaseFunctions get firebaseFunctions =>
+      FirebaseFunctions.instanceFor(region: 'us-central1');
 
   @singleton
   @Environment(Environment.dev)

@@ -6,6 +6,7 @@ class UserModel {
     required this.id,
     required this.email,
     this.displayName,
+    this.username,
     this.createdAt,
     this.isActive = true,
   });
@@ -19,9 +20,26 @@ class UserModel {
     );
   }
 
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id'] as String,
+      email: json['email'] as String,
+      displayName: json['name'] as String? ?? json['displayName'] as String?,
+      username: json['username'] as String?,
+      createdAt: json['createdAt'] == null
+          ? null
+          : (json['createdAt'] is String)
+              ? DateTime.parse(json['createdAt'] as String)
+              : (json['createdAt'] as dynamic).toDate()
+                  as DateTime?, // Handle Timestamp
+      isActive: json['isActive'] as bool? ?? true,
+    );
+  }
+
   final String id;
   final String email;
   final String? displayName;
+  final String? username;
   final DateTime? createdAt;
   final bool isActive;
 
@@ -29,7 +47,8 @@ class UserModel {
     return {
       'id': id,
       'email': email,
-      if (displayName != null) 'displayName': displayName,
+      if (displayName != null) 'name': displayName,
+      if (username != null) 'username': username,
       'createdAt': createdAt?.toIso8601String(),
       'isActive': isActive,
     };
@@ -40,6 +59,25 @@ class UserModel {
       id: id,
       email: email,
       displayName: displayName,
+      username: username,
+    );
+  }
+
+  UserModel copyWith({
+    String? id,
+    String? email,
+    String? displayName,
+    String? username,
+    DateTime? createdAt,
+    bool? isActive,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      displayName: displayName ?? this.displayName,
+      username: username ?? this.username,
+      createdAt: createdAt ?? this.createdAt,
+      isActive: isActive ?? this.isActive,
     );
   }
 }

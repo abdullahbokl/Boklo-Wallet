@@ -46,13 +46,10 @@ void main() {
   final tUser = tUserModel.toEntity();
 
   group('register', () {
-    test('should return Success<User> when auth and db creation are successful',
-        () async {
+    test('should return Success<User> when auth is successful', () async {
       // Arrange
       when(() => mockRemoteDataSource.register(any(), any()))
           .thenAnswer((_) async => tUserModel);
-      when(() => mockUserRemoteDataSource.createUser(tUserModel))
-          .thenAnswer((_) async {});
 
       // Act
       final result = await authRepository.register(tEmail, tPassword);
@@ -64,7 +61,6 @@ void main() {
         (user) => expect(user, tUser),
       );
       verify(() => mockRemoteDataSource.register(tEmail, tPassword)).called(1);
-      verify(() => mockUserRemoteDataSource.createUser(tUserModel)).called(1);
     });
 
     test(
@@ -91,30 +87,6 @@ void main() {
         (user) => fail('Expected Failure but got Success'),
       );
       verify(() => mockRemoteDataSource.register(tEmail, tPassword)).called(1);
-      verifyNever(() => mockUserRemoteDataSource.createUser(any()));
-    });
-
-    test(
-        'should return Failure with DatabaseError when auth succeeds but db creation fails',
-        () async {
-      // Arrange
-      when(() => mockRemoteDataSource.register(any(), any()))
-          .thenAnswer((_) async => tUserModel);
-      final tException = Exception('DB Error');
-      when(() => mockUserRemoteDataSource.createUser(tUserModel))
-          .thenThrow(tException);
-
-      // Act
-      final result = await authRepository.register(tEmail, tPassword);
-
-      // Assert
-      expect(result, isA<Failure<User>>());
-      result.fold(
-        (error) => expect(error, isA<DatabaseError>()),
-        (user) => fail('Expected Failure but got Success'),
-      );
-      verify(() => mockRemoteDataSource.register(tEmail, tPassword)).called(1);
-      verify(() => mockUserRemoteDataSource.createUser(tUserModel)).called(1);
     });
   });
 
@@ -122,6 +94,8 @@ void main() {
     test('should return Success<User> when login is successful', () async {
       // Arrange
       when(() => mockRemoteDataSource.login(any(), any()))
+          .thenAnswer((_) async => tUserModel);
+      when(() => mockUserRemoteDataSource.getUser(any()))
           .thenAnswer((_) async => tUserModel);
 
       // Act
@@ -134,6 +108,7 @@ void main() {
         (user) => expect(user, tUser),
       );
       verify(() => mockRemoteDataSource.login(tEmail, tPassword)).called(1);
+      verify(() => mockUserRemoteDataSource.getUser(tUserModel.id)).called(1);
     });
 
     test(
@@ -239,6 +214,8 @@ void main() {
       // Arrange
       when(() => mockRemoteDataSource.getCurrentUser())
           .thenAnswer((_) => Future.value(tUserModel));
+      when(() => mockUserRemoteDataSource.getUser(any()))
+          .thenAnswer((_) async => tUserModel);
 
       // Act
       final result = await authRepository.getCurrentUser();
@@ -250,6 +227,7 @@ void main() {
         (user) => expect(user, tUser),
       );
       verify(() => mockRemoteDataSource.getCurrentUser()).called(1);
+      verify(() => mockUserRemoteDataSource.getUser(tUserModel.id)).called(1);
     });
 
     test('should return Success<null> when no user exists', () async {
