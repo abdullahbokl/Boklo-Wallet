@@ -79,4 +79,23 @@ class ContactRepositoryImpl implements ContactRepository {
       return Failure(UnknownError(e.toString()));
     }
   }
+
+  @override
+  Future<Result<void>> removeContact(String contactUid) async {
+    try {
+      final uid = _auth.currentUser?.uid;
+      if (uid == null) {
+        return Failure(const UnknownError('User not logged in'));
+      }
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('contacts')
+          .doc(contactUid)
+          .delete();
+      return const Success(null);
+    } catch (e) {
+      return Failure(UnknownError(e.toString()));
+    }
+  }
 }

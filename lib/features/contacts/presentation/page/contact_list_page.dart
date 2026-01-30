@@ -64,7 +64,7 @@ class ContactListPage extends StatelessWidget {
                       ? null
                       : PopupMenuButton<String>(
                           onSelected: (action) =>
-                              _handleContactAction(action, contact),
+                              _handleContactAction(context, action, contact),
                           itemBuilder: (context) => [
                             const PopupMenuItem(
                               value: 'send',
@@ -86,6 +86,18 @@ class ContactListPage extends StatelessWidget {
                                 ],
                               ),
                             ),
+                            const PopupMenuItem(
+                              value: 'remove',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete,
+                                      size: 20, color: Colors.red),
+                                  SizedBox(width: 8),
+                                  Text('Remove',
+                                      style: TextStyle(color: Colors.red)),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                 );
@@ -97,12 +109,15 @@ class ContactListPage extends StatelessWidget {
     );
   }
 
-  void _handleContactAction(String action, ContactEntity contact) {
+  void _handleContactAction(
+      BuildContext context, String action, ContactEntity contact) {
     if (action == 'send') {
       getIt<NavigationService>().push('/transfer', extra: contact);
     } else if (action == 'request') {
       getIt<NavigationService>()
           .push('/payment-requests/create', extra: contact);
+    } else if (action == 'remove') {
+      context.read<ContactCubit>().removeContact(contact.uid);
     }
   }
 

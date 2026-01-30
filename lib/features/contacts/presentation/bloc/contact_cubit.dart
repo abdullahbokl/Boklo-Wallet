@@ -51,6 +51,29 @@ class ContactCubit extends BaseCubit<ContactState> {
     );
   }
 
+  Future<void> removeContact(String contactUid) async {
+    final current = state.data ?? const ContactState();
+
+    // Optimistic update
+    final updatedList = List<ContactEntity>.from(current.contacts)
+      ..removeWhere((c) => c.uid == contactUid);
+
+    emitSuccess(current.copyWith(contacts: updatedList));
+
+    final result = await _repository.removeContact(contactUid);
+
+    result.fold(
+      (error) {
+        // Revert on failure
+        emitError(error);
+        emitSuccess(current);
+      },
+      (_) {
+        // Success - stream will confirm
+      },
+    );
+  }
+
   @override
   Future<void> close() {
     _sub?.cancel();
