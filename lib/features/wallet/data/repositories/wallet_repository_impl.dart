@@ -7,6 +7,7 @@ import 'package:boklo/features/wallet/data/models/transaction_model.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/repositories/wallet_repository.dart';
+import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: WalletRepository)
@@ -72,6 +73,20 @@ class WalletRepositoryImpl implements WalletRepository {
               Result<List<TransactionEntity>>>.fromHandlers(
             handleData: (data, sink) {
               sink.add(Success(data.map((e) => e.toEntity()).toList()));
+            },
+            handleError: (error, stack, sink) {
+              sink.add(Failure(UnknownError('Stream error: $error')));
+            },
+          ),
+        );
+  }
+
+  @override
+  Stream<Result<WalletEntity>> watchWallet() {
+    return _remoteDataSource.watchWallet().transform(
+          StreamTransformer<WalletModel, Result<WalletEntity>>.fromHandlers(
+            handleData: (data, sink) {
+              sink.add(Success(data.toEntity()));
             },
             handleError: (error, stack, sink) {
               sink.add(Failure(UnknownError('Stream error: $error')));

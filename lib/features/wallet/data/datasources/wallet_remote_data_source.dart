@@ -1,16 +1,17 @@
 import 'dart:math';
 
+import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/features/wallet/data/models/transaction_model.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:boklo/core/error/app_error.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class WalletRemoteDataSource {
   Future<WalletModel> getWallet();
   Future<List<TransactionModel>> getTransactions();
   Stream<List<TransactionModel>> watchTransactions();
+  Stream<WalletModel> watchWallet();
 }
 
 @LazySingleton(as: WalletRemoteDataSource)
@@ -19,6 +20,26 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+
+  @override
+  Stream<WalletModel> watchWallet() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      return Stream.error(const ValidationError('User not logged in'));
+    }
+
+    return _firestore.collection('wallets').doc(userId).snapshots().map((doc) {
+      if (doc.exists) {
+        return WalletModel.fromJson(doc.data()!);
+      } else {
+        // If it doesn't exist, we might want to create it, but streams shouldn't side-effect easily.
+        // For now, return a default/empty model or error.
+        // Given getWallet creates it, we assume it exists or will be created by getWallet first.
+        // Or we throw error.
+        throw const ValidationError('Wallet not found');
+      }
+    });
+  }
 
   @override
   Future<WalletModel> getWallet() async {
@@ -38,6 +59,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         balance: 1000,
         currency: 'USD',
         alias: alias,
+        email: _auth.currentUser?.email,
       );
       await docRef.set(newWallet.toJson());
       return newWallet;
@@ -77,8 +99,10 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         .orderBy('timestamp', descending: true)
         .limit(20)
         .snapshots()
-        .map((query) => query.docs
-            .map((doc) => TransactionModel.fromJson(doc.data()))
-            .toList());
+        .map(
+          (query) => query.docs
+              .map((doc) => TransactionModel.fromJson(doc.data()))
+              .toList(),
+        );
   }
 }

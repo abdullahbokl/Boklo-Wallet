@@ -41,28 +41,14 @@ class WalletPage extends StatelessWidget {
       },
       child: BlocBuilder<WalletCubit, BaseState<WalletState>>(
         builder: (context, state) {
-          final wallet = state.whenOrNull(success: (data) => data.wallet);
-          final alias = wallet?.alias;
-
           return Scaffold(
             appBar: AppBar(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    alias != null ? 'Hello, $alias' : 'Hello there',
-                    style: AppTypography.headline.copyWith(
-                      color: AppColors.textPrimaryLight,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (alias == null)
-                    Text(
-                      'Welcome back',
-                      style: AppTypography.caption
-                          .copyWith(color: AppColors.textSecondaryLight),
-                    ),
-                ],
+              title: Text(
+                'My Wallet',
+                style: AppTypography.headline.copyWith(
+                  color: AppColors.textPrimaryLight,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               centerTitle: false,
               backgroundColor: AppColors.backgroundLight,
@@ -82,7 +68,7 @@ class WalletPage extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                        borderRadius: BorderRadius.circular(AppDimens.radiusSm),
                         border: Border.all(
                           color: AppColors.primary.withValues(alpha: 0.2),
                         ),
@@ -161,13 +147,15 @@ class _WalletLayout extends StatelessWidget {
             child: BalanceCard(
               balance: data.wallet.balance,
               currency: data.wallet.currency,
+              walletId: data.wallet.id,
+              alias: data.wallet.alias,
             ),
           ),
           const SizedBox(height: AppDimens.lg),
           // Quick Actions
           WalletPrimaryAction(
             onSendMoney: () async {
-              getIt<NavigationService>().push('/transfer');
+              unawaited(getIt<NavigationService>().push('/transfer'));
             },
           ),
           const SizedBox(height: AppDimens.md),

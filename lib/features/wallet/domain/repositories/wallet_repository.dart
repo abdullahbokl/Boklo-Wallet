@@ -6,4 +6,5 @@ abstract class WalletRepository {
   Future<Result<WalletEntity>> getWallet();
   Future<Result<List<TransactionEntity>>> getTransactions();
   Stream<Result<List<TransactionEntity>>> watchTransactions();
+  Stream<Result<WalletEntity>> watchWallet();
 }

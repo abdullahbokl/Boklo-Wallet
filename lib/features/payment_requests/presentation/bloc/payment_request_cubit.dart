@@ -3,21 +3,24 @@ import 'dart:async';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
+import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_id_by_alias_usecase.dart';
 import 'package:boklo/features/payment_requests/domain/repo/payment_request_repository.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
-  final PaymentRequestRepository _repository;
-  final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
-  StreamSubscription<dynamic>? _incomingSub;
-  StreamSubscription<dynamic>? _outgoingSub;
-
   PaymentRequestCubit(
     this._repository,
     this._resolveWalletByEmailUseCase,
+    this._resolveWalletIdByAliasUseCase,
   ) : super(const BaseState.initial());
+
+  final PaymentRequestRepository _repository;
+  final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
+  final ResolveWalletIdByAliasUseCase _resolveWalletIdByAliasUseCase;
+  StreamSubscription<dynamic>? _incomingSub;
+  StreamSubscription<dynamic>? _outgoingSub;
 
   void init() {
     emitLoading();
@@ -29,11 +32,14 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
     _incomingSub?.cancel();
     _incomingSub = _repository.watchIncomingRequests().listen(
       (result) {
-        result.fold((error) => emitError(error), (data) {
-          // Merge with current state or create new success
-          final currentState = state.data ?? const PaymentRequestState();
-          emitSuccess(currentState.copyWith(incomingRequests: data));
-        });
+        result.fold(
+          emitError,
+          (data) {
+            // Merge with current state or create new success
+            final currentState = state.data ?? const PaymentRequestState();
+            emitSuccess(currentState.copyWith(incomingRequests: data));
+          },
+        );
       },
       onError: (Object error) {
         // Log error
@@ -45,10 +51,13 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
     _outgoingSub?.cancel();
     _outgoingSub = _repository.watchOutgoingRequests().listen(
       (result) {
-        result.fold((error) => emitError(error), (data) {
-          final currentState = state.data ?? const PaymentRequestState();
-          emitSuccess(currentState.copyWith(outgoingRequests: data));
-        });
+        result.fold(
+          emitError,
+          (data) {
+            final currentState = state.data ?? const PaymentRequestState();
+            emitSuccess(currentState.copyWith(outgoingRequests: data));
+          },
+        );
       },
       onError: (Object error) {
         // Log error
@@ -67,7 +76,7 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
 
     var targetPayerId = payerId.trim();
 
-    // 1. Resolve Email if needed
+    // 1. Resolve Identifier (Email or Alias)
     if (targetPayerId.contains('@')) {
       final resolution = await _resolveWalletByEmailUseCase(targetPayerId);
       final error = resolution.fold((l) => l, (r) => null);
@@ -77,18 +86,34 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
         return;
       }
       targetPayerId = resolution.fold((l) => '', (r) => r);
+    } else {
+      // Try to resolve as Alias
+      final resolution = await _resolveWalletIdByAliasUseCase(targetPayerId);
+      resolution.fold(
+        (l) {
+          // If resolution fails, assume it's a raw Wallet ID and proceed
+          // We don't error out here explicitly as it might be a valid UUID
+        },
+        (r) {
+          targetPayerId = r;
+        },
+      );
     }
 
     // 2. Create Request
     final result = await _repository.createRequest(
-        payerId: targetPayerId, amount: amount, currency: currency, note: note);
+      payerId: targetPayerId,
+      amount: amount,
+      currency: currency,
+      note: note,
+    );
 
-    result.fold((error) {
-      emitError(error);
-      emitSuccess(currentState.copyWith(isCreating: false));
-    }, (id) {
-      emitSuccess(currentState.copyWith(isCreating: false));
-    });
+    result.fold(
+      emitError,
+      (id) {
+        emitSuccess(currentState.copyWith(isCreating: false));
+      },
+    );
   }
 
   Future<void> acceptRequest(String requestId) async {
@@ -97,12 +122,12 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
 
     final result = await _repository.acceptRequest(requestId);
 
-    result.fold((error) {
-      emitError(error);
-      emitSuccess(currentState.copyWith(isActing: false));
-    }, (_) {
-      emitSuccess(currentState.copyWith(isActing: false));
-    });
+    result.fold(
+      emitError,
+      (_) {
+        emitSuccess(currentState.copyWith(isActing: false));
+      },
+    );
   }
 
   Future<void> declineRequest(String requestId) async {
@@ -111,18 +136,18 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
 
     final result = await _repository.declineRequest(requestId);
 
-    result.fold((error) {
-      emitError(error);
-      emitSuccess(currentState.copyWith(isActing: false));
-    }, (_) {
-      emitSuccess(currentState.copyWith(isActing: false));
-    });
+    result.fold(
+      emitError,
+      (_) {
+        emitSuccess(currentState.copyWith(isActing: false));
+      },
+    );
   }
 
   @override
   Future<void> close() {
-    _incomingSub?.cancel();
-    _outgoingSub?.cancel();
+    unawaited(_incomingSub?.cancel());
+    unawaited(_outgoingSub?.cancel());
     return super.close();
   }
 }

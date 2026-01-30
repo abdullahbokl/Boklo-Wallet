@@ -5,121 +5,120 @@ import 'package:boklo/core/base/result.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
-import 'package:boklo/features/wallet/domain/usecases/get_wallet_usecase.dart';
+import 'package:boklo/features/wallet/domain/usecases/watch_wallet_usecase.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class WalletCubit extends BaseCubit<WalletState> {
   WalletCubit(
-    this._getWalletUseCase,
+    this._watchWalletUseCase,
     this._getTransactionsUseCase,
   ) : super(const BaseState.initial());
 
-  final GetWalletUseCase _getWalletUseCase;
+  final WatchWalletUseCase _watchWalletUseCase;
   final GetTransactionsUseCase _getTransactionsUseCase;
 
+  StreamSubscription<Result<WalletEntity>>? _walletSubscription;
   StreamSubscription<Result<List<TransactionEntity>>>? _txSubscription;
+
+  WalletEntity? _currentWallet;
   List<TransactionEntity> _lastTransactions = [];
 
   Future<void> loadWallet() async {
     emitLoading();
 
-    // 1. Fetch Wallet (Future)
-    final walletResult = await _getWalletUseCase();
+    // 1. Watch Wallet
+    _walletSubscription?.cancel();
+    _walletSubscription = _watchWalletUseCase().listen((result) {
+      result.fold(
+        emitError,
+        (wallet) {
+          _currentWallet = wallet;
+          _emitMergedState();
+        },
+      );
+    });
 
-    walletResult.fold(
-      emitError,
-      (wallet) {
-        // 2. Setup Stream Subscription if not active
-        if (_txSubscription == null) {
-          _txSubscription = _getTransactionsUseCase.watch().listen((result) {
-            result.fold(
-              (error) {
-                // Should we emit error state?
-                // If we do, we lose the wallet view.
-                // But typically if transactions fail, we show error.
-                emitError(error);
-              },
-              (transactions) {
-                _lastTransactions = transactions;
-                // We need the current wallet to emit state.
-                // We can cache it locally or read from state.
-                WalletEntity? currentWallet;
-                currentWallet = state.data?.wallet;
+    // 2. Watch Transactions
+    if (_txSubscription == null) {
+      _txSubscription = _getTransactionsUseCase.watch().listen((result) {
+        result.fold(
+          (error) {
+            // Log or handle error, but keep wallet visible if possible
+            emitError(error);
+          },
+          (transactions) {
+            _lastTransactions = transactions;
+            _emitMergedState();
+          },
+        );
+      });
+    }
+  }
 
-                // Use the wallet from the closure if state is not yet Success (initial load)
-                currentWallet ??= wallet;
+  void _emitMergedState() {
+    if (_currentWallet == null) return;
 
-                final currentType = state.data?.filterType;
-                final currentStatus = state.data?.filterStatus;
+    final currentType = state.data?.filterType;
+    final currentStatus = state.data?.filterStatus;
 
-                final filtered = _applyFilters(
-                    _lastTransactions, currentType, currentStatus);
+    final filtered =
+        _applyFilters(_lastTransactions, currentType, currentStatus);
 
-                emitSuccess(
-                  WalletState(
-                    wallet: currentWallet,
-                    transactions: filtered,
-                    filterType: currentType,
-                    filterStatus: currentStatus,
-                  ),
-                );
-              },
-            );
-          });
-        } else {
-          // 3. Refresh: Use new wallet and cached transactions
-          final currentType = state.data?.filterType;
-          final currentStatus = state.data?.filterStatus;
-          final filtered =
-              _applyFilters(_lastTransactions, currentType, currentStatus);
-
-          emitSuccess(
-            WalletState(
-              wallet: wallet,
-              transactions: filtered,
-              filterType: currentType,
-              filterStatus: currentStatus,
-            ),
-          );
-        }
-      },
+    emitSuccess(
+      WalletState(
+        wallet: _currentWallet!,
+        transactions: filtered,
+        filterType: currentType,
+        filterStatus: currentStatus,
+      ),
     );
   }
 
   void setFilterType(TransactionType? type) {
-    if (state.data == null) return;
+    if (_currentWallet == null) return;
 
-    final currentStatus = state.data!.filterStatus;
+    final currentStatus = state.data?.filterStatus;
     final filtered = _applyFilters(_lastTransactions, type, currentStatus);
 
-    emitSuccess(state.data!.copyWith(
-      filterType: type,
-      transactions: filtered,
-    ));
+    emitSuccess(
+      WalletState(
+        wallet: _currentWallet!,
+        transactions: filtered,
+        filterType: type,
+        filterStatus: currentStatus,
+      ),
+    );
   }
 
   void setFilterStatus(TransactionStatus? status) {
-    if (state.data == null) return;
+    if (_currentWallet == null) return;
 
-    final currentType = state.data!.filterType;
+    final currentType = state.data?.filterType;
     final filtered = _applyFilters(_lastTransactions, currentType, status);
 
-    emitSuccess(state.data!.copyWith(
-      filterStatus: status,
-      transactions: filtered,
-    ));
+    emitSuccess(
+      WalletState(
+        wallet: _currentWallet!,
+        transactions: filtered,
+        filterType: currentType,
+        filterStatus: status,
+      ),
+    );
   }
 
   void clearFilters() {
-    if (state.data == null) return;
+    if (_currentWallet == null) return;
 
-    emitSuccess(state.data!.copyWith(
-      filterType: null,
-      filterStatus: null,
-      transactions: _lastTransactions,
-    ));
+    emitSuccess(
+      WalletState(
+        wallet: _currentWallet!,
+        transactions: _lastTransactions,
+        filterType: null,
+        filterStatus: null,
+      ),
+    );
   }
 
   List<TransactionEntity> _applyFilters(List<TransactionEntity> transactions,
@@ -133,6 +132,7 @@ class WalletCubit extends BaseCubit<WalletState> {
 
   @override
   Future<void> close() {
+    _walletSubscription?.cancel();
     _txSubscription?.cancel();
     return super.close();
   }

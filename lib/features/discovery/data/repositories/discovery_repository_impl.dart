@@ -29,4 +29,19 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
       return Failure(UnknownError('Failed to resolve wallet', e));
     }
   }
+
+  @override
+  Future<Result<String>> resolveWalletIdByAlias(String alias) async {
+    try {
+      final walletId = await _dataSource.resolveWalletIdByAlias(alias);
+      return Success(walletId);
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      final message = e.toString();
+      if (message.contains('Wallet alias not found')) {
+        return const Failure(ValidationError('Wallet alias not found'));
+      }
+      return Failure(UnknownError('Failed to resolve wallet alias', e));
+    }
+  }
 }

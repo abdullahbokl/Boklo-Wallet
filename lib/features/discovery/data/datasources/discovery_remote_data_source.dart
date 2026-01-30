@@ -6,6 +6,7 @@ import 'package:injectable/injectable.dart';
 // ignore: one_member_abstracts
 abstract class DiscoveryRemoteDataSource {
   Future<UserPublicProfileModel> resolveWalletByEmail(String email);
+  Future<String> resolveWalletIdByAlias(String alias);
 }
 
 @LazySingleton(as: DiscoveryRemoteDataSource)
@@ -34,5 +35,21 @@ class DiscoveryRemoteDataSourceImpl implements DiscoveryRemoteDataSource {
     }
 
     return UserPublicProfileModel.fromJson(data);
+  }
+
+  @override
+  Future<String> resolveWalletIdByAlias(String alias) async {
+    final snapshot = await _firestore
+        .collection('wallets')
+        .where('alias', isEqualTo: alias)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      throw Exception('Wallet alias not found');
+    }
+
+    // The document ID is the Wallet ID (User ID)
+    return snapshot.docs.first.id;
   }
 }
