@@ -26,10 +26,41 @@ class TransactionList extends StatelessWidget {
     if (transactions.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(AppDimens.xl),
-          child: Text(
-            'No transactions yet',
-            style: AppTypography.bodyLarge.copyWith(color: Colors.grey),
+          padding: const EdgeInsets.symmetric(
+            vertical: AppDimens.xxl,
+            horizontal: AppDimens.xl,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppDimens.lg),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.receipt_long_rounded,
+                  size: 48,
+                  color: Colors.grey.withOpacity(0.5),
+                ),
+              ),
+              const SizedBox(height: AppDimens.md),
+              Text(
+                'No transactions yet',
+                style: AppTypography.title.copyWith(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Your income and expenses will appear here.',
+                style: AppTypography.bodyMedium.copyWith(color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       );

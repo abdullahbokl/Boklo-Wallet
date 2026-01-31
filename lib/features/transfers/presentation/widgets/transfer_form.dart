@@ -212,7 +212,28 @@ class _TransferFormState extends State<TransferForm> {
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          orElse: () => const Center(child: Text('Failed to load wallet')),
+          orElse: () => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.signal_wifi_off,
+                    size: 48, color: AppColors.error),
+                const SizedBox(height: AppDimens.md),
+                Text(
+                  'Failed to load wallet',
+                  style: AppTypography.title.copyWith(color: AppColors.error),
+                ),
+                const SizedBox(height: AppDimens.md),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    unawaited(context.read<WalletCubit>().loadWallet());
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );

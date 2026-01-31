@@ -15,6 +15,8 @@ import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/quick_actions_row.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_list.dart';
 import 'package:boklo/features/wallet/presentation/widgets/wallet_primary_action.dart';
+import 'package:boklo/features/wallet/presentation/widgets/wallet_skeleton.dart';
+import 'package:boklo/shared/presentation/widgets/dev_info_widget.dart';
 import 'package:boklo/shared/responsive/responsive_builder.dart';
 import 'package:boklo/shared/widgets/molecules/balance_card.dart';
 import 'package:flutter/material.dart';
@@ -125,18 +127,28 @@ class WalletPage extends StatelessWidget {
               ],
             ),
             body: state.when(
-              initial: () => const Center(child: CircularProgressIndicator()),
-              loading: () => const Center(
+              initial: () => const WalletSkeleton(),
+              loading: () => const WalletSkeleton(),
+              error: (error) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: AppDimens.md),
-                    Text('Setting up your wallet...'),
+                    const Icon(Icons.error_outline,
+                        size: 48, color: AppColors.error),
+                    const SizedBox(height: AppDimens.md),
+                    Text(error.message),
+                    const SizedBox(height: AppDimens.md),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Trigger a retry if available, or just re-emit loading
+                        // Ideally Cubit should have a retry method or we assume auto-retry/init
+                        // For now just show error
+                      },
+                      child: const Text('Retry'),
+                    ),
                   ],
                 ),
               ),
-              error: (error) => Center(child: Text(error.message)),
               success: (data) => ResponsiveBuilder(
                 mobile: (context, _) => _WalletLayout(data: data),
                 tablet: (context, _) => Center(
@@ -167,11 +179,21 @@ class _WalletLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Attempt to get user ID from AuthCubit for debug info
+    final user = context.read<AuthCubit>().state.data;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppDimens.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Dev Info (Auto-hidden in release)
+          DevInfoWidget(
+            userId: user?.id,
+            walletId: data.wallet.id,
+          ),
+          const SizedBox(height: AppDimens.sm),
+
           // Entrance Animation for Balance Card
           TweenAnimationBuilder<double>(
             duration: const Duration(milliseconds: 600),
