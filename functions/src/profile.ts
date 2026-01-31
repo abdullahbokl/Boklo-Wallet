@@ -144,12 +144,23 @@ export const setUserProfile = onCall<SetUserProfileData>(
     if (currentUsername && oldUsernameDoc?.exists && oldUsernameDoc.data()?.uid === uid) {
         const oldUsernameRef = db.collection("usernames").doc(currentUsername);
         t.delete(oldUsernameRef);
+        // Also delete old identifier mapping
+        t.delete(db.collection("wallet_identifiers").doc(`username:${currentUsername}`));
     }
 
     // Claim new username
     t.set(usernameRef, {
         uid: uid,
         username: usernameLower,
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Create O(1) identifier mapping for username
+    t.set(db.collection("wallet_identifiers").doc(`username:${usernameLower}`), {
+        walletId: uid,
+        uid: uid,
+        type: 'username',
+        value: usernameLower,
         createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
 

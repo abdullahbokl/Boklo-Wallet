@@ -28,6 +28,7 @@ export { onAdminJobCreated } from "./admin";
 export { onUserCreated } from "./users";
 export { setUserProfile } from "./profile";
 export { provisionWallet } from "./wallet";
+export { migrateWalletIdentifiers } from "./migration";
 
 admin.initializeApp();
 // const db = admin.firestore(); // Not currently used in index.ts

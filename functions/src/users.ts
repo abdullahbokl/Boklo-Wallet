@@ -52,6 +52,19 @@ export const onUserCreated = functions.auth.user().onCreate(async (user) => {
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         }, {merge: true});
 
+        // Create O(1) identifier mapping for email (if present)
+        if (email) {
+            const emailLower = email.toLowerCase();
+            await db.collection("wallet_identifiers").doc(`email:${emailLower}`).set({
+                walletId: uid,
+                uid: uid,
+                type: 'email',
+                value: emailLower,
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`Email identifier mapping created for ${uid}`);
+        }
+
     } catch (error) {
         console.error(`Error creating wallet for user ${uid}:`, error);
         throw error;

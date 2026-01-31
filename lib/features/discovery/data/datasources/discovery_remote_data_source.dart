@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 
 // Interface for retrieving user Public Profile
-// ignore: one_member_abstracts
 abstract class DiscoveryRemoteDataSource {
   Future<UserPublicProfileModel> resolveWalletByEmail(String email);
   Future<String> resolveWalletIdByAlias(String alias);
@@ -18,17 +17,29 @@ class DiscoveryRemoteDataSourceImpl implements DiscoveryRemoteDataSource {
 
   @override
   Future<UserPublicProfileModel> resolveWalletByEmail(String email) async {
-    final snapshot = await _firestore
-        .collection('users')
-        .where('email', isEqualTo: email)
-        .limit(1)
+    // O(1) lookup via wallet_identifiers mapping
+    final emailLower = email.toLowerCase();
+    final mappingDoc = await _firestore
+        .collection('wallet_identifiers')
+        .doc('email:$emailLower')
         .get();
 
-    if (snapshot.docs.isEmpty) {
-      throw Exception('User not found');
+    if (!mappingDoc.exists) {
+      throw Exception('IDENTIFIER_NOT_REGISTERED');
     }
 
-    final data = snapshot.docs.first.data();
+    final walletId = mappingDoc.data()?['walletId'] as String?;
+    if (walletId == null) {
+      throw Exception('Invalid identifier mapping');
+    }
+
+    final userDoc = await _firestore.collection('users').doc(walletId).get();
+
+    if (!userDoc.exists) {
+      throw Exception('User profile not found');
+    }
+
+    final data = userDoc.data()!;
     final isActive = data['isActive'] as bool? ?? true;
 
     if (!isActive) {
@@ -56,22 +67,25 @@ class DiscoveryRemoteDataSourceImpl implements DiscoveryRemoteDataSource {
 
   @override
   Future<UserPublicProfileModel> resolveWalletByUsername(
-      String username) async {
-    final usernameDoc = await _firestore
-        .collection('usernames')
-        .doc(username.toLowerCase())
+    String username,
+  ) async {
+    // O(1) lookup via wallet_identifiers mapping
+    final usernameLower = username.toLowerCase().replaceAll('@', '');
+    final mappingDoc = await _firestore
+        .collection('wallet_identifiers')
+        .doc('username:$usernameLower')
         .get();
 
-    if (!usernameDoc.exists) {
-      throw Exception('Username not found');
+    if (!mappingDoc.exists) {
+      throw Exception('IDENTIFIER_NOT_REGISTERED');
     }
 
-    final uid = usernameDoc.data()?['uid'] as String?;
-    if (uid == null) {
-      throw Exception('Invalid username record');
+    final walletId = mappingDoc.data()?['walletId'] as String?;
+    if (walletId == null) {
+      throw Exception('Invalid identifier mapping');
     }
 
-    final userDoc = await _firestore.collection('users').doc(uid).get();
+    final userDoc = await _firestore.collection('users').doc(walletId).get();
 
     if (!userDoc.exists) {
       throw Exception('User profile not found');

@@ -35,23 +35,38 @@ export const addContact = onCall(async (request) => {
             displayName = userRecord.displayName || email.split('@')[0];
             photoUrl = userRecord.photoURL || null;
         } else {
-            // Lookup by username
+            // O(1) Lookup by username using wallet_identifiers mapping
+            const startTime = Date.now();
             const usernameLower = username!.toLowerCase().replace(/^@/, ''); // Remove @ if present
-            const usernameDoc = await db.collection("usernames").doc(usernameLower).get();
             
-            if (!usernameDoc.exists) {
+            logger.info("Identifier resolution started", {
+                event: "IDENTIFIER_RESOLUTION",
+                inputType: 'username',
+                inputValue: usernameLower.substring(0, 3) + '***' // Masked for privacy
+            });
+
+            const mappingDoc = await db.collection("wallet_identifiers").doc(`username:${usernameLower}`).get();
+            
+            if (!mappingDoc.exists) {
+                logger.warn("Identifier resolution failed", {
+                    event: "IDENTIFIER_RESOLUTION",
+                    error: "IDENTIFIER_NOT_REGISTERED",
+                    durationMs: Date.now() - startTime
+                });
                 throw new functions.https.HttpsError("not-found", "User with this username does not exist.");
             }
 
-            const uid = usernameDoc.data()?.uid as string;
-            if (!uid) {
-                throw new functions.https.HttpsError("not-found", "Invalid username record.");
-            }
+            const mappingData = mappingDoc.data()!;
+            contactUid = mappingData.walletId as string;
 
-            contactUid = uid;
+            logger.info("Identifier resolution completed", {
+                event: "IDENTIFIER_RESOLUTION",
+                durationMs: Date.now() - startTime,
+                success: true
+            });
 
             // Fetch user profile for display name and email
-            const userDoc = await db.collection("users").doc(uid).get();
+            const userDoc = await db.collection("users").doc(contactUid).get();
             if (!userDoc.exists) {
                 throw new functions.https.HttpsError("not-found", "User profile not found.");
             }

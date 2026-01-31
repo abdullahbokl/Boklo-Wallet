@@ -16,6 +16,12 @@ export const onAdminJobCreated = onDocumentCreated("admin_jobs/{jobId}", async (
     const jobData = snapshot.data();
     const jobId = event.params.jobId;
 
+    // Handle MIGRATE_WALLET_IDENTIFIERS job
+    if (jobData.type === "MIGRATE_WALLET_IDENTIFIERS") {
+        await runMigrationJob(jobId);
+        return;
+    }
+
     if (jobData.type !== "REPLAY_TRANSACTION_EVENTS") {
         logger.info(`Ignoring unknown job type: ${jobData.type}`);
         return; // Or mark as SKIPPED
@@ -131,3 +137,108 @@ export const onAdminJobCreated = onDocumentCreated("admin_jobs/{jobId}", async (
         });
     }
 });
+
+/**
+ * Migration job to backfill wallet_identifiers for existing users.
+ */
+async function runMigrationJob(jobId: string) {
+    const startTime = Date.now();
+    
+    let emailCount = 0;
+    let usernameCount = 0;
+    let errorCount = 0;
+
+    try {
+        await db.collection("admin_jobs").doc(jobId).update({
+            status: "RUNNING",
+            startTime: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        logger.info("Migration started", { event: "MIGRATION_START", jobId });
+
+        // 1. Migrate usernames from usernames collection
+        const usernamesSnapshot = await db.collection("usernames").get();
+        
+        for (const doc of usernamesSnapshot.docs) {
+            try {
+                const username = doc.id;
+                const uid = doc.data().uid;
+                
+                if (!uid) continue;
+
+                await db.collection("wallet_identifiers").doc(`username:${username}`).set({
+                    walletId: uid,
+                    uid: uid,
+                    type: "username",
+                    value: username,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    migratedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    migratedJobId: jobId
+                }, { merge: true });
+                
+                usernameCount++;
+            } catch (e) {
+                errorCount++;
+                logger.error("Username migration error", { username: doc.id, error: (e as Error).message });
+            }
+        }
+
+        // 2. Migrate emails from users collection
+        const usersSnapshot = await db.collection("users").get();
+        
+        for (const doc of usersSnapshot.docs) {
+            try {
+                const userData = doc.data();
+                const uid = doc.id;
+                const email = userData.email as string | undefined;
+                
+                if (!email) continue;
+
+                const emailLower = email.toLowerCase();
+                
+                await db.collection("wallet_identifiers").doc(`email:${emailLower}`).set({
+                    walletId: uid,
+                    uid: uid,
+                    type: "email",
+                    value: emailLower,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    migratedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    migratedJobId: jobId
+                }, { merge: true });
+                
+                emailCount++;
+            } catch (e) {
+                errorCount++;
+                logger.error("Email migration error", { uid: doc.id, error: (e as Error).message });
+            }
+        }
+
+        const durationMs = Date.now() - startTime;
+        
+        await db.collection("admin_jobs").doc(jobId).update({
+            status: "COMPLETED",
+            usernamesMigrated: usernameCount,
+            emailsMigrated: emailCount,
+            errors: errorCount,
+            durationMs,
+            endTime: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        logger.info("Migration completed", {
+            event: "MIGRATION_COMPLETE",
+            jobId,
+            usernameCount,
+            emailCount,
+            errorCount,
+            durationMs
+        });
+
+    } catch (error: any) {
+        logger.error("Migration job failed", { jobId, error: error.message });
+        await db.collection("admin_jobs").doc(jobId).update({
+            status: "FAILED",
+            error: error.message,
+            endTime: admin.firestore.FieldValue.serverTimestamp()
+        });
+    }
+}
