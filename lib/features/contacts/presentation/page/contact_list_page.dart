@@ -142,7 +142,10 @@ class ContactListPage extends StatelessWidget {
               title: const Text('Add Contact'),
               content: TextField(
                 controller: emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(
+                  labelText: 'Email or @username',
+                  hintText: 'user@example.com or @username',
+                ),
               ),
               actions: [
                 TextButton(

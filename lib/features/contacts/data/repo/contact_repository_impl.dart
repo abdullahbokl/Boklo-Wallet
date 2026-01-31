@@ -56,20 +56,23 @@ class ContactRepositoryImpl implements ContactRepository {
   }
 
   @override
-  Future<Result<ContactEntity>> addContact(String email) async {
+  Future<Result<ContactEntity>> addContact({
+    String? email,
+    String? username,
+  }) async {
     try {
+      if (email == null && username == null) {
+        return const Failure(UnknownError('Must provide email or username'));
+      }
+
       final callable = _functions.httpsCallable('addContact');
-      final result = await callable.call({'email': email});
+      final result = await callable.call<Map<String, dynamic>>({
+        if (email != null) 'email': email,
+        if (username != null) 'username': username,
+      });
 
-      final data = result.data as Map<String, dynamic>;
-      // data.contact is the contact object
+      final data = result.data;
       final contactMap = Map<String, dynamic>.from(data['contact'] as Map);
-
-      // We might need to handle Timestamp if it comes back as specific format?
-      // Cloud Functions usually return logic types or ISO strings for dates?
-      // If it's pure JSON, it's string.
-      // Our ContactModel handles String dates?
-      // _timestampFromJson handles String.
 
       final model = ContactModel.fromJson(contactMap);
       return Success(model.toEntity());

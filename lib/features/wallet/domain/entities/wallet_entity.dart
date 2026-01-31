@@ -8,6 +8,8 @@ class WalletEntity with _$WalletEntity {
     required String id,
     required double balance,
     required String currency,
+    String? username,
+    String? ownerName,
     String? alias,
     String? email,
   }) = _WalletEntity;

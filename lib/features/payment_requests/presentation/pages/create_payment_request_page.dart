@@ -83,8 +83,8 @@ class _CreatePaymentRequestPageState extends State<CreatePaymentRequestPage> {
                 children: [
                   AppTextField(
                     controller: _payerIdController,
-                    label: 'Payer ID or Email',
-                    hintText: 'User ID or Email',
+                    label: 'Email or @Username',
+                    hintText: 'user@example.com or @username',
                     prefixIcon: const Icon(Icons.person_outline),
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.contacts),

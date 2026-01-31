@@ -135,7 +135,7 @@ export const setUserProfile = onCall<SetUserProfileData>(
         if (name) {
              t.set(walletRef, { ownerName: name }, { merge: true });
         }
-        return { success: true };
+        return { success: true, username: usernameLower };
     }
 
     // Case B: New user or username change
@@ -161,11 +161,13 @@ export const setUserProfile = onCall<SetUserProfileData>(
         updatedAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
 
-    // Update Wallet ownerName if name provided
-    if (name && walletExisted) {
-         t.set(walletRef, { ownerName: name }, { merge: true });
-    }
+    // Update Wallet with username and ownerName
+    t.set(walletRef, { 
+        username: usernameLower,
+        ...(name ? { ownerName: name } : {}),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
 
-    return { success: true };
+    return { success: true, username: usernameLower };
   });
 });

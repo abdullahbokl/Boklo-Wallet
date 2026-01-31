@@ -27,11 +27,19 @@ class ContactCubit extends BaseCubit<ContactState> {
     });
   }
 
-  Future<void> addContact(String email) async {
+  /// Add a contact by email or username
+  /// Detects format: if contains @ and not starting with @ → email
+  /// Otherwise → username
+  Future<void> addContact(String identifier) async {
     final current = state.data ?? const ContactState();
     emitSuccess(current.copyWith(isAdding: true));
 
-    final result = await _repository.addContact(email);
+    final trimmed = identifier.trim();
+    final bool isEmail = trimmed.contains('@') && !trimmed.startsWith('@');
+
+    final result = isEmail
+        ? await _repository.addContact(email: trimmed)
+        : await _repository.addContact(username: trimmed.replaceFirst('@', ''));
 
     result.fold(
       (error) {

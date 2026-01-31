@@ -43,12 +43,22 @@ class WalletPage extends StatelessWidget {
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
-              title: Text(
-                'My Wallet',
-                style: AppTypography.headline.copyWith(
-                  color: AppColors.textPrimaryLight,
-                  fontWeight: FontWeight.bold,
-                ),
+              title: BlocBuilder<WalletCubit, BaseState<WalletState>>(
+                builder: (context, walletState) {
+                  final name = walletState.maybeWhen(
+                    success: (data) => data.wallet.ownerName,
+                    orElse: () => null,
+                  );
+                  return Text(
+                    name != null && name.isNotEmpty ? 'Hi 👋, $name!' : 'Hi 👋',
+                    style: AppTypography.headline.copyWith(
+                      color: AppColors.textPrimaryLight,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.visible,
+                    softWrap: true,
+                  );
+                },
               ),
               centerTitle: false,
               backgroundColor: AppColors.backgroundLight,
@@ -56,42 +66,60 @@ class WalletPage extends StatelessWidget {
               actions: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppDimens.md),
-                  child: InkWell(
-                    onTap: () {
-                      unawaited(context.read<AuthCubit>().logout());
-                    },
-                    borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppDimens.md,
-                        vertical: AppDimens.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppDimens.radiusSm),
-                        border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.logout_rounded,
-                            size: 18,
-                            color: AppColors.primary,
+                  child: BlocBuilder<AuthCubit, BaseState<User?>>(
+                    builder: (context, authState) {
+                      final isLoggingOut = authState.isLoading;
+                      return InkWell(
+                        onTap: isLoggingOut
+                            ? null
+                            : () {
+                                unawaited(context.read<AuthCubit>().logout());
+                              },
+                        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppDimens.md,
+                            vertical: AppDimens.xs,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Logout',
-                            style: AppTypography.label.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius:
+                                BorderRadius.circular(AppDimens.radiusSm),
+                            border: Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.2),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (isLoggingOut)
+                                const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.primary,
+                                  ),
+                                )
+                              else
+                                const Icon(
+                                  Icons.logout_rounded,
+                                  size: 18,
+                                  color: AppColors.primary,
+                                ),
+                              const SizedBox(width: 8),
+                              Text(
+                                isLoggingOut ? 'Logging out...' : 'Logout',
+                                style: AppTypography.label.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -157,6 +185,7 @@ class _WalletLayout extends StatelessWidget {
               balance: data.wallet.balance,
               currency: data.wallet.currency,
               walletId: data.wallet.id,
+              username: data.wallet.username,
               alias: data.wallet.alias,
             ),
           ),

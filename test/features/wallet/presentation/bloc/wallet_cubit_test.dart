@@ -45,6 +45,8 @@ void main() {
     id: '1',
     balance: 1000.0,
     currency: 'SAR',
+    username: 'testuser',
+    ownerName: 'Test User',
   );
 
   final tTransactions = [

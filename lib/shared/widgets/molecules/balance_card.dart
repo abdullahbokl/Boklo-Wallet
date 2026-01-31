@@ -14,6 +14,7 @@ class BalanceCard extends StatelessWidget {
     required this.balance,
     required this.currency,
     this.walletId,
+    this.username,
     this.alias,
     super.key,
   });
@@ -21,7 +22,36 @@ class BalanceCard extends StatelessWidget {
   final double balance;
   final String currency;
   final String? walletId;
+  final String? username;
   final String? alias;
+
+  /// Gets the display ID in priority order: username > alias > walletId
+  String? get _displayId {
+    if (username != null && username!.isNotEmpty) {
+      return '@$username';
+    }
+    if (alias != null && alias!.isNotEmpty) {
+      return alias;
+    }
+    if (walletId != null && walletId!.isNotEmpty) {
+      // Truncate long wallet IDs
+      return walletId!.length > 8
+          ? '${walletId!.substring(0, 8)}...'
+          : walletId;
+    }
+    return null;
+  }
+
+  /// Gets the value to copy to clipboard (full username without @, or full walletId)
+  String? get _copyValue {
+    if (username != null && username!.isNotEmpty) {
+      return username;
+    }
+    if (alias != null && alias!.isNotEmpty) {
+      return alias;
+    }
+    return walletId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +59,7 @@ class BalanceCard extends StatelessWidget {
       onTap: () {
         // DEV-ONLY: Secret debug menu entry
         if (kDebugMode) {
-          getIt<NavigationService>().push('/ledger-debug');
+          unawaited(getIt<NavigationService>().push('/ledger-debug'));
         }
       },
       child: Container(
@@ -52,15 +82,16 @@ class BalanceCard extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
-                if (alias != null || walletId != null)
+                if (_displayId != null)
                   InkWell(
                     onTap: () {
-                      unawaited(
-                        Clipboard.setData(
-                            ClipboardData(text: alias ?? walletId!)),
-                      );
-                      getIt<SnackbarService>()
-                          .showInfo('Wallet ID copied to clipboard');
+                      if (_copyValue != null) {
+                        unawaited(
+                          Clipboard.setData(ClipboardData(text: _copyValue!)),
+                        );
+                        getIt<SnackbarService>()
+                            .showInfo('Username copied to clipboard');
+                      }
                     },
                     borderRadius: BorderRadius.circular(AppDimens.radiusSm),
                     child: Container(
@@ -76,12 +107,11 @@ class BalanceCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            alias != null
-                                ? 'ID: $alias'
-                                : 'ID: ${walletId!.length > 8 ? '${walletId!.substring(0, 8)}...' : walletId}',
-                            style: AppTypography.caption.copyWith(
+                            _displayId!,
+                            style: AppTypography.bodyMedium.copyWith(
                               color: Colors.white,
-                              fontFamily: 'Monospace',
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
                             ),
                           ),
                           const SizedBox(width: AppDimens.xs),

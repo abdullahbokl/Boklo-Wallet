@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
-import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_id_by_alias_usecase.dart';
+import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
 import 'package:boklo/features/payment_requests/domain/repo/payment_request_repository.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
 import 'package:injectable/injectable.dart';
@@ -13,12 +13,12 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
   PaymentRequestCubit(
     this._repository,
     this._resolveWalletByEmailUseCase,
-    this._resolveWalletIdByAliasUseCase,
+    this._resolveWalletByUsernameUseCase,
   ) : super(const BaseState.initial());
 
   final PaymentRequestRepository _repository;
   final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
-  final ResolveWalletIdByAliasUseCase _resolveWalletIdByAliasUseCase;
+  final ResolveWalletByUsernameUseCase _resolveWalletByUsernameUseCase;
   StreamSubscription<dynamic>? _incomingSub;
   StreamSubscription<dynamic>? _outgoingSub;
 
@@ -87,17 +87,15 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
       }
       targetPayerId = resolution.fold((l) => '', (r) => r);
     } else {
-      // Try to resolve as Alias
-      final resolution = await _resolveWalletIdByAliasUseCase(targetPayerId);
-      resolution.fold(
-        (l) {
-          // If resolution fails, assume it's a raw Wallet ID and proceed
-          // We don't error out here explicitly as it might be a valid UUID
-        },
-        (r) {
-          targetPayerId = r;
-        },
-      );
+      // Try to resolve as username
+      final resolution = await _resolveWalletByUsernameUseCase(targetPayerId);
+      final error = resolution.fold((l) => l, (r) => null);
+      if (error != null) {
+        emitError(error);
+        emitSuccess(currentState.copyWith(isCreating: false));
+        return;
+      }
+      targetPayerId = resolution.fold((l) => '', (r) => r);
     }
 
     // 2. Create Request

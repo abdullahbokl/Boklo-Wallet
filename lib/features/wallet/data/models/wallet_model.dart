@@ -8,6 +8,8 @@ class WalletModel {
   final String id;
   final double balance;
   final String currency;
+  final String? username;
+  final String? ownerName;
   final String? alias;
   final String? email;
 
@@ -15,6 +17,8 @@ class WalletModel {
     required this.id,
     required this.balance,
     required this.currency,
+    this.username,
+    this.ownerName,
     this.alias,
     this.email,
   });
@@ -29,6 +33,8 @@ class WalletModel {
       id: entity.id,
       balance: entity.balance,
       currency: entity.currency,
+      username: entity.username,
+      ownerName: entity.ownerName,
       alias: entity.alias,
       email: entity.email,
     );
@@ -39,6 +45,8 @@ class WalletModel {
       id: id,
       balance: balance,
       currency: currency,
+      username: username,
+      ownerName: ownerName,
       alias: alias,
       email: email,
     );
