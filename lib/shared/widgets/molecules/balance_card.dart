@@ -16,6 +16,7 @@ class BalanceCard extends StatelessWidget {
     this.walletId,
     this.username,
     this.alias,
+    this.isLoading = false,
     super.key,
   });
 
@@ -24,6 +25,7 @@ class BalanceCard extends StatelessWidget {
   final String? walletId;
   final String? username;
   final String? alias;
+  final bool isLoading;
 
   /// Gets the display ID in priority order: username > alias > walletId
   String? get _displayId {
@@ -55,6 +57,19 @@ class BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Container(
+        width: double.infinity,
+        height: 180, // Approximate height of the card
+        padding: const EdgeInsets.all(AppDimens.lg),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(AppDimens.radiusXl),
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return GestureDetector(
       onTap: () {
         // DEV-ONLY: Secret debug menu entry
@@ -90,7 +105,7 @@ class BalanceCard extends StatelessWidget {
                           Clipboard.setData(ClipboardData(text: _copyValue!)),
                         );
                         getIt<SnackbarService>()
-                            .showInfo('Username copied to clipboard');
+                            .showInfo('Copied to clipboard');
                       }
                     },
                     borderRadius: BorderRadius.circular(AppDimens.radiusSm),

@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
@@ -49,6 +50,9 @@ abstract class AppModule {
   @lazySingleton
   FirebaseFunctions get firebaseFunctions =>
       FirebaseFunctions.instanceFor(region: 'us-central1');
+
+  @lazySingleton
+  FirebaseMessaging get firebaseMessaging => FirebaseMessaging.instance;
 
   @singleton
   @Environment(Environment.dev)

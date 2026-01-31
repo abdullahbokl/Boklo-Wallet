@@ -5,11 +5,10 @@ import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/config/feature_flags.dart';
 import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/core/services/analytics_service.dart';
-import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
-import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
+import 'package:boklo/features/transfers/domain/usecases/resolve_recipient_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/observe_transfer_status_usecase.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:injectable/injectable.dart';
@@ -19,8 +18,7 @@ class TransferCubit extends BaseCubit<TransferState> {
   TransferCubit(
     this._createTransferUseCase,
     this._requestTransferUseCase,
-    this._resolveWalletByEmailUseCase,
-    this._resolveWalletByUsernameUseCase,
+    this._resolveRecipientUseCase,
     this._observeTransferStatusUseCase,
     this._analyticsService,
     this._featureFlags,
@@ -28,8 +26,7 @@ class TransferCubit extends BaseCubit<TransferState> {
 
   final CreateTransferUseCase _createTransferUseCase;
   final RequestTransferUseCase _requestTransferUseCase;
-  final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
-  final ResolveWalletByUsernameUseCase _resolveWalletByUsernameUseCase;
+  final ResolveRecipientUseCase _resolveRecipientUseCase;
   final ObserveTransferStatusUseCase _observeTransferStatusUseCase;
   final AnalyticsService _analyticsService;
   final FeatureFlags _featureFlags;
@@ -56,63 +53,22 @@ class TransferCubit extends BaseCubit<TransferState> {
     emitLoading();
 
     try {
+      // 1. Resolve Recipient
+      final resolutionResult = await _resolveRecipientUseCase(recipient);
+
       var toWalletId = recipient;
+      AppError? resolutionError;
 
-      // 1. Resolve Recipient if Email
-      if (recipient.contains('@')) {
-        final resolution = await _resolveWalletByEmailUseCase(recipient);
+      resolutionResult.fold(
+        (error) => resolutionError = error,
+        (id) => toWalletId = id,
+      );
 
-        AppError? emailError;
-
-        resolution.fold<void>(
-          (error) => emailError = error,
-          (id) => toWalletId = id,
-        );
-
-        if (emailError != null) {
-          unawaited(
-            _analyticsService.logTransferFailure(
-              reason: emailError!.message,
-            ),
-          );
-          emitError(emailError!);
-          return;
-        }
-      } else if (recipient.length < 28 &&
-          !recipient.contains(RegExp(r'[^a-zA-Z0-9_.]'))) {
-        // 1.5 Resolve Recipient if Username (approx heuristic: short, valid chars)
-        final resolution = await _resolveWalletByUsernameUseCase(recipient);
-
-        AppError? usernameError;
-
-        resolution.fold<void>(
-          (error) => usernameError = error,
-          (id) => toWalletId = id,
-        );
-
-        // If username resolution fails, we fall back to treating it as Wallet ID
-        // (but only if it looks like a Wallet ID, which is usually 28 chars)
-        // Actually, if it fails, we should probably fail?
-        // But maybe "recipient" IS a Wallet ID?
-        // If it's short, it's likely a username.
-
-        if (usernameError != null) {
-          // If it failed, check if it COULD be a wallet ID.
-          // Wallet IDs are usually longer (20-30 chars).
-          // Usernames are 3-20.
-          // If it is 28 chars, it's likely a UID.
-          // If it failed username resolution, and it's NOT a UID length, error out.
-          if (recipient.length != 28) {
-            unawaited(
-              _analyticsService.logTransferFailure(
-                reason: usernameError!.message,
-              ),
-            );
-            emitError(usernameError!);
-            return;
-          }
-          // If it IS 28 chars, ignore username error and try as Wallet ID
-        }
+      if (resolutionError != null) {
+        unawaited(_analyticsService.logTransferFailure(
+            reason: resolutionError!.message));
+        emitError(resolutionError!);
+        return;
       }
 
       if (_featureFlags.backendAuthoritativeTransfers) {

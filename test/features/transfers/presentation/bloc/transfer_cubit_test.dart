@@ -1,30 +1,24 @@
-import 'package:bloc_test/bloc_test.dart';
 import 'package:boklo/core/base/result.dart';
 import 'package:boklo/core/config/feature_flags.dart';
-import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/core/services/analytics_service.dart';
-import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
+
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/observe_transfer_status_usecase.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
-import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
+import 'package:boklo/features/transfers/domain/usecases/resolve_recipient_usecase.dart';
 
 class MockCreateTransferUseCase extends Mock implements CreateTransferUseCase {}
 
 class MockRequestTransferUseCase extends Mock
     implements RequestTransferUseCase {}
 
-class MockResolveWalletByEmailUseCase extends Mock
-    implements ResolveWalletByEmailUseCase {}
-
-class MockResolveWalletByUsernameUseCase extends Mock
-    implements ResolveWalletByUsernameUseCase {}
+class MockResolveRecipientUseCase extends Mock
+    implements ResolveRecipientUseCase {}
 
 class MockObserveTransferStatusUseCase extends Mock
     implements ObserveTransferStatusUseCase {}
@@ -37,8 +31,7 @@ void main() {
   late TransferCubit cubit;
   late MockCreateTransferUseCase mockCreateTransferUseCase;
   late MockRequestTransferUseCase mockRequestTransferUseCase;
-  late MockResolveWalletByEmailUseCase mockResolveWalletByEmailUseCase;
-  late MockResolveWalletByUsernameUseCase mockResolveWalletByUsernameUseCase;
+  late MockResolveRecipientUseCase mockResolveRecipientUseCase;
   late MockObserveTransferStatusUseCase mockObserveTransferStatusUseCase;
   late MockAnalyticsService mockAnalyticsService;
   late MockFeatureFlags mockFeatureFlags;
@@ -46,14 +39,20 @@ void main() {
   setUp(() {
     mockCreateTransferUseCase = MockCreateTransferUseCase();
     mockRequestTransferUseCase = MockRequestTransferUseCase();
-    mockResolveWalletByEmailUseCase = MockResolveWalletByEmailUseCase();
-    mockResolveWalletByUsernameUseCase = MockResolveWalletByUsernameUseCase();
+    mockResolveRecipientUseCase = MockResolveRecipientUseCase();
     mockObserveTransferStatusUseCase = MockObserveTransferStatusUseCase();
     mockAnalyticsService = MockAnalyticsService();
     mockFeatureFlags = MockFeatureFlags();
 
     when(() => mockAnalyticsService.logTransferFailure(
         reason: any(named: 'reason'))).thenAnswer((_) async {});
+
+    // Default success for recipient resolution (assumes direct wallet ID by default)
+    when(() => mockResolveRecipientUseCase.call(any()))
+        .thenAnswer((invocation) async {
+      final recipient = invocation.positionalArguments.first as String;
+      return Success(recipient);
+    });
 
     registerFallbackValue(
       TransferEntity(
@@ -70,8 +69,7 @@ void main() {
     cubit = TransferCubit(
       mockCreateTransferUseCase,
       mockRequestTransferUseCase,
-      mockResolveWalletByEmailUseCase,
-      mockResolveWalletByUsernameUseCase,
+      mockResolveRecipientUseCase,
       mockObserveTransferStatusUseCase,
       mockAnalyticsService,
       mockFeatureFlags,

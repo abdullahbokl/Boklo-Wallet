@@ -1,4 +1,5 @@
 import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/shared/widgets/molecules/balance_card.dart';
 import 'package:flutter/material.dart';
 
 class WalletSkeleton extends StatelessWidget {
@@ -13,12 +14,10 @@ class WalletSkeleton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Balance Card Skeleton
-          Container(
-            height: 180,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-            ),
+          const BalanceCard(
+            balance: 0,
+            currency: '',
+            isLoading: true,
           ),
           const SizedBox(height: AppDimens.lg),
           // Primary Action Skeleton
