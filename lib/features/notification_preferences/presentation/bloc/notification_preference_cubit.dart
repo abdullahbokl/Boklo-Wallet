@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/core/base/result.dart';
+import 'package:boklo/features/notification_preferences/domain/entity/notification_preference_entity.dart';
 import 'package:boklo/features/notification_preferences/domain/repo/notification_preference_repository.dart';
 import 'package:boklo/features/notification_preferences/presentation/bloc/notification_preference_state.dart';
 import 'package:injectable/injectable.dart';
@@ -9,7 +11,7 @@ import 'package:injectable/injectable.dart';
 class NotificationPreferenceCubit
     extends BaseCubit<NotificationPreferenceState> {
   final NotificationPreferenceRepository _repository;
-  StreamSubscription? _sub;
+  StreamSubscription<Result<NotificationPreferenceEntity>>? _sub;
 
   NotificationPreferenceCubit(this._repository)
       : super(const BaseState.initial());
@@ -30,51 +32,65 @@ class NotificationPreferenceCubit
 
   Future<void> toggleIncoming(bool value) async {
     final current = state.data ?? const NotificationPreferenceState();
-    final newPrefs = current.preferences.copyWith(enableIncoming: value);
-    // Optimistic update?
-    // Or wait?
-    // For preferences, optimistic is good but we have stream.
-    // If we update, stream will update.
-    // We can show loading indicator.
+    final previousPrefs = current.preferences;
+    final newPrefs = previousPrefs.copyWith(enableIncoming: value);
 
-    emitSuccess(current.copyWith(isUpdating: true));
+    // Optimistic Update: Update UI immediately
+    emitSuccess(current.copyWith(
+      preferences: newPrefs,
+      isUpdating: true,
+    ));
 
     final result = await _repository.updatePreferences(newPrefs);
 
     result.fold(
       (error) {
+        // Revert on failure
         emitError(error);
-        emitSuccess(current.copyWith(isUpdating: false));
-        // Revert? Stream should keep it correct.
+        emitSuccess(current.copyWith(
+          preferences: previousPrefs,
+          isUpdating: false,
+        ));
       },
       (_) {
-        emitSuccess(current.copyWith(isUpdating: false));
+        // Success: Just turn off loading, stream maintains state
+        emitSuccess(current.copyWith(
+            preferences: newPrefs, // Ensure it sticks
+            isUpdating: false));
       },
     );
   }
 
   Future<void> toggleOutgoing(bool value) async {
     final current = state.data ?? const NotificationPreferenceState();
-    final newPrefs = current.preferences.copyWith(enableOutgoing: value);
+    final previousPrefs = current.preferences;
+    final newPrefs = previousPrefs.copyWith(enableOutgoing: value);
 
-    emitSuccess(current.copyWith(isUpdating: true));
+    // Optimistic Update
+    emitSuccess(current.copyWith(
+      preferences: newPrefs,
+      isUpdating: true,
+    ));
 
     final result = await _repository.updatePreferences(newPrefs);
 
     result.fold(
       (error) {
         emitError(error);
-        emitSuccess(current.copyWith(isUpdating: false));
+        emitSuccess(current.copyWith(
+          preferences: previousPrefs,
+          isUpdating: false,
+        ));
       },
       (_) {
-        emitSuccess(current.copyWith(isUpdating: false));
+        emitSuccess(current.copyWith(preferences: newPrefs, isUpdating: false));
       },
     );
   }
 
   @override
-  Future<void> close() {
-    _sub?.cancel();
+  Future<void> close() async {
+    await _sub?.cancel();
     return super.close();
   }
 }
