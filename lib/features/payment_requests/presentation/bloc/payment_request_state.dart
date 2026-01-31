@@ -1,4 +1,3 @@
-import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/payment_requests/domain/entity/payment_request_entity.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,5 +10,6 @@ class PaymentRequestState with _$PaymentRequestState {
     @Default([]) List<PaymentRequestEntity> outgoingRequests,
     @Default(false) bool isCreating,
     @Default(false) bool isActing, // Accepting/Declining
+    String? actingOnRequestId, // Track which request is being processed
   }) = _PaymentRequestState;
 }

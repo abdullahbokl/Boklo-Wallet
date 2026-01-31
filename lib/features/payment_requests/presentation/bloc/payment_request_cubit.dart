@@ -116,28 +116,74 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
 
   Future<void> acceptRequest(String requestId) async {
     final currentState = state.data ?? const PaymentRequestState();
-    emitSuccess(currentState.copyWith(isActing: true));
+    emitSuccess(
+      currentState.copyWith(
+        isActing: true,
+        actingOnRequestId: requestId,
+      ),
+    );
 
     final result = await _repository.acceptRequest(requestId);
 
     result.fold(
-      emitError,
+      (error) {
+        emitError(error);
+        emitSuccess(
+          currentState.copyWith(
+            isActing: false,
+            actingOnRequestId: null,
+          ),
+        );
+      },
       (_) {
-        emitSuccess(currentState.copyWith(isActing: false));
+        // Optimistic update: remove the request from the list immediately
+        final updatedIncoming = currentState.incomingRequests
+            .where((req) => req.id != requestId)
+            .toList();
+        emitSuccess(
+          currentState.copyWith(
+            isActing: false,
+            actingOnRequestId: null,
+            incomingRequests: updatedIncoming,
+          ),
+        );
       },
     );
   }
 
   Future<void> declineRequest(String requestId) async {
     final currentState = state.data ?? const PaymentRequestState();
-    emitSuccess(currentState.copyWith(isActing: true));
+    emitSuccess(
+      currentState.copyWith(
+        isActing: true,
+        actingOnRequestId: requestId,
+      ),
+    );
 
     final result = await _repository.declineRequest(requestId);
 
     result.fold(
-      emitError,
+      (error) {
+        emitError(error);
+        emitSuccess(
+          currentState.copyWith(
+            isActing: false,
+            actingOnRequestId: null,
+          ),
+        );
+      },
       (_) {
-        emitSuccess(currentState.copyWith(isActing: false));
+        // Optimistic update: remove the request from the list immediately
+        final updatedIncoming = currentState.incomingRequests
+            .where((req) => req.id != requestId)
+            .toList();
+        emitSuccess(
+          currentState.copyWith(
+            isActing: false,
+            actingOnRequestId: null,
+            incomingRequests: updatedIncoming,
+          ),
+        );
       },
     );
   }

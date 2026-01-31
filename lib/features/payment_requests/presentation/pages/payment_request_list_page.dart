@@ -49,7 +49,11 @@ class PaymentRequestListPage extends StatelessWidget {
 
               return TabBarView(
                 children: [
-                  _buildIncomingList(context, data.incomingRequests),
+                  _buildIncomingList(
+                    context,
+                    data.incomingRequests,
+                    data.actingOnRequestId,
+                  ),
                   _buildOutgoingList(context, data.outgoingRequests),
                 ],
               );
@@ -61,44 +65,62 @@ class PaymentRequestListPage extends StatelessWidget {
   }
 
   Widget _buildIncomingList(
-      BuildContext context, List<PaymentRequestEntity> requests) {
-    if (requests.isEmpty)
+    BuildContext context,
+    List<PaymentRequestEntity> requests,
+    String? actingOnRequestId,
+  ) {
+    if (requests.isEmpty) {
       return const Center(child: Text('No incoming requests'));
+    }
 
     return ListView.builder(
       itemCount: requests.length,
       itemBuilder: (context, index) {
         final req = requests[index];
+        final isLoading = actingOnRequestId == req.id;
+
         return Card(
           margin: const EdgeInsets.symmetric(
-              horizontal: AppDimens.md, vertical: AppDimens.xs),
+            horizontal: AppDimens.md,
+            vertical: AppDimens.xs,
+          ),
           child: ListTile(
             title: Text('${req.amount} ${req.currency}'),
             subtitle: Text('From: ${req.requesterId}\nNote: ${req.note ?? ""}'),
             trailing: req.status == PaymentRequestStatus.pending
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.check, color: AppColors.success),
-                        onPressed: () {
-                          context
-                              .read<PaymentRequestCubit>()
-                              .acceptRequest(req.id);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: AppColors.error),
-                        onPressed: () {
-                          context
-                              .read<PaymentRequestCubit>()
-                              .declineRequest(req.id);
-                        },
-                      ),
-                    ],
-                  )
-                : Text(req.status.label,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                ? isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.check,
+                                color: AppColors.success),
+                            onPressed: () {
+                              context
+                                  .read<PaymentRequestCubit>()
+                                  .acceptRequest(req.id);
+                            },
+                          ),
+                          IconButton(
+                            icon:
+                                const Icon(Icons.close, color: AppColors.error),
+                            onPressed: () {
+                              context
+                                  .read<PaymentRequestCubit>()
+                                  .declineRequest(req.id);
+                            },
+                          ),
+                        ],
+                      )
+                : Text(
+                    req.status.label,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
           ),
         );
       },
