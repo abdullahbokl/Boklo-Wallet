@@ -1,5 +1,6 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 import * as logger from "firebase-functions/logger";
 
 const db = admin.firestore();
@@ -30,7 +31,7 @@ export const onAdminJobCreated = onDocumentCreated("admin_jobs/{jobId}", async (
     const { fromDate, toDate, dryRun } = jobData;
 
     try {
-        await db.collection("admin_jobs").doc(jobId).update({ status: "RUNNING", startTime: admin.firestore.FieldValue.serverTimestamp() });
+        await db.collection("admin_jobs").doc(jobId).update({ status: "RUNNING", startTime: FieldValue.serverTimestamp() });
 
         const transactionsSnapshot = await db.collection("transfers")
             .where("createdAt", ">=", new Date(fromDate))
@@ -123,7 +124,7 @@ export const onAdminJobCreated = onDocumentCreated("admin_jobs/{jobId}", async (
             status: "COMPLETED",
             replayedCount,
             dryRun: !!dryRun,
-            endTime: admin.firestore.FieldValue.serverTimestamp()
+            endTime: FieldValue.serverTimestamp()
         });
         
         logger.info(`Job ${jobId}: Completed. Replayed ${replayedCount} events.`);
@@ -133,7 +134,7 @@ export const onAdminJobCreated = onDocumentCreated("admin_jobs/{jobId}", async (
         await db.collection("admin_jobs").doc(jobId).update({
             status: "FAILED",
             error: error.message,
-            endTime: admin.firestore.FieldValue.serverTimestamp()
+            endTime: FieldValue.serverTimestamp()
         });
     }
 });
@@ -151,7 +152,7 @@ async function runMigrationJob(jobId: string) {
     try {
         await db.collection("admin_jobs").doc(jobId).update({
             status: "RUNNING",
-            startTime: admin.firestore.FieldValue.serverTimestamp()
+            startTime: FieldValue.serverTimestamp()
         });
 
         logger.info("Migration started", { event: "MIGRATION_START", jobId });
@@ -171,8 +172,8 @@ async function runMigrationJob(jobId: string) {
                     uid: uid,
                     type: "username",
                     value: username,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                    migratedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    createdAt: FieldValue.serverTimestamp(),
+                    migratedAt: FieldValue.serverTimestamp(),
                     migratedJobId: jobId
                 }, { merge: true });
                 
@@ -201,8 +202,8 @@ async function runMigrationJob(jobId: string) {
                     uid: uid,
                     type: "email",
                     value: emailLower,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                    migratedAt: admin.firestore.FieldValue.serverTimestamp(),
+                    createdAt: FieldValue.serverTimestamp(),
+                    migratedAt: FieldValue.serverTimestamp(),
                     migratedJobId: jobId
                 }, { merge: true });
                 
@@ -221,7 +222,7 @@ async function runMigrationJob(jobId: string) {
             emailsMigrated: emailCount,
             errors: errorCount,
             durationMs,
-            endTime: admin.firestore.FieldValue.serverTimestamp()
+            endTime: FieldValue.serverTimestamp()
         });
 
         logger.info("Migration completed", {
@@ -238,7 +239,7 @@ async function runMigrationJob(jobId: string) {
         await db.collection("admin_jobs").doc(jobId).update({
             status: "FAILED",
             error: error.message,
-            endTime: admin.firestore.FieldValue.serverTimestamp()
+            endTime: FieldValue.serverTimestamp()
         });
     }
 }

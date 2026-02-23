@@ -1,5 +1,6 @@
 import { onCall } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 import * as functions from "firebase-functions";
 
 const db = admin.firestore();
@@ -95,8 +96,8 @@ export const setUserProfile = onCall<SetUserProfileData>(
             email: request.auth?.token?.email || "",
             displayName: name || (request.auth?.token as any)?.name || "",
             username: null,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
         };
     }
 
@@ -119,8 +120,8 @@ export const setUserProfile = onCall<SetUserProfileData>(
             ownerId: uid,
             ownerEmail: request.auth?.token?.email || "",
             ownerName: name || (request.auth?.token as any)?.name || "",
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
             isActive: true,
         });
     }
@@ -129,7 +130,7 @@ export const setUserProfile = onCall<SetUserProfileData>(
     if (currentUsername === usernameLower) {
         t.set(userRef, { 
             name: name || userData?.name || "",
-            updatedAt: admin.firestore.FieldValue.serverTimestamp() 
+            updatedAt: FieldValue.serverTimestamp() 
         }, { merge: true });
         
         if (name) {
@@ -152,7 +153,7 @@ export const setUserProfile = onCall<SetUserProfileData>(
     t.set(usernameRef, {
         uid: uid,
         username: usernameLower,
-        createdAt: admin.firestore.FieldValue.serverTimestamp()
+        createdAt: FieldValue.serverTimestamp()
     });
 
     // Create O(1) identifier mapping for username
@@ -161,7 +162,7 @@ export const setUserProfile = onCall<SetUserProfileData>(
         uid: uid,
         type: 'username',
         value: usernameLower,
-        createdAt: admin.firestore.FieldValue.serverTimestamp()
+        createdAt: FieldValue.serverTimestamp()
     });
 
     // Update or Create User Profile (use set with merge to handle both cases)
@@ -169,14 +170,14 @@ export const setUserProfile = onCall<SetUserProfileData>(
         ...(!userExisted ? userData : {}), // Spread base userData only if new
         username: usernameLower,
         name: name || userData?.name || "",
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
 
     // Update Wallet with username and ownerName
     t.set(walletRef, { 
         username: usernameLower,
         ...(name ? { ownerName: name } : {}),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
 
     return { success: true, username: usernameLower };

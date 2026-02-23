@@ -68,6 +68,8 @@ class EmulatorConfig {
     }
   }
 
+  static const String _genymotionHost = '10.0.3.2';
+
   static Future<String> _resolveHost() async {
     // 1. If host is explicitly provided via env (e.g. for physical device testing), use it.
     if (_envHost.isNotEmpty) {
@@ -80,10 +82,19 @@ class EmulatorConfig {
       return _localhost;
     }
 
-    // 3. Android: Check if Emulator or Physical
-    // We use device_info_plus to distinguish.
+    // 3. Android: Check device type
     final deviceInfo = DeviceInfoPlugin();
     final androidInfo = await deviceInfo.androidInfo;
+
+    // 3a. Genymotion detection
+    // Genymotion reports isPhysicalDevice=true but has manufacturer 'Genymobile'
+    final isGenymotion =
+        androidInfo.manufacturer.toLowerCase() == 'genymobile' ||
+            androidInfo.hardware.toLowerCase().contains('vbox');
+    if (isGenymotion) {
+      log('🎮 Genymotion detected (${androidInfo.manufacturer}). Using host: $_genymotionHost');
+      return _genymotionHost;
+    }
 
     if (androidInfo.isPhysicalDevice) {
       // Physical Android Device
@@ -93,12 +104,11 @@ class EmulatorConfig {
       log('   You must provide the developer machine IP to connect to emulators.');
       log('   Run with: flutter run --dart-define=EMULATOR_HOST=YOUR_LOCAL_IP');
 
-      // Fallback to a throw or a useless localhost to fail fast?
       // Returning localhost on physical device will effectively fail connection (ECONNREFUSED)
       // which is better than connecting to wrong 10.0.2.2 (timeout)
       return _localhost; // This will fail, but with a clear log above.
     } else {
-      // Android Emulator
+      // Standard Android Emulator (AVD)
       return _androidEmulatorHost;
     }
   }

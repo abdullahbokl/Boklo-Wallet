@@ -1,5 +1,6 @@
 import { onCall } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 import * as functions from "firebase-functions";
 
 const db = admin.firestore();
@@ -50,8 +51,8 @@ export const provisionWallet = onCall(
         ownerId: uid,
         ownerEmail: email,
         ownerName: displayName,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
         isActive: true,
       });
 
@@ -63,8 +64,8 @@ export const provisionWallet = onCall(
         email: email,
         displayName: displayName,
         username: null,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
 
       return { 

@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 import {logger} from "firebase-functions";
 import {onCall} from "firebase-functions/v2/https";
 
@@ -86,7 +87,7 @@ export const addContact = onCall(async (request) => {
             displayName: displayName,
             photoUrl: photoUrl,
             email: contactEmail,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: FieldValue.serverTimestamp(),
         };
 
         // Add to contacts subcollection

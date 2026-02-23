@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 
 /**
  * Triggered when a new user is created in Firebase Auth.
@@ -33,8 +34,8 @@ export const onUserCreated = functions.auth.user().onCreate(async (user) => {
             ownerId: uid,
             ownerEmail: email,
             ownerName: displayName,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
             isActive: true,
         });
 
@@ -48,8 +49,8 @@ export const onUserCreated = functions.auth.user().onCreate(async (user) => {
             email: email,
             displayName: displayName,
             username: null,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp(),
         }, {merge: true});
 
         // Create O(1) identifier mapping for email (if present)
@@ -60,7 +61,7 @@ export const onUserCreated = functions.auth.user().onCreate(async (user) => {
                 uid: uid,
                 type: 'email',
                 value: emailLower,
-                createdAt: admin.firestore.FieldValue.serverTimestamp()
+                createdAt: FieldValue.serverTimestamp()
             });
             console.log(`Email identifier mapping created for ${uid}`);
         }

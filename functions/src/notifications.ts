@@ -2,6 +2,7 @@
 import { onCustomEventPublished } from "firebase-functions/v2/eventarc";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 import { TransferEventType,  TransactionCompletedEvent,
   TransactionFailedEvent,
 } from "./domain/events/transfer_events";
@@ -94,7 +95,7 @@ const publishNotification = async (intent: NotificationIntent, transactionId: st
             
             t.set(ref, {
                 ...intent,
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                createdAt: FieldValue.serverTimestamp(),
                 status: 'PENDING'
             });
         });
@@ -295,7 +296,7 @@ export const onNotificationQueued = onDocumentCreated(
                 logger.warn(`[DELIVERY] No tokens found for user ${notification.userId}`);
                 await snapshot.ref.update({
                     status: 'SKIPPED_NO_TOKENS',
-                    processedAt: admin.firestore.FieldValue.serverTimestamp()
+                    processedAt: FieldValue.serverTimestamp()
                 });
                 return;
             }
@@ -361,7 +362,7 @@ export const onNotificationQueued = onDocumentCreated(
             // Update status to SENT
             await snapshot.ref.update({
                 status: 'SENT',
-                sentAt: admin.firestore.FieldValue.serverTimestamp(),
+                sentAt: FieldValue.serverTimestamp(),
                 successCount: response.successCount,
                 failureCount: response.failureCount,
                 retryCount: failureCount // Preserve or reset if needed, but keeping it is fine history
@@ -390,7 +391,7 @@ export const onNotificationQueued = onDocumentCreated(
 
             // Increment retry count so next attempt knows
             await snapshot.ref.update({
-                retryCount: admin.firestore.FieldValue.increment(1),
+                retryCount: FieldValue.increment(1),
                 lastError: e instanceof Error ? e.message : 'Unknown error'
             });
 

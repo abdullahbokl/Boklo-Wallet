@@ -45,6 +45,7 @@ export const onEventCreated = onDocumentCreated("events/{eventId}", async (event
           "id": eventId,
           "source": "//boklo.wallet/transfers",
           "spec_version": "1.0",
+          "specversion": "1.0",
           "type": eventData.eventType,
           "text_data": JSON.stringify(eventData),
           "attributes": {

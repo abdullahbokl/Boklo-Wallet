@@ -16,6 +16,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 
 if (admin.apps.length === 0) {
     admin.initializeApp();
@@ -110,7 +111,7 @@ async function runReconciliationLogic() {
             mismatchedWalletCount: mismatchCount, // Alias for clarity
             errorCount,
             sampleMismatches: mismatches,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: FieldValue.serverTimestamp(),
             durationMs: Date.now() - startTime
         };
 

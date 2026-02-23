@@ -1,5 +1,6 @@
 
 import * as admin from 'firebase-admin';
+import { FieldValue, Timestamp } from "@google-cloud/firestore";
 import * as logger from 'firebase-functions/logger';
 
 export interface RiskAssessment {
@@ -122,9 +123,9 @@ export async function evaluateRisk(
     }
 
     // 2. Velocity Checks (Firestore Queries)
-    const now = admin.firestore.Timestamp.now();
-    const oneHourAgo = new admin.firestore.Timestamp(now.seconds - 3600, 0);
-    const twentyFourHoursAgo = new admin.firestore.Timestamp(now.seconds - 86400, 0);
+    const now = Timestamp.now();
+    const oneHourAgo = new Timestamp(now.seconds - 3600, 0);
+    const twentyFourHoursAgo = new Timestamp(now.seconds - 86400, 0);
 
     const [transfersLastHour, transfersLast24h] = await Promise.all([
         getTransferCount(db, fromWalletId, oneHourAgo),
@@ -199,8 +200,8 @@ export async function createRiskReview(
             riskLevel: riskAssessment.riskLevel,
             reasons: riskAssessment.reasons,
             evidence: riskAssessment.evidence,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            createdAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp()
         });
     } catch (error) {
         logger.error("Failed to create risk review", {
@@ -214,7 +215,7 @@ export async function createRiskReview(
 async function getTransferCount(
     db: admin.firestore.Firestore, 
     walletId: string, 
-    since: admin.firestore.Timestamp
+    since: Timestamp
 ): Promise<number> {
     const snapshot = await db.collection('transfers')
         .where('fromWalletId', '==', walletId)
@@ -228,7 +229,7 @@ async function getTransferCount(
 async function getFailedTransferCount(
     db: admin.firestore.Firestore,
     walletId: string,
-    since: admin.firestore.Timestamp
+    since: Timestamp
 ): Promise<number> {
     const snapshot = await db.collection('transfers')
         .where('fromWalletId', '==', walletId)

@@ -2,6 +2,7 @@ import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 
 // Ensure Firebase is initialized
 if (admin.apps.length === 0) {
@@ -66,7 +67,7 @@ export const onPaymentRequestCreated = onDocumentCreated("payment_requests/{requ
         await db.collection("events").doc(eventId).create({
             eventId: eventId,
             eventType: "PAYMENT_REQUEST_CREATED",
-            occurredAt: admin.firestore.FieldValue.serverTimestamp(),
+            occurredAt: FieldValue.serverTimestamp(),
             requestId: requestId,
             requesterId: data.requesterId,
             payerId: data.payerId,
@@ -153,7 +154,7 @@ export const acceptPaymentRequest = onCall(async (request) => {
                 userId: uid, // The ACTOR (sender)
                 status: 'pending',
                 type: 'p2p',
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                createdAt: FieldValue.serverTimestamp(),
                 metadata: {
                     relatedRequestId: requestId
                 }
@@ -165,7 +166,7 @@ export const acceptPaymentRequest = onCall(async (request) => {
             t.update(requestRef, {
                 status: 'ACCEPTED',
                 transferId: transferRef.id,
-                acceptedAt: admin.firestore.FieldValue.serverTimestamp()
+                acceptedAt: FieldValue.serverTimestamp()
             });
         });
 
@@ -213,7 +214,7 @@ export const declinePaymentRequest = onCall(async (request) => {
 
             t.update(requestRef, {
                 status: 'DECLINED',
-                declinedAt: admin.firestore.FieldValue.serverTimestamp()
+                declinedAt: FieldValue.serverTimestamp()
             });
         });
 

@@ -1,4 +1,5 @@
 import * as admin from "firebase-admin";
+import { FieldValue } from "@google-cloud/firestore";
 import * as logger from "firebase-functions/logger";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 
@@ -41,8 +42,8 @@ export const migrateWalletIdentifiers = onCall(
           uid: uid,
           type: "username",
           value: username,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          migratedAt: admin.firestore.FieldValue.serverTimestamp()
+          createdAt: FieldValue.serverTimestamp(),
+          migratedAt: FieldValue.serverTimestamp()
         }, { merge: true });
         
         usernameCount++;
@@ -70,8 +71,8 @@ export const migrateWalletIdentifiers = onCall(
           uid: uid,
           type: "email",
           value: emailLower,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          migratedAt: admin.firestore.FieldValue.serverTimestamp()
+          createdAt: FieldValue.serverTimestamp(),
+          migratedAt: FieldValue.serverTimestamp()
         }, { merge: true });
         
         emailCount++;
