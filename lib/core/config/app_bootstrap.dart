@@ -6,11 +6,12 @@ import 'dart:developer';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:boklo/features/settings/presentation/bloc/theme_cubit.dart';
 import 'package:boklo/l10n/generated/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:boklo/config/theme/app_theme.dart'; // NEW
+import 'package:boklo/config/theme/app_theme.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/foundation.dart';
 
@@ -27,19 +28,23 @@ class AppBootstrap {
     );
 
     // Task A: Ensure App Check is configured before any Firestore/Functions call
-    try {
-      // NOTE: If using physical device + emulator, ensure you have set the
-      // debug token in Firebase Console if using AndroidProvider.debug.
-      // 403 errors indicate the App Check API is disabled in the Google Cloud Console.
-      await FirebaseAppCheck.instance.activate(
-        androidProvider:
-            kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-        appleProvider:
-            kDebugMode ? AppleProvider.debug : AppleProvider.deviceCheck,
-      );
-      log('✅ App Check activation call completed');
-    } on Exception catch (e) {
-      log('⚠️ App Check activation failed (Expected in some DEV setups): $e');
+    // Skip App Check when using emulators — they don't enforce it,
+    // and the debug provider can't attest on virtual devices (403).
+    if (!useFirebaseEmulator) {
+      try {
+        await FirebaseAppCheck.instance.activate(
+          androidProvider: kDebugMode
+              ? AndroidProvider.debug
+              : AndroidProvider.playIntegrity,
+          appleProvider:
+              kDebugMode ? AppleProvider.debug : AppleProvider.deviceCheck,
+        );
+        log('✅ App Check activation call completed');
+      } on Exception catch (e) {
+        log('⚠️ App Check activation failed (Expected in some DEV setups): $e');
+      }
+    } else {
+      log('⏭️ App Check skipped (Emulator mode)');
     }
 
     if (useFirebaseEmulator) {
@@ -94,14 +99,21 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthCubit>(create: (_) => getIt<AuthCubit>()),
+        BlocProvider<ThemeCubit>(create: (_) => getIt<ThemeCubit>()),
       ],
-      child: MaterialApp.router(
-        title: 'Boklo',
-        scaffoldMessengerKey: snackbarService.scaffoldMessengerKey,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        theme: AppTheme.lightTheme, // Use the new theme
-        routerConfig: appRouter.router,
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          return MaterialApp.router(
+            title: 'Boklo',
+            scaffoldMessengerKey: snackbarService.scaffoldMessengerKey,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeMode,
+            routerConfig: appRouter.router,
+          );
+        },
       ),
     );
   }

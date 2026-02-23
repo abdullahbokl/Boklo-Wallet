@@ -7,6 +7,7 @@ import 'package:boklo/core/error/app_error.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
+import 'package:boklo/features/wallet/domain/usecases/load_more_transactions_usecase.dart';
 import 'package:boklo/features/wallet/domain/usecases/provision_wallet_usecase.dart';
 import 'package:boklo/features/wallet/domain/usecases/watch_wallet_usecase.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
@@ -17,11 +18,13 @@ class WalletCubit extends BaseCubit<WalletState> {
   WalletCubit(
     this._watchWalletUseCase,
     this._getTransactionsUseCase,
+    this._loadMoreTransactionsUseCase,
     this._provisionWalletUseCase,
   ) : super(const BaseState.initial());
 
   final WatchWalletUseCase _watchWalletUseCase;
   final GetTransactionsUseCase _getTransactionsUseCase;
+  final LoadMoreTransactionsUseCase _loadMoreTransactionsUseCase;
   final ProvisionWalletUseCase _provisionWalletUseCase;
 
   StreamSubscription<Result<WalletEntity>>? _walletSubscription;
@@ -30,9 +33,11 @@ class WalletCubit extends BaseCubit<WalletState> {
   Timer? _timeoutTimer;
   bool _hasCalledProvision = false;
   bool _walletReceived = false;
+  bool _isLoadingMore = false;
 
   WalletEntity? _currentWallet;
   List<TransactionEntity> _lastTransactions = [];
+  bool _hasMore = true;
 
   Future<void> loadWallet() async {
     emitLoading();
@@ -80,7 +85,6 @@ class WalletCubit extends BaseCubit<WalletState> {
       _txSubscription = _getTransactionsUseCase.watch().listen((result) {
         result.fold(
           (error) {
-            // Log error but don't block wallet display
             log('⚠️ WalletCubit: Transaction error: $error');
           },
           (transactions) {
@@ -92,6 +96,28 @@ class WalletCubit extends BaseCubit<WalletState> {
     }
   }
 
+  Future<void> loadMoreTransactions() async {
+    if (_isLoadingMore || !_hasMore || _currentWallet == null) return;
+
+    _isLoadingMore = true;
+    _emitMergedState();
+
+    final result = await _loadMoreTransactionsUseCase();
+    result.fold(
+      (error) {
+        log('⚠️ WalletCubit: Load more error: $error');
+        _isLoadingMore = false;
+        _emitMergedState();
+      },
+      (page) {
+        _lastTransactions = [..._lastTransactions, ...page.transactions];
+        _hasMore = page.hasMore;
+        _isLoadingMore = false;
+        _emitMergedState();
+      },
+    );
+  }
+
   Future<void> _callProvisionWallet() async {
     if (_hasCalledProvision) return;
     _hasCalledProvision = true;
@@ -101,11 +127,9 @@ class WalletCubit extends BaseCubit<WalletState> {
     result.fold(
       (error) {
         log('❌ WalletCubit: provisionWallet failed: $error');
-        // Don't emit error, the timeout will handle it
       },
       (_) {
         log('✅ WalletCubit: provisionWallet succeeded, waiting for stream...');
-        // The wallet stream should now emit the wallet
       },
     );
   }
@@ -132,6 +156,8 @@ class WalletCubit extends BaseCubit<WalletState> {
         transactions: filtered,
         filterType: currentType,
         filterStatus: currentStatus,
+        hasMore: _hasMore,
+        isLoadingMore: _isLoadingMore,
       ),
     );
   }
@@ -148,6 +174,8 @@ class WalletCubit extends BaseCubit<WalletState> {
         transactions: filtered,
         filterType: type,
         filterStatus: currentStatus,
+        hasMore: _hasMore,
+        isLoadingMore: _isLoadingMore,
       ),
     );
   }
@@ -164,6 +192,8 @@ class WalletCubit extends BaseCubit<WalletState> {
         transactions: filtered,
         filterType: currentType,
         filterStatus: status,
+        hasMore: _hasMore,
+        isLoadingMore: _isLoadingMore,
       ),
     );
   }
@@ -177,6 +207,8 @@ class WalletCubit extends BaseCubit<WalletState> {
         transactions: _lastTransactions,
         filterType: null,
         filterStatus: null,
+        hasMore: _hasMore,
+        isLoadingMore: _isLoadingMore,
       ),
     );
   }

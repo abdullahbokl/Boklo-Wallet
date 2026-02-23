@@ -83,5 +83,82 @@ class AppTheme {
     );
   }
 
-  // Define darkTheme similarly if needed, or stick to light for MVP premium feel first.
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      primaryColor: AppColors.primaryLight,
+      scaffoldBackgroundColor: AppColors.backgroundDark,
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.primaryLight,
+        secondary: AppColors.secondary,
+        surface: AppColors.surfaceDark,
+        error: AppColors.error,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: AppColors.textPrimaryDark,
+        onError: Colors.white,
+      ),
+      textTheme: TextTheme(
+        displayLarge:
+            AppTypography.display.copyWith(color: AppColors.textPrimaryDark),
+        headlineLarge:
+            AppTypography.headline.copyWith(color: AppColors.textPrimaryDark),
+        titleLarge:
+            AppTypography.title.copyWith(color: AppColors.textPrimaryDark),
+        bodyLarge:
+            AppTypography.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
+        bodyMedium:
+            AppTypography.bodyMedium.copyWith(color: AppColors.textPrimaryDark),
+        labelLarge: AppTypography.label.copyWith(color: AppColors.primaryLight),
+        bodySmall:
+            AppTypography.caption.copyWith(color: AppColors.textSecondaryDark),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryLight,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          ),
+          textStyle: AppTypography.label.copyWith(fontSize: 16),
+          padding: const EdgeInsets.symmetric(
+            vertical: AppDimens.md,
+            horizontal: AppDimens.lg,
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.surfaceDark,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: AppDimens.md,
+          horizontal: AppDimens.md,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          borderSide:
+              BorderSide(color: AppColors.textSecondaryDark.withOpacity(0.3)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          borderSide:
+              BorderSide(color: AppColors.textSecondaryDark.withOpacity(0.3)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          borderSide: const BorderSide(color: AppColors.primaryLight, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+        hintStyle: AppTypography.bodyMedium
+            .copyWith(color: AppColors.textSecondaryDark),
+        labelStyle: AppTypography.bodyMedium
+            .copyWith(color: AppColors.textSecondaryDark),
+      ),
+    );
+  }
 }

@@ -10,6 +10,11 @@
 import {setGlobalOptions} from "firebase-functions";
 import * as admin from "firebase-admin";
 
+// CRITICAL: Initialize Firebase Admin BEFORE any module exports.
+// Modules like profile.ts call `admin.firestore()` at module scope,
+// which requires the app to be initialized first.
+admin.initializeApp();
+
 // Export all functions
 export { recordLedgerEntry } from "./ledger";
 export { onTransferCreated } from "./transfers";
@@ -29,9 +34,6 @@ export { onUserCreated } from "./users";
 export { setUserProfile } from "./profile";
 export { provisionWallet } from "./wallet";
 export { migrateWalletIdentifiers } from "./migration";
-
-admin.initializeApp();
-// const db = admin.firestore(); // Not currently used in index.ts
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected

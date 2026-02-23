@@ -9,9 +9,26 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
+/// Result of a paginated transaction fetch.
+class PaginatedTransactionResult {
+  PaginatedTransactionResult({
+    required this.transactions,
+    required this.hasMore,
+    this.lastDocument,
+  });
+
+  final List<TransactionModel> transactions;
+  final bool hasMore;
+  final DocumentSnapshot? lastDocument;
+}
+
 abstract class WalletRemoteDataSource {
   Future<WalletModel> getWallet();
   Future<List<TransactionModel>> getTransactions();
+  Future<PaginatedTransactionResult> getTransactionsPaginated({
+    DocumentSnapshot? startAfter,
+    int limit = 20,
+  });
   Stream<List<TransactionModel>> watchTransactions();
   Stream<WalletModel> watchWallet();
   Future<void> provisionWallet();
@@ -87,6 +104,37 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     return query.docs
         .map((doc) => TransactionModel.fromJson(doc.data()))
         .toList();
+  }
+
+  @override
+  Future<PaginatedTransactionResult> getTransactionsPaginated({
+    DocumentSnapshot? startAfter,
+    int limit = 20,
+  }) async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) throw Exception('User not logged in');
+
+    var query = _firestore
+        .collection('wallets')
+        .doc(userId)
+        .collection('transactions')
+        .orderBy('timestamp', descending: true)
+        .limit(limit);
+
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
+    }
+
+    final snapshot = await query.get();
+    final transactions = snapshot.docs
+        .map((doc) => TransactionModel.fromJson(doc.data()))
+        .toList();
+
+    return PaginatedTransactionResult(
+      transactions: transactions,
+      hasMore: snapshot.docs.length == limit,
+      lastDocument: snapshot.docs.isNotEmpty ? snapshot.docs.last : null,
+    );
   }
 
   @override

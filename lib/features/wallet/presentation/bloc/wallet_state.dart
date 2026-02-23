@@ -11,5 +11,7 @@ class WalletState with _$WalletState {
     @Default([]) List<TransactionEntity> transactions,
     TransactionType? filterType,
     TransactionStatus? filterStatus,
+    @Default(true) bool hasMore,
+    @Default(false) bool isLoadingMore,
   }) = _WalletState;
 }

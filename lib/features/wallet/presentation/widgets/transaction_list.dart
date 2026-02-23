@@ -12,10 +12,16 @@ class TransactionList extends StatelessWidget {
     required this.transactions,
     super.key,
     this.isLoading = false,
+    this.hasMore = false,
+    this.isLoadingMore = false,
+    this.onLoadMore,
   });
 
   final List<domain.TransactionEntity> transactions;
   final bool isLoading;
+  final bool hasMore;
+  final bool isLoadingMore;
+  final VoidCallback? onLoadMore;
 
   @override
   Widget build(BuildContext context) {
@@ -66,11 +72,23 @@ class TransactionList extends StatelessWidget {
       );
     }
 
+    // Total item count: transactions + optional load more row
+    final showLoadMore = hasMore || isLoadingMore;
+    final itemCount = transactions.length + (showLoadMore ? 1 : 0);
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: transactions.length,
+      itemCount: itemCount,
       itemBuilder: (context, index) {
+        // Load More button at the end
+        if (index == transactions.length) {
+          return _LoadMoreButton(
+            isLoading: isLoadingMore,
+            onPressed: onLoadMore,
+          );
+        }
+
         final tx = transactions[index];
         final isCredit = tx.type == domain.TransactionType.credit;
 
@@ -96,6 +114,36 @@ class TransactionList extends StatelessWidget {
           isCredit: isCredit,
         );
       },
+    );
+  }
+}
+
+class _LoadMoreButton extends StatelessWidget {
+  const _LoadMoreButton({
+    required this.isLoading,
+    this.onPressed,
+  });
+
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
+      child: Center(
+        child: isLoading
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : TextButton.icon(
+                onPressed: onPressed,
+                icon: const Icon(Icons.expand_more_rounded),
+                label: const Text('Load More'),
+              ),
+      ),
     );
   }
 }

@@ -89,7 +89,14 @@ class WalletContent extends StatelessWidget {
           const SizedBox(height: AppDimens.md),
           _TransactionFilters(data: data),
           const SizedBox(height: AppDimens.md),
-          TransactionList(transactions: data.transactions),
+          TransactionList(
+            transactions: data.transactions,
+            hasMore: data.hasMore,
+            isLoadingMore: data.isLoadingMore,
+            onLoadMore: () {
+              context.read<WalletCubit>().loadMoreTransactions();
+            },
+          ),
         ],
       ),
     );
