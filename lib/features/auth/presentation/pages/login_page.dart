@@ -6,7 +6,7 @@ import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_form.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_header.dart';
-import 'package:boklo/shared/responsive/responsive_builder.dart';
+import 'package:boklo/shared/responsive/responsive_constraint.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,46 +39,23 @@ class LoginPage extends StatelessWidget {
         );
       },
       child: Scaffold(
-        body: ResponsiveBuilder(
-          mobile: _buildMobileLayout,
-          tablet: _buildTabletLayout,
-          desktop: _buildDesktopLayout,
+        body: ResponsiveConstraint(
+          maxWidth: 500,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.l),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LoginHeader(),
+                  SizedBox(height: AppSpacing.xxl),
+                  LoginForm(),
+                ],
+              ),
+            ),
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildMobileLayout(BuildContext context, dynamic _) {
-    return const Center(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(AppSpacing.l),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            LoginHeader(),
-            SizedBox(height: AppSpacing.xxl),
-            LoginForm(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabletLayout(BuildContext context, dynamic info) {
-    return Center(
-      child: SizedBox(
-        width: 500,
-        child: _buildMobileLayout(context, info),
-      ),
-    );
-  }
-
-  Widget _buildDesktopLayout(BuildContext context, dynamic info) {
-    return Center(
-      child: SizedBox(
-        width: 400,
-        child: _buildMobileLayout(context, info),
       ),
     );
   }

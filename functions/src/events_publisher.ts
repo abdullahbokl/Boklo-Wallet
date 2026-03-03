@@ -33,23 +33,37 @@ export const onEventCreated = onDocumentCreated("events/{eventId}", async (event
   });
 
   const startTime = Date.now();
+  const isEmulator = process.env.FUNCTIONS_EMULATOR === "true";
+  const eventTime = eventData.occurredAt || new Date().toISOString();
 
   try {
     const token = await admin.credential.applicationDefault().getAccessToken();
     
-    // Construct the CloudEvent in Protobuf JSON format
+    // The emulator expects camelCase (specVersion, textData, ceString)
+    // Production expects snake_case (spec_version, text_data, ce_string)
     const payload = {
       events: [
-        {
+        isEmulator ? {
+          "@type": "type.googleapis.com/io.cloudevents.v1.CloudEvent",
+          "id": eventId,
+          "source": "//boklo.wallet/transfers",
+          "specVersion": "1.0",
+          "type": eventData.eventType,
+          "textData": JSON.stringify(eventData),
+          "attributes": {
+            "datacontenttype": { "ceString": "application/json" },
+            "time": { "ceTimestamp": eventTime }
+          }
+        } : {
           "@type": "type.googleapis.com/io.cloudevents.v1.CloudEvent",
           "id": eventId,
           "source": "//boklo.wallet/transfers",
           "spec_version": "1.0",
-          "specversion": "1.0",
           "type": eventData.eventType,
           "text_data": JSON.stringify(eventData),
           "attributes": {
-            "datacontenttype": { "ce_string": "application/json" }
+            "datacontenttype": { "ce_string": "application/json" },
+            "time": { "ce_timestamp": eventTime }
           }
         }
       ]

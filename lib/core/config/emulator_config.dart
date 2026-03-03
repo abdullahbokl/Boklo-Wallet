@@ -28,13 +28,17 @@ class EmulatorConfig {
     _resolvedHost = host;
 
     bool isPhysicalAndroid = false;
+    bool isGenymotion = false;
     if (!kIsWeb && Platform.isAndroid) {
       final deviceInfo = DeviceInfoPlugin();
       final androidInfo = await deviceInfo.androidInfo;
-      isPhysicalAndroid = androidInfo.isPhysicalDevice;
+      isGenymotion = _isGenymotion(androidInfo);
+      // Genymotion reports isPhysicalDevice=true, but it IS a virtual device
+      isPhysicalAndroid = androidInfo.isPhysicalDevice && !isGenymotion;
     }
 
-    log('🔥 Configuring Firebase Emulators at $host');
+    log('🔥 Configuring Firebase Emulators at $host'
+        '${isGenymotion ? ' (Genymotion detected)' : ''}');
 
     // 1. Auth (Hybrid: Real Auth on Physical, Emulator on others)
     if (isPhysicalAndroid) {
@@ -56,7 +60,6 @@ class EmulatorConfig {
     FirebaseStorage.instance.useStorageEmulator(host, _storagePort);
 
     // 5. Force Token Reload
-    // Ensures auth state is consistent (clears stale emulator tokens if switching to real auth)
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
@@ -66,6 +69,12 @@ class EmulatorConfig {
         await FirebaseAuth.instance.signOut();
       }
     }
+  }
+
+  /// Detects Genymotion by manufacturer or VirtualBox hardware.
+  static bool _isGenymotion(AndroidDeviceInfo info) {
+    return info.manufacturer.toLowerCase() == 'genymobile' ||
+        info.hardware.toLowerCase().contains('vbox');
   }
 
   static const String _genymotionHost = '10.0.3.2';
@@ -87,11 +96,7 @@ class EmulatorConfig {
     final androidInfo = await deviceInfo.androidInfo;
 
     // 3a. Genymotion detection
-    // Genymotion reports isPhysicalDevice=true but has manufacturer 'Genymobile'
-    final isGenymotion =
-        androidInfo.manufacturer.toLowerCase() == 'genymobile' ||
-            androidInfo.hardware.toLowerCase().contains('vbox');
-    if (isGenymotion) {
+    if (_isGenymotion(androidInfo)) {
       log('🎮 Genymotion detected (${androidInfo.manufacturer}). Using host: $_genymotionHost');
       return _genymotionHost;
     }

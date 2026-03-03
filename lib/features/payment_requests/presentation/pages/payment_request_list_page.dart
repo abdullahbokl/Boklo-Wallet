@@ -6,6 +6,7 @@ import 'package:boklo/features/payment_requests/presentation/bloc/payment_reques
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:boklo/shared/responsive/responsive_constraint.dart';
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 
@@ -40,24 +41,24 @@ class PaymentRequestListPage extends StatelessWidget {
               )
             ],
           ),
-          body:
-              BlocBuilder<PaymentRequestCubit, BaseState<PaymentRequestState>>(
-            builder: (context, state) {
-              final data = state.data ?? const PaymentRequestState();
-              // Error handling? state.when/whenOrNull/etc.
-              // For brevity in MVP:
+          body: ResponsiveConstraint(
+            child: BlocBuilder<PaymentRequestCubit,
+                BaseState<PaymentRequestState>>(
+              builder: (context, state) {
+                final data = state.data ?? const PaymentRequestState();
 
-              return TabBarView(
-                children: [
-                  _buildIncomingList(
-                    context,
-                    data.incomingRequests,
-                    data.actingOnRequestId,
-                  ),
-                  _buildOutgoingList(context, data.outgoingRequests),
-                ],
-              );
-            },
+                return TabBarView(
+                  children: [
+                    _buildIncomingList(
+                      context,
+                      data.incomingRequests,
+                      data.actingOnRequestId,
+                    ),
+                    _buildOutgoingList(context, data.outgoingRequests),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),

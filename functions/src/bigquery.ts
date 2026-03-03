@@ -55,11 +55,11 @@ export const streamLedgerToBigQuery = onDocumentCreated("wallets/{walletId}/ledg
     const row = {
         entry_id: event.params.entryId,
         wallet_id: event.params.walletId,
-        transfer_id: data.transferId,
+        transfer_id: data.transactionId,
         amount: Number(data.amount),
         direction: data.direction,
-        description: data.description,
-        timestamp: data.timestamp && typeof data.timestamp.toDate === 'function' ? data.timestamp.toDate().toISOString() : event.time,
+        currency: data.currency || 'EGP',
+        timestamp: data.occurredAt || event.time,
         ingest_time: new Date().toISOString()
     };
 

@@ -8,6 +8,7 @@ import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/profile_setup_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:boklo/shared/responsive/responsive_constraint.dart';
 
 class ProfileSetupPage extends StatelessWidget {
   const ProfileSetupPage({super.key});
@@ -34,9 +35,12 @@ class ProfileSetupPage extends StatelessWidget {
             },
           );
         },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppDimens.lg),
-          child: const ProfileSetupForm(),
+        child: ResponsiveConstraint(
+          maxWidth: 500,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppDimens.lg),
+            child: const ProfileSetupForm(),
+          ),
         ),
       ),
     );

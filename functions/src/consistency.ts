@@ -18,8 +18,8 @@ export async function runConnectivityCheck(
         const creditEntryId = `${transactionId}_CR`;
 
         const ledgerRefs = await db.getAll(
-            db.collection("ledger").doc(debitEntryId),
-            db.collection("ledger").doc(creditEntryId)
+            db.collection("wallets").doc(senderWalletId).collection("ledger").doc(debitEntryId),
+            db.collection("wallets").doc(receiverWalletId).collection("ledger").doc(creditEntryId)
         );
 
         const [debitDoc, creditDoc] = ledgerRefs;

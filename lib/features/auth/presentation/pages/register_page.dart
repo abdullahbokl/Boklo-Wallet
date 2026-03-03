@@ -6,7 +6,7 @@ import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_header.dart';
 import 'package:boklo/features/auth/presentation/widgets/register_form.dart';
-import 'package:boklo/shared/responsive/responsive_builder.dart';
+import 'package:boklo/shared/responsive/responsive_constraint.dart';
 import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,14 +47,9 @@ class RegisterPage extends StatelessWidget {
                 getIt<NavigationService>().pushReplacement('/login'),
           ),
         ),
-        body: ResponsiveBuilder(
-          mobile: (context, _) => const _RegisterLayout(),
-          tablet: (context, _) => const Center(
-            child: SizedBox(width: 500, child: _RegisterLayout()),
-          ),
-          desktop: (context, _) => const Center(
-            child: SizedBox(width: 400, child: _RegisterLayout()),
-          ),
+        body: ResponsiveConstraint(
+          maxWidth: 500,
+          child: const _RegisterLayout(),
         ),
       ),
     );

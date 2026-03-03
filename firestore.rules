@@ -127,6 +127,13 @@ service cloud.firestore {
         allow read, write: if false;
     }
     
+    // --- Wallet Identifiers (O(1) Lookup Mappings) ---
+    // Used by client to resolve email/username to walletId
+    match /wallet_identifiers/{identifierId} {
+      allow read: if isAuthenticated(); // Client reads for discovery
+      allow write: if false; // Backend only (created by Cloud Functions)
+    }
+
     // --- Events (Audit Only) ---
     match /events/{eventId} {
          allow read, write: if false;

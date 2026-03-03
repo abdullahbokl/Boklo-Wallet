@@ -11,7 +11,7 @@ import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/wallet_app_bar.dart';
 import 'package:boklo/features/wallet/presentation/widgets/wallet_content.dart';
 import 'package:boklo/features/wallet/presentation/widgets/wallet_skeleton.dart';
-import 'package:boklo/shared/responsive/responsive_builder.dart';
+import 'package:boklo/shared/responsive/responsive_constraint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -61,20 +61,8 @@ class WalletPage extends StatelessWidget {
                   ],
                 ),
               ),
-              success: (data) => ResponsiveBuilder(
-                mobile: (context, _) => WalletContent(data: data),
-                tablet: (context, _) => Center(
-                  child: SizedBox(
-                    width: 600,
-                    child: WalletContent(data: data),
-                  ),
-                ),
-                desktop: (context, _) => Center(
-                  child: SizedBox(
-                    width: 800,
-                    child: WalletContent(data: data),
-                  ),
-                ),
+              success: (data) => ResponsiveConstraint(
+                child: WalletContent(data: data),
               ),
             ),
           );

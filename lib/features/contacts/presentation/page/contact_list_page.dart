@@ -6,6 +6,7 @@ import 'package:boklo/features/contacts/presentation/bloc/contact_cubit.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:boklo/shared/responsive/responsive_constraint.dart';
 
 import 'package:boklo/core/services/snackbar_service.dart';
 
@@ -30,80 +31,82 @@ class ContactListPage extends StatelessWidget {
             child: const Icon(Icons.add),
           ),
         ),
-        body: BlocBuilder<ContactCubit, BaseState<ContactState>>(
-          builder: (context, state) {
-            final contacts = state.data?.contacts ?? [];
+        body: ResponsiveConstraint(
+          child: BlocBuilder<ContactCubit, BaseState<ContactState>>(
+            builder: (context, state) {
+              final contacts = state.data?.contacts ?? [];
 
-            if (state.isLoading && contacts.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
+              if (state.isLoading && contacts.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (contacts.isEmpty) {
-              return const Center(child: Text('No contacts yet'));
-            }
+              if (contacts.isEmpty) {
+                return const Center(child: Text('No contacts yet'));
+              }
 
-            return ListView.builder(
-              itemCount: contacts.length,
-              itemBuilder: (context, index) {
-                final contact = contacts[index];
-                return ListTile(
-                  onTap: isPickMode
-                      ? () => getIt<NavigationService>().pop(contact)
-                      : null,
-                  leading: CircleAvatar(
-                    backgroundImage: contact.photoUrl != null
-                        ? NetworkImage(contact.photoUrl!)
+              return ListView.builder(
+                itemCount: contacts.length,
+                itemBuilder: (context, index) {
+                  final contact = contacts[index];
+                  return ListTile(
+                    onTap: isPickMode
+                        ? () => getIt<NavigationService>().pop(contact)
                         : null,
-                    child: contact.photoUrl == null
-                        ? Text(contact.displayName[0].toUpperCase())
-                        : null,
-                  ),
-                  title: Text(contact.displayName),
-                  subtitle: Text(contact.email),
-                  trailing: isPickMode
-                      ? null
-                      : PopupMenuButton<String>(
-                          onSelected: (action) =>
-                              _handleContactAction(context, action, contact),
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'send',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.send, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Send Money'),
-                                ],
+                    leading: CircleAvatar(
+                      backgroundImage: contact.photoUrl != null
+                          ? NetworkImage(contact.photoUrl!)
+                          : null,
+                      child: contact.photoUrl == null
+                          ? Text(contact.displayName[0].toUpperCase())
+                          : null,
+                    ),
+                    title: Text(contact.displayName),
+                    subtitle: Text(contact.email),
+                    trailing: isPickMode
+                        ? null
+                        : PopupMenuButton<String>(
+                            onSelected: (action) =>
+                                _handleContactAction(context, action, contact),
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'send',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.send, size: 20),
+                                    SizedBox(width: 8),
+                                    Text('Send Money'),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'request',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.request_page, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Request Payment'),
-                                ],
+                              const PopupMenuItem(
+                                value: 'request',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.request_page, size: 20),
+                                    SizedBox(width: 8),
+                                    Text('Request Payment'),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'remove',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete,
-                                      size: 20, color: Colors.red),
-                                  SizedBox(width: 8),
-                                  Text('Remove',
-                                      style: TextStyle(color: Colors.red)),
-                                ],
+                              const PopupMenuItem(
+                                value: 'remove',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete,
+                                        size: 20, color: Colors.red),
+                                    SizedBox(width: 8),
+                                    Text('Remove',
+                                        style: TextStyle(color: Colors.red)),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                );
-              },
-            );
-          },
+                            ],
+                          ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
