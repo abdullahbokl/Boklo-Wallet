@@ -12,7 +12,7 @@ interface SetUserProfileData {
 
 // Explicit region for consistency between emulator and production
 export const setUserProfile = onCall<SetUserProfileData>(
-  { region: "us-central1" },
+  { region: "us-central1", enforceAppCheck: true },
   async (request) => {
   if (!request.auth) {
     throw new functions.https.HttpsError(

@@ -11,7 +11,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
  * Safe to run multiple times (idempotent).
  */
 export const migrateWalletIdentifiers = onCall(
-  { region: "us-central1" },
+  { region: "us-central1", enforceAppCheck: true },
   async (request) => {
     // Only allow admin users (add custom claims check if needed)
     if (!request.auth) {

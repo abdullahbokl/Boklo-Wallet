@@ -1,6 +1,7 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
+import { extractCorrelationId } from "./utils/correlation";
 
 export const onEventCreated = onDocumentCreated("events/{eventId}", async (event) => {
   const snapshot = event.data;
@@ -24,12 +25,15 @@ export const onEventCreated = onDocumentCreated("events/{eventId}", async (event
       logger.info(`[Emulator] Redirecting Eventarc publish to ${url}`);
   }
 
+  const correlationId = extractCorrelationId(eventData);
+
   logger.info("Event publishing started", {
     event: "EVENT_PUBLISH",
     status: "STARTED",
     eventId: eventId,
     eventType: eventData.eventType,
-    transactionId: eventData.transactionId
+    transactionId: eventData.transactionId,
+    correlationId
   });
 
   const startTime = Date.now();

@@ -10,6 +10,7 @@ import {
 } from "./domain/events/transfer_events";
 import { evaluateRisk, RISK_MODE, createRiskReview } from "./fraud.js";
 import { checkTransferRateLimit } from "./utils/rate_limiter";
+import { generateCorrelationId } from "./utils/correlation";
 
 // Helper to create event objects
 const createEventPayload = (
@@ -44,15 +45,21 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
     return;
   }
 
+  const correlationId = generateCorrelationId();
+
   logger.info("Transfer execution started", {
     event: "TRANSFER_EXECUTION",
     status: "STARTED",
-    transactionId: transferId
+    transactionId: transferId,
+    correlationId
   });
 
   const startTime = Date.now();
 
   const db = admin.firestore();
+
+  // Store correlationId on the transfer doc for downstream tracing
+  await db.collection("transfers").doc(transferId).update({ correlationId });
 
   // --- RATE LIMIT CHECK ---
   try {
@@ -79,6 +86,7 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
     eventType: TransferEventType.CREATED,
     occurredAt: new Date().toISOString(),
     ...createEventPayload(transferId, transferData),
+    correlationId,
   };
 
   // We write this separately (not in the transaction below) because it signifies
@@ -123,6 +131,7 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
     logger.info("Transfer risk evaluated", {
       event: "RISK_ASSESSMENT",
       transactionId: transferId,
+      correlationId,
       riskLevel: riskAssessment.riskLevel,
       action: riskAssessment.action,
       score: 0, 
@@ -205,11 +214,13 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
       // 1. Deduct from Sender
       t.update(fromWalletRef, {
         balance: FieldValue.increment(-amount),
+        version: FieldValue.increment(1),
       });
 
       // 2. Credit to Receiver
       t.update(toWalletRef, {
         balance: FieldValue.increment(amount),
+        version: FieldValue.increment(1),
       });
 
       // 3. Create Transaction Records (Subcollection)
@@ -251,6 +262,7 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
         eventType: TransferEventType.COMPLETED,
         occurredAt: new Date().toISOString(),
         ...createEventPayload(transferId, transferData),
+        correlationId,
       };
       const eventRef = db.collection("events").doc(completedEvent.eventId);
       t.set(eventRef, completedEvent);
@@ -260,6 +272,7 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
         event: "TRANSFER_EXECUTION",
         status: "COMPLETED",
         transactionId: transferId,
+        correlationId,
         durationMs: Date.now() - startTime
       });
   } catch (error: any) {

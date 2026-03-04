@@ -90,7 +90,7 @@ export const onPaymentRequestCreated = onDocumentCreated("payment_requests/{requ
  * 3. Creates a `transfers` document (Payer -> Requester).
  * 4. Updates request status to `ACCEPTED`.
  */
-export const acceptPaymentRequest = onCall(async (request) => {
+export const acceptPaymentRequest = onCall({ enforceAppCheck: true }, async (request) => {
     const uid = request.auth?.uid;
     if (!uid) {
         throw new HttpsError('unauthenticated', 'User must be logged in');
@@ -182,7 +182,7 @@ export const acceptPaymentRequest = onCall(async (request) => {
 /**
  * Callable: declinePaymentRequest
  */
-export const declinePaymentRequest = onCall(async (request) => {
+export const declinePaymentRequest = onCall({ enforceAppCheck: true }, async (request) => {
     const uid = request.auth?.uid;
     if (!uid) {
         throw new HttpsError('unauthenticated', 'User must be logged in');

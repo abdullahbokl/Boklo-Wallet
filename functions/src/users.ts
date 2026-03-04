@@ -34,6 +34,7 @@ export const onUserCreated = functions.auth.user().onCreate(async (user) => {
             ownerId: uid,
             ownerEmail: email,
             ownerName: displayName,
+            version: 0, // Optimistic concurrency control
             createdAt: FieldValue.serverTimestamp(),
             updatedAt: FieldValue.serverTimestamp(),
             isActive: true,

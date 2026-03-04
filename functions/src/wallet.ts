@@ -13,7 +13,7 @@ const db = admin.firestore();
  * or for any race condition where wallet is needed before trigger completes.
  */
 export const provisionWallet = onCall(
-  { region: "us-central1" },
+  { region: "us-central1", enforceAppCheck: true },
   async (request) => {
     if (!request.auth) {
       throw new functions.https.HttpsError(
@@ -51,6 +51,7 @@ export const provisionWallet = onCall(
         ownerId: uid,
         ownerEmail: email,
         ownerName: displayName,
+        version: 0, // Optimistic concurrency control
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
         isActive: true,

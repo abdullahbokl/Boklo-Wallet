@@ -8,6 +8,8 @@ export interface BaseEvent {
   eventId: string;
   eventType: TransferEventType;
   occurredAt: string; // ISO 8601
+  /** End-to-end request tracing ID. Flows from transfer → events → ledger → notifications. */
+  correlationId?: string;
 }
 
 export interface TransferEventPayload {

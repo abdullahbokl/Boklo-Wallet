@@ -1,5 +1,6 @@
 import 'package:boklo/features/transfers/data/models/transfer_model.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
+import 'package:boklo/core/network/retry_executor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 
@@ -21,23 +22,27 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
 
   @override
   Future<void> createTransfer(TransferModel transfer) async {
-    final transferRef = _firestore.collection('transfers').doc(transfer.id);
+    // Retry with exponential backoff for transient network errors.
+    // Business errors (duplicate ID) will NOT be retried.
+    await RetryExecutor.run(() async {
+      final transferRef = _firestore.collection('transfers').doc(transfer.id);
 
-    // BACKEND-AUTHORITY:
-    // We strictly use a Firestore transaction here to ensure data consistency of the transfer record.
-    // We DO NOT update wallet balances on the client.
-    // The backend (Cloud Functions) is solely responsible for:
-    // 1. Validating the transfer (again)
-    // 2. Atomically updating balances (Ledger)
-    // 3. Updating the transfer status to COMPLETED or FAILED
-    await _firestore.runTransaction((transaction) async {
-      // We read the doc first even though it's a new create, to ensure we don't overwrite if ID collides (rare but safe)
-      final docSnapshot = await transaction.get(transferRef);
-      if (docSnapshot.exists) {
-        throw Exception('Transfer with ID ${transfer.id} already exists');
-      }
+      // BACKEND-AUTHORITY:
+      // We strictly use a Firestore transaction here to ensure data consistency of the transfer record.
+      // We DO NOT update wallet balances on the client.
+      // The backend (Cloud Functions) is solely responsible for:
+      // 1. Validating the transfer (again)
+      // 2. Atomically updating balances (Ledger)
+      // 3. Updating the transfer status to COMPLETED or FAILED
+      await _firestore.runTransaction((transaction) async {
+        // We read the doc first even though it's a new create, to ensure we don't overwrite if ID collides (rare but safe)
+        final docSnapshot = await transaction.get(transferRef);
+        if (docSnapshot.exists) {
+          throw Exception('Transfer with ID ${transfer.id} already exists');
+        }
 
-      transaction.set(transferRef, transfer.toJson());
+        transaction.set(transferRef, transfer.toJson());
+      });
     });
   }
 

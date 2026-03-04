@@ -4,6 +4,7 @@ import * as admin from "firebase-admin";
 import { TransferEventType, TransactionCompletedEvent } from "./domain/events/transfer_events";
 import { LedgerEntry } from "./domain/ledger/ledger_entry";
 import { runConnectivityCheck } from "./consistency";
+import { extractCorrelationId } from "./utils/correlation";
 
 // Initialize admin if not already done
 if (admin.apps.length === 0) {
@@ -29,6 +30,7 @@ export const recordLedgerEntry = onCustomEventPublished(
         }
 
         const { transactionId, senderWalletId, receiverWalletId, amount, currency, occurredAt } = payload;
+        const correlationId = extractCorrelationId(payload);
 
         // ID DETERMINISM:
         // We construct proper Ledger Entry IDs using the TransactionID + Function (DR/CR).
@@ -88,6 +90,7 @@ export const recordLedgerEntry = onCustomEventPublished(
                 event: "LEDGER_RECORDING",
                 status: "COMPLETED",
                 transactionId,
+                correlationId,
                 debitEntryId,
                 creditEntryId,
                 amount,
@@ -107,6 +110,7 @@ export const recordLedgerEntry = onCustomEventPublished(
                 event: "LEDGER_RECORDING",
                 status: "FAILED",
                 transactionId,
+                correlationId,
                 error: error instanceof Error ? error.message : 'Unknown error',
                 durationMs
             });

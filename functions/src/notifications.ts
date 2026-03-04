@@ -10,6 +10,7 @@ import { TransferEventType,  TransactionCompletedEvent,
 // For now, extending NotificationType.
 
 import { NotificationType, NotificationIntent } from "./domain/notifications/notification_intent";
+import { extractCorrelationId } from "./utils/correlation";
 
 if (admin.apps.length === 0) {
     admin.initializeApp();
@@ -50,7 +51,7 @@ const shouldSendNotification = async (userId: string, type: NotificationType): P
 };
 
 // Helper to write notification intent to Firestore idempotently
-const publishNotification = async (intent: NotificationIntent, transactionId: string) => {
+const publishNotification = async (intent: NotificationIntent, transactionId: string, correlationId?: string) => {
     // Check Preferences
     const allowed = await shouldSendNotification(intent.userId, intent.type);
     if (!allowed) {
@@ -67,7 +68,8 @@ const publishNotification = async (intent: NotificationIntent, transactionId: st
       status: "STARTED",
       transactionId: transactionId,
       notificationId: intent.notificationId,
-      type: intent.type
+      type: intent.type,
+      correlationId
     });
 
     const startTime = Date.now();
@@ -104,6 +106,7 @@ const publishNotification = async (intent: NotificationIntent, transactionId: st
           status: "COMPLETED",
           transactionId: transactionId,
           notificationId: intent.notificationId,
+          correlationId,
           durationMs: Date.now() - startTime
         });
     } catch (e) {
@@ -130,6 +133,7 @@ export const notifyOnTransferComplete = onCustomEventPublished(
             logger.error("Invalid completion event payload", payload);
             return;
         }
+        const correlationId = extractCorrelationId(payload);
 
         // 1. Notify Sender (Success)
         await publishNotification({
@@ -144,7 +148,7 @@ export const notifyOnTransferComplete = onCustomEventPublished(
                     currency: payload.currency 
                 }
             }
-        }, payload.transactionId);
+        }, payload.transactionId, correlationId);
 
         // 2. Notify Receiver (Received)
         await publishNotification({
@@ -159,7 +163,7 @@ export const notifyOnTransferComplete = onCustomEventPublished(
                     currency: payload.currency 
                 }
             }
-        }, payload.transactionId);
+        }, payload.transactionId, correlationId);
     }
 );
 
@@ -174,6 +178,7 @@ export const notifyOnTransferFailed = onCustomEventPublished(
             logger.error("Invalid failure event payload", payload);
             return;
         }
+        const correlationId = extractCorrelationId(payload);
 
         // Notify Sender (Failure)
         await publishNotification({
@@ -187,7 +192,7 @@ export const notifyOnTransferFailed = onCustomEventPublished(
                     reason: payload.failureReason 
                 }
             }
-        }, payload.transactionId);
+        }, payload.transactionId, correlationId);
     }
 );
 
