@@ -18,6 +18,32 @@ Boklo Wallet is a next-generation financial application designed with **correctn
 
 ---
 
+## 📸 Screenshots
+
+| Login | Register | Wallet |
+| :---: | :---: | :---: |
+| ![Login](docs/screenshots/login_page.png) | ![Register](docs/screenshots/register_page.png) | ![Wallet](docs/screenshots/wallet_page.png) |
+
+| Transfer | Requests | Contacts |
+| :---: | :---: | :---: |
+| ![Transfer](docs/screenshots/transfer_page.png) | ![Requests](docs/screenshots/requests_page.png) | ![Contacts](docs/screenshots/contacts_page.png) |
+
+| Notifications |
+| :---: |
+| ![Notifications](docs/screenshots/notification_settings_page.png) |
+
+---
+
+## 🔬 Backend Transparency (Ledger Debug)
+
+Boklo includes a built-in **Ledger Debugger** to visualize the immutable transaction history and ensure financial integrity during development.
+
+| Ledger Audit Log |
+| :---: |
+| ![Ledger Debug](docs/screenshots/ledger_page.png) |
+
+---
+
 ## 🛠 Tech Stack
 
 ### Frontend (Flutter)

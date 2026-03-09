@@ -5,14 +5,12 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
-import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/quick_actions_row.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_list.dart';
 import 'package:boklo/features/wallet/presentation/widgets/wallet_primary_action.dart';
-import 'package:boklo/shared/presentation/widgets/dev_info_widget.dart';
 import 'package:boklo/shared/widgets/molecules/balance_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,23 +22,12 @@ class WalletContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Attempt to get user ID from AuthCubit for debug info
-    final user = context.read<AuthCubit>().state.maybeWhen(
-          success: (u) => u,
-          orElse: () => null,
-        );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppDimens.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Dev Info (Auto-hidden in release)
-          DevInfoWidget(
-            userId: user?.id,
-            walletId: data.wallet.id,
-          ),
-          const SizedBox(height: AppDimens.sm),
 
           // Entrance Animation for Balance Card
           TweenAnimationBuilder<double>(
