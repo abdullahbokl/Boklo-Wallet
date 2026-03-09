@@ -35,8 +35,9 @@ class WalletAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       centerTitle: false,
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Colors.transparent,
       elevation: 0,
+      scrolledUnderElevation: 0,
       actions: const [_LogoutButton()],
     );
   }

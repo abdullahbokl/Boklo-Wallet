@@ -112,6 +112,19 @@ class MyApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeMode,
             routerConfig: appRouter.router,
+            builder: (context, child) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/BG.png'),
+                    fit: BoxFit.cover,
+                    opacity: 0.3,
+                  ),
+                ),
+                child: child,
+              );
+            },
           );
         },
       ),
