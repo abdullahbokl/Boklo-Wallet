@@ -76,3 +76,43 @@ app.*.map.json
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Agent and IDE
+.agent/
+.idea/
+
+# Local setup guides and debug scripts
+test_*.sh
+IOS_PUSH_SETUP.md
+NOTIFICATIONS_SETUP_GUIDE.md
+NOTIFICATION_VERIFICATION.md
+database-debug.log
+firestore-debug.log
+.flutter-plugins-dependencies
+
+
+# Local logs
+*.log
+database-debug.log
+firestore-debug.log
+
+# Flutter/Dart build and tool files
+.flutter-plugins-dependencies
+.metadata
+.dart_tool/
+build/
+
+# Web specific
+.project
+
+# Project specific root files and scripts
+ARCHITECTURE.md
+SOURCE_OF_TRUTH.md
+devtools_options.yaml
+scripts/
+
+# Unused platforms
+linux/
+macos/
+windows/
+web/
