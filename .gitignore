@@ -116,3 +116,7 @@ linux/
 macos/
 windows/
 web/
+
+# Generated App Icons
+android/app/src/main/res/mipmap-*/launcher_icon.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/
