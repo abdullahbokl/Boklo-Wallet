@@ -26,47 +26,51 @@ class TransactionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SliverToBoxAdapter(
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (transactions.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppDimens.xxl,
-            horizontal: AppDimens.xl,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppDimens.lg),
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.1),
-                  shape: BoxShape.circle,
+      return SliverToBoxAdapter(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: AppDimens.xxl,
+              horizontal: AppDimens.xl,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppDimens.lg),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.receipt_long_rounded,
+                    size: 48,
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
                 ),
-                child: Icon(
-                  Icons.receipt_long_rounded,
-                  size: 48,
-                  color: Colors.grey.withOpacity(0.5),
+                const SizedBox(height: AppDimens.md),
+                Text(
+                  'No transactions yet',
+                  style: AppTypography.title.copyWith(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppDimens.md),
-              Text(
-                'No transactions yet',
-                style: AppTypography.title.copyWith(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                const SizedBox(height: 4),
+                Text(
+                  'Your income and expenses will appear here.',
+                  style: AppTypography.bodyMedium.copyWith(color: Colors.grey),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Your income and expenses will appear here.',
-                style: AppTypography.bodyMedium.copyWith(color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
@@ -76,9 +80,7 @@ class TransactionList extends StatelessWidget {
     final showLoadMore = hasMore || isLoadingMore;
     final itemCount = transactions.length + (showLoadMore ? 1 : 0);
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+    return SliverList.builder(
       itemCount: itemCount,
       itemBuilder: (context, index) {
         // Load More button at the end

@@ -35,11 +35,11 @@ class ProfileSetupPage extends StatelessWidget {
             },
           );
         },
-        child: ResponsiveConstraint(
+        child: const ResponsiveConstraint(
           maxWidth: 500,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppDimens.lg),
-            child: const ProfileSetupForm(),
+            padding: EdgeInsets.all(AppDimens.lg),
+            child: ProfileSetupForm(),
           ),
         ),
       ),

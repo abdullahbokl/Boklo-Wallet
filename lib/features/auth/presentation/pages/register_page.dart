@@ -47,9 +47,9 @@ class RegisterPage extends StatelessWidget {
                 getIt<NavigationService>().pushReplacement('/login'),
           ),
         ),
-        body: ResponsiveConstraint(
+        body: const ResponsiveConstraint(
           maxWidth: 500,
-          child: const _RegisterLayout(),
+          child: _RegisterLayout(),
         ),
       ),
     );

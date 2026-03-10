@@ -27,17 +27,19 @@ class LoginHeader extends StatelessWidget {
               child: child,
             );
           },
-          child: Container(
-            padding: const EdgeInsets.all(AppDimens.lg),
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              shape: BoxShape.circle,
-              boxShadow: AppColors.shadowLg,
-            ),
-            child: const Icon(
-              Icons.account_balance_wallet_rounded,
-              size: 48,
-              color: Colors.white,
+          child: RepaintBoundary(
+            child: Container(
+              padding: const EdgeInsets.all(AppDimens.lg),
+              decoration: const BoxDecoration(
+                gradient: AppColors.primaryGradient,
+                shape: BoxShape.circle,
+                // boxShadow: AppColors.shadowLg,
+              ),
+              child: const Icon(
+                Icons.account_balance_wallet_rounded,
+                size: 48,
+                color: Colors.white,
+              ),
             ),
           ),
         ),

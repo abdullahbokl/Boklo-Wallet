@@ -48,12 +48,14 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: BlocBuilder<AuthCubit, BaseState<User?>>(
-        builder: (context, state) {
-          final isLoading = state.maybeWhen(
+      child: BlocSelector<AuthCubit, BaseState<User?>, bool>(
+        selector: (state) {
+          return state.maybeWhen(
             loading: () => true,
             orElse: () => false,
           );
+        },
+        builder: (context, isLoading) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

@@ -39,7 +39,7 @@ class AppButton extends StatelessWidget {
     }
 
     // Gradient Button for Primary
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: onPressed != null ? AppColors.primaryGradient : null,
         borderRadius: BorderRadius.circular(AppDimens.radiusMd),
@@ -48,21 +48,19 @@ class AppButton extends StatelessWidget {
             ? AppColors.textSecondaryLight.withOpacity(0.2)
             : null,
       ),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent, // Transparent to show gradient
-          shadowColor: Colors.transparent,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-          ),
-          padding: const EdgeInsets.symmetric(
-            vertical: AppDimens.md,
-            horizontal: AppDimens.lg,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          onTap: isLoading ? null : onPressed,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: AppDimens.md,
+              horizontal: AppDimens.lg,
+            ),
+            child: _buildContent(context),
           ),
         ),
-        onPressed: isLoading ? null : onPressed,
-        child: _buildContent(context),
       ),
     );
   }
@@ -83,14 +81,14 @@ class AppButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (icon != null) ...[
-          Icon(icon, size: 20),
+          Icon(icon, size: 20, color: Colors.white),
           const SizedBox(width: AppDimens.xs),
         ],
         Text(
           text,
           style: isSecondary
               ? AppTypography.label.copyWith(color: AppColors.primary)
-              : AppTypography.label, // Inherits white from toggleColor
+              : AppTypography.label.copyWith(color: Colors.white),
         ),
       ],
     );

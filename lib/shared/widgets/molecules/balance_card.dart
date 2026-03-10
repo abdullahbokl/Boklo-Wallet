@@ -73,7 +73,7 @@ class BalanceCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // DEV-ONLY: Secret debug menu entry
-        if (kDebugMode) {
+        if (kDebugMode || kProfileMode) {
           unawaited(getIt<NavigationService>().push('/ledger-debug'));
         }
       },

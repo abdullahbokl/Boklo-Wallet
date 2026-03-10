@@ -23,60 +23,66 @@ class WalletContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppDimens.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-
-          // Entrance Animation for Balance Card
-          TweenAnimationBuilder<double>(
-            duration: const Duration(milliseconds: 600),
-            tween: Tween(begin: 0.9, end: 1),
-            curve: Curves.easeOutBack,
-            builder: (context, scale, child) => Transform.scale(
-              scale: scale,
-              child: child,
-            ),
-            child: BalanceCard(
-              balance: data.wallet.balance,
-              currency: data.wallet.currency,
-              walletId: data.wallet.id,
-              username: data.wallet.username,
-              alias: data.wallet.alias,
-            ),
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(AppDimens.md),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              // Entrance Animation for Balance Card
+              TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 600),
+                tween: Tween(begin: 0.9, end: 1),
+                curve: Curves.easeOutBack,
+                builder: (context, scale, child) => Transform.scale(
+                  scale: scale,
+                  child: child,
+                ),
+                child: RepaintBoundary(
+                  child: BalanceCard(
+                    balance: data.wallet.balance,
+                    currency: data.wallet.currency,
+                    walletId: data.wallet.id,
+                    username: data.wallet.username,
+                    alias: data.wallet.alias,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppDimens.lg),
+              // Quick Actions
+              WalletPrimaryAction(
+                onSendMoney: () async {
+                  unawaited(getIt<NavigationService>().push('/transfer'));
+                },
+              ),
+              const SizedBox(height: AppDimens.md),
+              QuickActionsRow(
+                onPaymentRequestsTap: () {
+                  unawaited(getIt<NavigationService>().push('/payment-requests'));
+                },
+                onContactsTap: () {
+                  unawaited(getIt<NavigationService>().push('/contacts'));
+                },
+                onNotificationsTap: () {
+                  unawaited(
+                    getIt<NavigationService>().push('/notification-settings'),
+                  );
+                },
+              ),
+              const SizedBox(height: AppDimens.xl),
+              Text(
+                'Recent Transactions',
+                style: AppTypography.title.copyWith(color: AppColors.textPrimaryLight),
+              ),
+              const SizedBox(height: AppDimens.md),
+              _TransactionFilters(data: data),
+              const SizedBox(height: AppDimens.md),
+            ]),
           ),
-          const SizedBox(height: AppDimens.lg),
-          // Quick Actions
-          WalletPrimaryAction(
-            onSendMoney: () async {
-              unawaited(getIt<NavigationService>().push('/transfer'));
-            },
-          ),
-          const SizedBox(height: AppDimens.md),
-          QuickActionsRow(
-            onPaymentRequestsTap: () {
-              unawaited(getIt<NavigationService>().push('/payment-requests'));
-            },
-            onContactsTap: () {
-              unawaited(getIt<NavigationService>().push('/contacts'));
-            },
-            onNotificationsTap: () {
-              unawaited(
-                getIt<NavigationService>().push('/notification-settings'),
-              );
-            },
-          ),
-          const SizedBox(height: AppDimens.xl),
-          Text(
-            'Recent Transactions',
-            style:
-                AppTypography.title.copyWith(color: AppColors.textPrimaryLight),
-          ),
-          const SizedBox(height: AppDimens.md),
-          _TransactionFilters(data: data),
-          const SizedBox(height: AppDimens.md),
-          TransactionList(
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDimens.md),
+          sliver: TransactionList(
             transactions: data.transactions,
             hasMore: data.hasMore,
             isLoadingMore: data.isLoadingMore,
@@ -84,8 +90,9 @@ class WalletContent extends StatelessWidget {
               context.read<WalletCubit>().loadMoreTransactions();
             },
           ),
-        ],
-      ),
+        ),
+        const SliverPadding(padding: EdgeInsets.only(bottom: AppDimens.md)),
+      ],
     );
   }
 }
