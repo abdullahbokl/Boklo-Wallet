@@ -1,5 +1,5 @@
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:boklo/features/auth/data/models/user_model.dart';
 import 'package:boklo/features/auth/data/repositories/auth_repository_impl.dart';
@@ -55,7 +55,7 @@ void main() {
       final result = await authRepository.register(tEmail, tPassword);
 
       // Assert
-      expect(result, isA<Success<User>>());
+      expect(result, isA<Right<Failure, User>>());
       result.fold(
         (error) => fail('Expected Success but got Failure: $error'),
         (user) => expect(user, tUser),
@@ -64,7 +64,7 @@ void main() {
     });
 
     test(
-        'should return Failure with FirebaseError when auth fails with FirebaseAuthException',
+        'should return Failure with ServerFailure when auth fails with FirebaseAuthException',
         () async {
       // Arrange
       final tException = FirebaseAuthException(
@@ -78,11 +78,11 @@ void main() {
       final result = await authRepository.register(tEmail, tPassword);
 
       // Assert
-      expect(result, isA<Failure<User>>());
+      expect(result, isA<Left<Failure, User>>());
       result.fold(
         (error) {
-          expect(error, isA<FirebaseError>());
-          expect((error as FirebaseError).code, 'email-already-in-use');
+          expect(error, isA<ServerFailure>());
+          expect((error as ServerFailure).message, 'Email used');
         },
         (user) => fail('Expected Failure but got Success'),
       );
@@ -102,7 +102,7 @@ void main() {
       final result = await authRepository.login(tEmail, tPassword);
 
       // Assert
-      expect(result, isA<Success<User>>());
+      expect(result, isA<Right<Failure, User>>());
       result.fold(
         (error) => fail('Expected Success but got Failure: $error'),
         (user) => expect(user, tUser),
@@ -112,7 +112,7 @@ void main() {
     });
 
     test(
-        'should return Failure with FirebaseError when login fails with FirebaseAuthException',
+        'should return Failure with ServerFailure when login fails with FirebaseAuthException',
         () async {
       // Arrange
       final tException = FirebaseAuthException(
@@ -126,11 +126,11 @@ void main() {
       final result = await authRepository.login(tEmail, tPassword);
 
       // Assert
-      expect(result, isA<Failure<User>>());
+      expect(result, isA<Left<Failure, User>>());
       result.fold(
         (error) {
-          expect(error, isA<FirebaseError>());
-          expect((error as FirebaseError).code, 'invalid-credential');
+          expect(error, isA<ServerFailure>());
+          expect((error as ServerFailure).message, 'Invalid password');
         },
         (user) => fail('Expected Failure but got Success'),
       );
@@ -138,7 +138,7 @@ void main() {
     });
 
     test(
-        'should return Failure with NetworkError when login fails with network-request-failed',
+        'should return Failure with NetworkFailure when login fails with network-request-failed',
         () async {
       // Arrange
       final tException = FirebaseAuthException(
@@ -152,16 +152,16 @@ void main() {
       final result = await authRepository.login(tEmail, tPassword);
 
       // Assert
-      expect(result, isA<Failure<User>>());
+      expect(result, isA<Left<Failure, User>>());
       result.fold(
-        (error) => expect(error, isA<NetworkError>()),
+        (error) => expect(error, isA<NetworkFailure>()),
         (user) => fail('Expected Failure but got Success'),
       );
       verify(() => mockRemoteDataSource.login(tEmail, tPassword)).called(1);
     });
 
     test(
-        'should return Failure with UnknownError when unknown exception occurs',
+        'should return Failure with UnknownFailure when unknown exception occurs',
         () async {
       // Arrange
       final tException = Exception('Something went wrong');
@@ -172,9 +172,9 @@ void main() {
       final result = await authRepository.login(tEmail, tPassword);
 
       // Assert
-      expect(result, isA<Failure<User>>());
+      expect(result, isA<Left<Failure, User>>());
       result.fold(
-        (error) => expect(error, isA<UnknownError>()),
+        (error) => expect(error, isA<UnknownFailure>()),
         (user) => fail('Expected Failure but got Success'),
       );
       verify(() => mockRemoteDataSource.login(tEmail, tPassword)).called(1);
@@ -191,7 +191,7 @@ void main() {
       final result = await authRepository.logout();
 
       // Assert
-      expect(result, isA<Success<void>>());
+      expect(result, isA<Right<Failure, void>>());
       verify(() => mockRemoteDataSource.logout()).called(1);
     });
 
@@ -204,7 +204,7 @@ void main() {
       final result = await authRepository.logout();
 
       // Assert
-      expect(result, isA<Failure<void>>());
+      expect(result, isA<Left<Failure, void>>());
       verify(() => mockRemoteDataSource.logout()).called(1);
     });
   });
@@ -221,7 +221,7 @@ void main() {
       final result = await authRepository.getCurrentUser();
 
       // Assert
-      expect(result, isA<Success<User?>>());
+      expect(result, isA<Right<Failure, User?>>());
       result.fold(
         (error) => fail('Expected Success but got Failure'),
         (user) => expect(user, tUser),
@@ -239,7 +239,7 @@ void main() {
       final result = await authRepository.getCurrentUser();
 
       // Assert
-      expect(result, isA<Success<User?>>());
+      expect(result, isA<Right<Failure, User?>>());
       result.fold(
         (error) => fail('Expected Success but got Failure'),
         (user) => expect(user, isNull),

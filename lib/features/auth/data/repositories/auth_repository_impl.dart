@@ -1,5 +1,5 @@
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:boklo/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
@@ -18,70 +18,70 @@ class AuthRepositoryImpl implements AuthRepository {
   final UserRemoteDataSource userRemoteDataSource;
 
   @override
-  Future<Result<User>> login(String email, String password) async {
+  Future<Either<Failure, User>> login(String email, String password) async {
     try {
       final userModel = await remoteDataSource.login(email, password);
       // Fetch full profile from Firestore
       final profile = await userRemoteDataSource.getUser(userModel.id);
       if (profile != null) {
-        return Success(profile.toEntity());
+        return Right(profile.toEntity());
       }
-      return Success(userModel.toEntity());
+      return Right(userModel.toEntity());
     } on FirebaseAuthException catch (e) {
-      return Failure(_mapFirebaseError(e));
+      return Left(_mapFirebaseError(e));
     } on Object catch (e) {
-      return Failure(UnknownError(e.toString()));
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
   @override
-  Future<Result<User>> register(String email, String password) async {
+  Future<Either<Failure, User>> register(String email, String password) async {
     try {
       final userModel = await remoteDataSource.register(email, password);
       // Backend creates user document via Cloud Function.
       // We don't create it client-side anymore.
-      return Success(userModel.toEntity());
+      return Right(userModel.toEntity());
     } on FirebaseAuthException catch (e) {
-      return Failure(_mapFirebaseError(e));
+      return Left(_mapFirebaseError(e));
     } on Object catch (e) {
-      return Failure(UnknownError(e.toString()));
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
   @override
-  Future<Result<void>> logout() async {
+  Future<Either<Failure, void>> logout() async {
     try {
       await remoteDataSource.logout();
-      return const Success(null);
+      return const Right(null);
     } on FirebaseAuthException catch (e) {
-      return Failure(_mapFirebaseError(e));
+      return Left(_mapFirebaseError(e));
     } on Object catch (e) {
-      return Failure(UnknownError(e.toString()));
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
   @override
-  Future<Result<User?>> getCurrentUser() async {
+  Future<Either<Failure, User?>> getCurrentUser() async {
     try {
       final userModel = await remoteDataSource.getCurrentUser();
-      if (userModel == null) return const Success(null);
+      if (userModel == null) return const Right(null);
 
       final profile = await userRemoteDataSource.getUser(userModel.id);
       if (profile != null) {
-        return Success(profile.toEntity());
+        return Right(profile.toEntity());
       }
-      return Success(userModel.toEntity());
+      return Right(userModel.toEntity());
     } on FirebaseAuthException catch (e) {
-      return Failure(_mapFirebaseError(e));
+      return Left(_mapFirebaseError(e));
     } on Object catch (e) {
-      return Failure(UnknownError(e.toString()));
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
-  AppError _mapFirebaseError(FirebaseAuthException e) {
+  Failure _mapFirebaseError(FirebaseAuthException e) {
     if (e.code == 'network-request-failed') {
-      return NetworkError('Network error', e);
+      return NetworkFailure(e.message ?? 'Network error');
     }
-    return FirebaseError(e.message ?? 'Authentication failed', e.code, e);
+    return ServerFailure(e.message ?? 'Authentication failed');
   }
 }

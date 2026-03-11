@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:boklo/core/config/emulator_config.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/auth/data/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -27,7 +27,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       }
       return null;
     } catch (e) {
-      throw UnknownError('Failed to fetch user profile: $e');
+      throw UnknownFailure('Failed to fetch user profile: $e');
     }
   }
 
@@ -56,20 +56,20 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       log('   - Details: ${e.details}');
 
       if (e.code == 'already-exists') {
-        throw const ValidationError('Username is already taken');
+        throw const ValidationFailure('Username is already taken');
       } else if (e.code == 'invalid-argument') {
-        throw ValidationError(e.message ?? 'Invalid username');
+        throw ValidationFailure(e.message ?? 'Invalid username');
       } else if (e.code == 'not-found') {
         // Task C: Improve error mapping for NOT_FOUND
-        throw const UnknownError(
+        throw const UnknownFailure(
           'Profile record missing on backend. '
           '(Trigger failure or manual sync needed)',
         );
       }
-      throw UnknownError('Profile update failed: ${e.code}');
+      throw UnknownFailure('Profile update failed: ${e.code}');
     } catch (e) {
       log('❌ setUserProfile Unexpected Error: $e');
-      throw UnknownError('Profile update failed: $e');
+      throw UnknownFailure('Profile update failed: $e');
     }
   }
 }

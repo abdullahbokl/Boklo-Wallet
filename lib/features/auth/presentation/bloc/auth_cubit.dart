@@ -10,6 +10,7 @@ import 'package:boklo/features/auth/domain/usecases/login_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/register_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/set_user_profile_usecase.dart';
+import 'package:boklo/core/usecases/usecase.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -34,7 +35,7 @@ class AuthCubit extends BaseCubit<User?> {
 
   Future<void> login(String email, String password) async {
     emitLoading();
-    final result = await _loginUseCase(email, password);
+    final result = await _loginUseCase(LoginParams(email: email, password: password));
     result.fold(
       emitError,
       (user) {
@@ -46,7 +47,7 @@ class AuthCubit extends BaseCubit<User?> {
 
   Future<void> register(String email, String password) async {
     emitLoading();
-    final result = await _registerUseCase(email, password);
+    final result = await _registerUseCase(RegisterParams(email: email, password: password));
     result.fold(
       emitError,
       emitSuccess,
@@ -56,7 +57,7 @@ class AuthCubit extends BaseCubit<User?> {
   Future<void> logout() async {
     emitLoading();
     await _notificationService.deleteToken();
-    final result = await _logoutUseCase();
+    final result = await _logoutUseCase(NoParams());
     result.fold(
       emitError,
       (_) => emitSuccess(null),
@@ -65,7 +66,7 @@ class AuthCubit extends BaseCubit<User?> {
 
   Future<void> checkAuthStatus() async {
     emitLoading();
-    final result = await _getCurrentUserUseCase();
+    final result = await _getCurrentUserUseCase(NoParams());
     result.fold(
       emitError,
       emitSuccess,
@@ -77,10 +78,10 @@ class AuthCubit extends BaseCubit<User?> {
     String? name,
   }) async {
     emitLoading();
-    final result = await _setUserProfileUseCase(
+    final result = await _setUserProfileUseCase(SetUserProfileParams(
       username: username,
       name: name,
-    );
+    ));
     result.fold(
       emitError,
       (_) async {

@@ -1,29 +1,31 @@
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
+import 'package:boklo/core/usecases/usecase.dart';
 import 'package:boklo/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:injectable/injectable.dart';
 
+class SetUserProfileParams {
+  final String username;
+  final String? name;
+  SetUserProfileParams({required this.username, this.name});
+}
+
 @lazySingleton
-class SetUserProfileUseCase {
+class SetUserProfileUseCase implements UseCase<void, SetUserProfileParams> {
   SetUserProfileUseCase(this._userRemoteDataSource);
 
   final UserRemoteDataSource _userRemoteDataSource;
 
-  Future<Result<void>> call({
-    required String username,
-    String? name,
-  }) async {
+  @override
+  Future<Either<Failure, void>> call(SetUserProfileParams params) async {
     try {
       await _userRemoteDataSource.setUserProfile(
-        username: username,
-        name: name,
+        username: params.username,
+        name: params.name,
       );
-      return const Success(null);
+      return const Right(null);
     } catch (e) {
-      if (e is AppError) {
-        return Failure(e);
-      }
-      return Failure(UnknownError('Failed to set profile: $e'));
+      return Left(UnknownFailure('Failed to set profile: $e'));
     }
   }
 }
