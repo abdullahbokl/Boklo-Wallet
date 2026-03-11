@@ -80,16 +80,24 @@ class WalletCubit extends BaseCubit<WalletState> {
       }
     });
 
+    // 3. Initial Transaction Fetch
+    final txResult = await _getTransactionsUseCase();
+    txResult.fold(
+      (error) => emitError(error),
+      (transactions) {
+        _updateTransactions(transactions);
+      },
+    );
+
     // 4. Watch Transactions in parallel
     if (_txSubscription == null) {
       _txSubscription = _getTransactionsUseCase.watch().listen((result) {
         result.fold(
           (error) {
-            log('⚠️ WalletCubit: Transaction error: $error');
+            // Silently log or handle stream errors
           },
           (transactions) {
-            _lastTransactions = transactions;
-            _emitMergedState();
+            _updateTransactions(transactions);
           },
         );
       });
@@ -103,19 +111,33 @@ class WalletCubit extends BaseCubit<WalletState> {
     _emitMergedState();
 
     final result = await _loadMoreTransactionsUseCase();
+
     result.fold(
-      (error) {
-        log('⚠️ WalletCubit: Load more error: $error');
+      (failure) {
+        log('⚠️ WalletCubit: Load more error: $failure');
         _isLoadingMore = false;
         _emitMergedState();
       },
       (page) {
-        _lastTransactions = [..._lastTransactions, ...page.transactions];
         _hasMore = page.hasMore;
         _isLoadingMore = false;
-        _emitMergedState();
+        _updateTransactions(page.transactions);
       },
     );
+  }
+
+  void _updateTransactions(List<TransactionEntity> incoming) {
+    // Merge new transactions with existing ones, de-duplicating by ID
+    final Map<String, TransactionEntity> txMap = {
+      for (var tx in _lastTransactions) tx.id: tx,
+      for (var tx in incoming) tx.id: tx,
+    };
+
+    // Sort by timestamp descending
+    _lastTransactions = txMap.values.toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    _emitMergedState();
   }
 
   Future<void> _callProvisionWallet() async {
