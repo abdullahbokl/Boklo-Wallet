@@ -13,7 +13,7 @@ import 'package:boklo/features/auth/domain/usecases/set_user_profile_usecase.dar
 import 'package:boklo/core/usecases/usecase.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@lazySingleton
 class AuthCubit extends BaseCubit<User?> {
   AuthCubit(
     this._loginUseCase,
