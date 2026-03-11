@@ -1,14 +1,16 @@
+import 'package:boklo/config/theme/app_decorations.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/payment_requests/domain/entity/payment_request_entity.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
+import 'package:boklo/features/payment_requests/presentation/widgets/payment_request_item.dart';
+import 'package:boklo/shared/responsive/responsive_constraint.dart';
+import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:boklo/shared/responsive/responsive_constraint.dart';
-import 'package:boklo/config/theme/app_colors.dart';
-import 'package:boklo/config/theme/app_dimens.dart';
 
 class PaymentRequestListPage extends StatelessWidget {
   const PaymentRequestListPage({super.key});
@@ -16,153 +18,86 @@ class PaymentRequestListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        final cubit = getIt<PaymentRequestCubit>();
-        cubit.init();
-        return cubit;
-      },
+      create: (context) => getIt<PaymentRequestCubit>()..init(),
       child: DefaultTabController(
         length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Payment Requests'),
-            bottom: const TabBar(
-              tabs: [
-                Tab(text: 'Incoming'),
-                Tab(text: 'Outgoing'),
+        child: Container(
+          decoration: AppDecorations.mainGradient(context),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Text('Payment Requests', style: AppTypography.headline),
+              bottom: const TabBar(
+                indicatorSize: TabBarIndicatorSize.label,
+                tabs: [Tab(text: 'Incoming'), Tab(text: 'Outgoing')],
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline_rounded),
+                  onPressed: () => getIt<NavigationService>().push('/payment-requests/create'),
+                ),
               ],
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: () {
-                  getIt<NavigationService>().push('/payment-requests/create');
+            body: ResponsiveConstraint(
+              child: BlocBuilder<PaymentRequestCubit, BaseState<PaymentRequestState>>(
+                builder: (context, state) {
+                  final data = state.data ?? const PaymentRequestState();
+                  return TabBarView(
+                    children: [
+                      _RequestList(
+                        requests: data.incomingRequests,
+                        actingOnId: data.actingOnRequestId,
+                      ),
+                      _RequestList(
+                        requests: data.outgoingRequests,
+                        isOutgoing: true,
+                      ),
+                    ],
+                  );
                 },
-              )
-            ],
-          ),
-          body: ResponsiveConstraint(
-            child: BlocBuilder<PaymentRequestCubit,
-                BaseState<PaymentRequestState>>(
-              builder: (context, state) {
-                final data = state.data ?? const PaymentRequestState();
-
-                return TabBarView(
-                  children: [
-                    _buildIncomingList(
-                      context,
-                      data.incomingRequests,
-                      data.actingOnRequestId,
-                    ),
-                    _buildOutgoingList(context, data.outgoingRequests),
-                  ],
-                );
-              },
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildIncomingList(
-    BuildContext context,
-    List<PaymentRequestEntity> requests,
-    String? actingOnRequestId,
-  ) {
+class _RequestList extends StatelessWidget {
+  const _RequestList({
+    required this.requests,
+    this.actingOnId,
+    this.isOutgoing = false,
+  });
+
+  final List<PaymentRequestEntity> requests;
+  final String? actingOnId;
+  final bool isOutgoing;
+
+  @override
+  Widget build(BuildContext context) {
     if (requests.isEmpty) {
-      return const Center(child: Text('No incoming requests'));
+      return AppEmptyState(
+        icon: isOutgoing ? Icons.outbox : Icons.move_to_inbox,
+        title: 'No ${isOutgoing ? "Outgoing" : "Incoming"} Requests',
+        subtitle: 'You are all caught up!',
+      );
     }
 
     return ListView.builder(
+      padding: const EdgeInsets.all(16),
       itemCount: requests.length,
       itemBuilder: (context, index) {
         final req = requests[index];
-        final isLoading = actingOnRequestId == req.id;
-
-        return Card(
-          margin: const EdgeInsets.symmetric(
-            horizontal: AppDimens.md,
-            vertical: AppDimens.xs,
-          ),
-          child: ListTile(
-            title: Text('${req.amount} ${req.currency}'),
-            subtitle: Text('From: ${req.requesterId}\nNote: ${req.note ?? ""}'),
-            trailing: req.status == PaymentRequestStatus.pending
-                ? isLoading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.check,
-                                color: AppColors.success),
-                            onPressed: () {
-                              context
-                                  .read<PaymentRequestCubit>()
-                                  .acceptRequest(req.id);
-                            },
-                          ),
-                          IconButton(
-                            icon:
-                                const Icon(Icons.close, color: AppColors.error),
-                            onPressed: () {
-                              context
-                                  .read<PaymentRequestCubit>()
-                                  .declineRequest(req.id);
-                            },
-                          ),
-                        ],
-                      )
-                : Text(
-                    req.status.label,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-          ),
+        return PaymentRequestItem(
+          request: req,
+          isOutgoing: isOutgoing,
+          isLoading: actingOnId == req.id,
         );
       },
     );
-  }
-
-  Widget _buildOutgoingList(
-      BuildContext context, List<PaymentRequestEntity> requests) {
-    if (requests.isEmpty)
-      return const Center(child: Text('No outgoing requests'));
-
-    return ListView.builder(
-      itemCount: requests.length,
-      itemBuilder: (context, index) {
-        final req = requests[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(
-              horizontal: AppDimens.md, vertical: AppDimens.xs),
-          child: ListTile(
-            title: Text('${req.amount} ${req.currency}'),
-            subtitle: Text('To: ${req.payerId}\nNote: ${req.note ?? ""}'),
-            trailing: Text(req.status.label,
-                style: TextStyle(
-                    color: _getStatusColor(req.status),
-                    fontWeight: FontWeight.bold)),
-          ),
-        );
-      },
-    );
-  }
-
-  Color _getStatusColor(PaymentRequestStatus status) {
-    switch (status) {
-      case PaymentRequestStatus.pending:
-        return AppColors.warning;
-      case PaymentRequestStatus.accepted:
-        return AppColors.success;
-      case PaymentRequestStatus.declined:
-        return AppColors.error;
-      case PaymentRequestStatus.invalid:
-        return AppColors.textSecondaryLight;
-    }
   }
 }
