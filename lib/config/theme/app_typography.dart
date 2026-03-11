@@ -4,11 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTypography {
   AppTypography._();
 
-  static const String _fontFamily = 'Outfit';
-
-  // We use GoogleFonts, but we abstract it here to easily swap later if needed.
-  // Note: Ensure google_fonts is in pubspec.yaml
-
   static TextStyle get display => GoogleFonts.outfit(
         fontSize: 32,
         fontWeight: FontWeight.w700,
@@ -28,6 +23,12 @@ class AppTypography {
         height: 1.4,
       );
 
+  static TextStyle get subtitle => GoogleFonts.outfit(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        height: 1.4,
+      );
+
   static TextStyle get bodyLarge => GoogleFonts.outfit(
         fontSize: 16,
         fontWeight: FontWeight.w400,
@@ -38,6 +39,12 @@ class AppTypography {
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.5,
+      );
+
+  static TextStyle get bodySmall => GoogleFonts.outfit(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        height: 1.4,
       );
 
   static TextStyle get label => GoogleFonts.outfit(
@@ -51,5 +58,12 @@ class AppTypography {
         fontSize: 12,
         fontWeight: FontWeight.w400,
         height: 1.4,
+      );
+
+  static TextStyle get overline => GoogleFonts.outfit(
+        fontSize: 10,
+        fontWeight: FontWeight.w600,
+        height: 1.4,
+        letterSpacing: 1.0,
       );
 }
