@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/data/datasources/wallet_local_data_source.dart';
 import 'package:boklo/features/wallet/data/datasources/wallet_remote_data_source.dart';
 import 'package:boklo/features/wallet/data/models/transaction_model.dart';
@@ -28,24 +28,24 @@ class WalletRepositoryImpl implements WalletRepository {
   );
 
   @override
-  Future<Result<WalletEntity>> getWallet() async {
+  Future<Either<Failure, WalletEntity>> getWallet() async {
     try {
       final remoteWallet = await _remoteDataSource.getWallet();
       await _localDataSource.cacheWallet(remoteWallet);
-      return Success(remoteWallet.toEntity());
+      return Right(remoteWallet.toEntity());
     } catch (e) {
       try {
         final localWallet = await _localDataSource.getLastWallet();
         if (localWallet != null) {
-          return Success(localWallet.toEntity());
+          return Right(localWallet.toEntity());
         }
       } catch (_) {}
-      return Failure(UnknownError('Failed to fetch wallet: $e'));
+      return Left(ServerFailure('Failed to fetch wallet: $e'));
     }
   }
 
   @override
-  Future<Result<List<TransactionEntity>>> getTransactions() async {
+  Future<Either<Failure, List<TransactionEntity>>> getTransactions() async {
     try {
       // Reset pagination cursor on fresh fetch
       _lastDocument = null;
@@ -56,26 +56,26 @@ class WalletRepositoryImpl implements WalletRepository {
       _hasMore = result.hasMore;
 
       await _localDataSource.cacheTransactions(result.transactions);
-      return Success(
+      return Right(
         result.transactions.map((e) => e.toEntity()).toList(),
       );
     } catch (e) {
       try {
         final localTransactions = await _localDataSource.getLastTransactions();
         if (localTransactions != null) {
-          return Success(
+          return Right(
             localTransactions.map((e) => e.toEntity()).toList(),
           );
         }
       } catch (_) {}
-      return Failure(UnknownError('Failed to fetch transactions: $e'));
+      return Left(ServerFailure('Failed to fetch transactions: $e'));
     }
   }
 
   @override
-  Future<Result<TransactionPage>> loadMoreTransactions() async {
+  Future<Either<Failure, TransactionPage>> loadMoreTransactions() async {
     if (!_hasMore) {
-      return const Success(
+      return const Right(
         TransactionPage(transactions: [], hasMore: false),
       );
     }
@@ -89,38 +89,38 @@ class WalletRepositoryImpl implements WalletRepository {
 
       final entities = result.transactions.map((e) => e.toEntity()).toList();
 
-      return Success(
+      return Right(
         TransactionPage(transactions: entities, hasMore: _hasMore),
       );
     } catch (e) {
-      return Failure(UnknownError('Failed to load more transactions: $e'));
+      return Left(ServerFailure('Failed to load more transactions: $e'));
     }
   }
 
   @override
-  Stream<Result<List<TransactionEntity>>> watchTransactions() {
+  Stream<Either<Failure, List<TransactionEntity>>> watchTransactions() {
     return _remoteDataSource.watchTransactions().transform(
           StreamTransformer<List<TransactionModel>,
-              Result<List<TransactionEntity>>>.fromHandlers(
+              Either<Failure, List<TransactionEntity>>>.fromHandlers(
             handleData: (data, sink) {
-              sink.add(Success(data.map((e) => e.toEntity()).toList()));
+              sink.add(Right(data.map((e) => e.toEntity()).toList()));
             },
             handleError: (error, stack, sink) {
-              sink.add(Failure(UnknownError('Stream error: $error')));
+              sink.add(Left(UnknownFailure('Stream error: $error')));
             },
           ),
         );
   }
 
   @override
-  Stream<Result<WalletEntity>> watchWallet() {
+  Stream<Either<Failure, WalletEntity>> watchWallet() {
     return _remoteDataSource.watchWallet().transform(
-          StreamTransformer<WalletModel, Result<WalletEntity>>.fromHandlers(
+          StreamTransformer<WalletModel, Either<Failure, WalletEntity>>.fromHandlers(
             handleData: (data, sink) {
-              sink.add(Success(data.toEntity()));
+              sink.add(Right(data.toEntity()));
             },
             handleError: (error, stack, sink) {
-              sink.add(Failure(UnknownError('Stream error: $error')));
+              sink.add(Left(UnknownFailure('Stream error: $error')));
             },
           ),
         );

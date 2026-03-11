@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:boklo/core/error/failures.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
@@ -27,8 +27,8 @@ class WalletCubit extends BaseCubit<WalletState> {
   final LoadMoreTransactionsUseCase _loadMoreTransactionsUseCase;
   final ProvisionWalletUseCase _provisionWalletUseCase;
 
-  StreamSubscription<Result<WalletEntity>>? _walletSubscription;
-  StreamSubscription<Result<List<TransactionEntity>>>? _txSubscription;
+  StreamSubscription<Either<Failure, WalletEntity>>? _walletSubscription;
+  StreamSubscription<Either<Failure, List<TransactionEntity>>>? _txSubscription;
   Timer? _provisionTimer;
   Timer? _timeoutTimer;
   bool _hasCalledProvision = false;
@@ -73,7 +73,7 @@ class WalletCubit extends BaseCubit<WalletState> {
     _timeoutTimer = Timer(const Duration(seconds: 15), () {
       if (!_walletReceived) {
         log('❌ WalletCubit: Wallet not received after 15s timeout');
-        emitError(const UnknownError(
+        emitError(const UnknownFailure(
           'Wallet setup is taking longer than expected. '
           'Please try logging out and back in.',
         ));

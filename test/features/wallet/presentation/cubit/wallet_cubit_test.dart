@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:boklo/core/base/base_state.dart';
-import 'package:boklo/core/base/result.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
@@ -75,10 +75,10 @@ void main() {
       'emits [loading, success(empty tx), success(with tx)] when data is received',
       build: () {
         when(() => mockWatchWalletUseCase()).thenAnswer(
-          (_) => Stream.value(Success(tWallet)),
+          (_) => Stream.value(right(tWallet)),
         );
         when(() => mockGetTransactionsUseCase.watch()).thenAnswer(
-          (_) => Stream.value(Success(tTransactions)),
+          (_) => Stream.value(right(tTransactions)),
         );
         return cubit;
       },
@@ -100,10 +100,10 @@ void main() {
       'filters transactions correctly',
       build: () {
         when(() => mockWatchWalletUseCase()).thenAnswer(
-          (_) => Stream.value(Success(tWallet)),
+          (_) => Stream.value(right(tWallet)),
         );
         when(() => mockGetTransactionsUseCase.watch()).thenAnswer(
-          (_) => Stream.value(Success(tTransactions)),
+          (_) => Stream.value(right(tTransactions)),
         );
         return cubit;
       },

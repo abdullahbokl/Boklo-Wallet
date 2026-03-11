@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:boklo/core/base/base_state.dart';
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
@@ -65,7 +65,7 @@ void main() {
     ),
   ];
 
-  const tError = UnknownError('Test error');
+  const tError = UnknownFailure('Test error');
 
   group('WalletCubit', () {
     test('initial state is BaseState.initial', () {
@@ -76,9 +76,9 @@ void main() {
       'emits [loading, success] when wallet is received immediately',
       build: () {
         when(() => mockWatchWalletUseCase.call())
-            .thenAnswer((_) => Stream.value(const Success(tWallet)));
+            .thenAnswer((_) => Stream.value(right(tWallet)));
         when(() => mockGetTransactionsUseCase.watch())
-            .thenAnswer((_) => Stream.value(Success(tTransactions)));
+            .thenAnswer((_) => Stream.value(right(tTransactions)));
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
@@ -104,7 +104,7 @@ void main() {
       'emits [loading, error] when wallet stream emits failure',
       build: () {
         when(() => mockWatchWalletUseCase.call())
-            .thenAnswer((_) => Stream.value(const Failure(tError)));
+            .thenAnswer((_) => Stream.value(left(tError)));
         when(() => mockGetTransactionsUseCase.watch())
             .thenAnswer((_) => Stream.empty());
         return cubit;
@@ -129,7 +129,7 @@ void main() {
         when(() => mockGetTransactionsUseCase.watch())
             .thenAnswer((_) => Stream.empty());
         when(() => mockProvisionWalletUseCase.call())
-            .thenAnswer((_) async => const Success(null));
+            .thenAnswer((_) async => right(null));
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
@@ -155,16 +155,16 @@ void main() {
             return Stream.fromFuture(
               Future.delayed(
                 const Duration(seconds: 4),
-                () => const Success(tWallet),
+                () => right(tWallet),
               ),
             );
           }
-          return Stream.value(const Success(tWallet));
+            return Stream.value(right(tWallet));
         });
         when(() => mockGetTransactionsUseCase.watch())
             .thenAnswer((_) => Stream.empty());
         when(() => mockProvisionWalletUseCase.call())
-            .thenAnswer((_) async => const Success(null));
+            .thenAnswer((_) async => right(null));
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),

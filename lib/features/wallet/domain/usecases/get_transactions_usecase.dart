@@ -1,4 +1,5 @@
-import 'package:boklo/core/base/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/repositories/wallet_repository.dart';
 import 'package:injectable/injectable.dart';
@@ -9,11 +10,11 @@ class GetTransactionsUseCase {
 
   GetTransactionsUseCase(this._repository);
 
-  Future<Result<List<TransactionEntity>>> call() {
+  Future<Either<Failure, List<TransactionEntity>>> call() {
     return _repository.getTransactions();
   }
 
-  Stream<Result<List<TransactionEntity>>> watch() {
+  Stream<Either<Failure, List<TransactionEntity>>> watch() {
     return _repository.watchTransactions();
   }
 }

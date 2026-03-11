@@ -1,12 +1,13 @@
-import 'package:boklo/core/base/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_page.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 
 abstract class WalletRepository {
-  Future<Result<WalletEntity>> getWallet();
-  Future<Result<List<TransactionEntity>>> getTransactions();
-  Future<Result<TransactionPage>> loadMoreTransactions();
-  Stream<Result<List<TransactionEntity>>> watchTransactions();
-  Stream<Result<WalletEntity>> watchWallet();
+  Future<Either<Failure, WalletEntity>> getWallet();
+  Future<Either<Failure, List<TransactionEntity>>> getTransactions();
+  Future<Either<Failure, TransactionPage>> loadMoreTransactions();
+  Stream<Either<Failure, List<TransactionEntity>>> watchTransactions();
+  Stream<Either<Failure, WalletEntity>> watchWallet();
 }

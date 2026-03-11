@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:boklo/core/error/app_error.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/data/models/transaction_model.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -46,7 +46,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   Stream<WalletModel> watchWallet() {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
-      return Stream.error(const ValidationError('User not logged in'));
+      return Stream.error(const ValidationFailure('User not logged in'));
     }
 
     return _firestore.collection('wallets').doc(userId).snapshots().transform(
@@ -58,7 +58,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
                 sink.add(WalletModel.fromJson(doc.data()!));
               } catch (e) {
                 // If deserialization fails, it's a real error
-                sink.addError(ValidationError('Invalid wallet data: $e'));
+                sink.addError(ValidationFailure('Invalid wallet data: $e'));
               }
             } else {
               // Document does not exist yet (backend creation in progress).
@@ -67,7 +67,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
             }
           },
           handleError: (error, stack, sink) {
-            sink.addError(UnknownError('Wallet stream error: $error'));
+            sink.addError(UnknownFailure('Wallet stream error: $error'));
           },
         ));
   }
@@ -84,7 +84,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       return WalletModel.fromJson(doc.data()!);
     } else {
       // Backend is authoritative. If not found, it's a sync issue or delay.
-      throw const ValidationError('Wallet not found (creation pending?)');
+      throw const ValidationFailure('Wallet not found (creation pending?)');
     }
   }
 
@@ -141,7 +141,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   Stream<List<TransactionModel>> watchTransactions() {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
-      return Stream.error(const ValidationError('User not logged in'));
+      return Stream.error(const ValidationFailure('User not logged in'));
     }
 
     return _firestore
@@ -170,10 +170,10 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       log('✅ provisionWallet ${created ? 'created new wallet' : 'wallet existed'}');
     } on FirebaseFunctionsException catch (e) {
       log('❌ provisionWallet failed: [${e.code}] ${e.message}');
-      throw UnknownError('Failed to provision wallet: ${e.message}');
+      throw UnknownFailure('Failed to provision wallet: ${e.message}');
     } catch (e) {
       log('❌ provisionWallet unexpected error: $e');
-      throw UnknownError('Failed to provision wallet: $e');
+      throw UnknownFailure('Failed to provision wallet: $e');
     }
   }
 }
