@@ -1,4 +1,5 @@
-import 'package:boklo/core/base/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/discovery/domain/repositories/discovery_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -8,12 +9,12 @@ class ResolveWalletByUsernameUseCase {
 
   final DiscoveryRepository _repository;
 
-  Future<Result<String>> call(String username) async {
+  Future<Either<Failure, String>> call(String username) async {
     final result = await _repository.resolveWalletByUsername(username);
 
     return result.fold(
-      Failure.new,
-      (profile) => Success(profile.walletId),
+      left,
+      (profile) => right(profile.walletId),
     );
   }
 }

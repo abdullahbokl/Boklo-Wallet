@@ -1,5 +1,5 @@
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/discovery/domain/entities/user_public_profile.dart';
 import 'package:boklo/features/discovery/domain/repositories/discovery_repository.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
@@ -27,13 +27,13 @@ void main() {
   test('should return walletId when repository call is successful', () async {
     // Arrange
     when(() => mockDiscoveryRepository.resolveWalletByEmail(tEmail))
-        .thenAnswer((_) async => const Success(tProfile));
+        .thenAnswer((_) async => right<Failure, UserPublicProfile>(tProfile));
 
     // Act
     final result = await useCase(tEmail);
 
     // Assert
-    expect(result, const Success('wallet1'));
+    expect(result, right<Failure, String>('wallet1'));
     verify(() => mockDiscoveryRepository.resolveWalletByEmail(tEmail))
         .called(1);
   });
@@ -41,13 +41,13 @@ void main() {
   test('should return Failure when repository call fails', () async {
     // Arrange
     when(() => mockDiscoveryRepository.resolveWalletByEmail(tEmail))
-        .thenAnswer((_) async => const Failure(NetworkError('Network error')));
+        .thenAnswer((_) async => left<Failure, UserPublicProfile>(const ServerFailure('Network error')));
 
     // Act
     final result = await useCase(tEmail);
 
     // Assert
-    expect(result, const Failure<String>(NetworkError('Network error')));
+    expect(result, left<Failure, String>(const ServerFailure('Network error')));
     verify(() => mockDiscoveryRepository.resolveWalletByEmail(tEmail))
         .called(1);
   });

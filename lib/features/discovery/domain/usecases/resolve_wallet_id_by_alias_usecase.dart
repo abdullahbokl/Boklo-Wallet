@@ -1,4 +1,5 @@
-import 'package:boklo/core/base/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/discovery/domain/repositories/discovery_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -8,7 +9,7 @@ class ResolveWalletIdByAliasUseCase {
 
   final DiscoveryRepository _repository;
 
-  Future<Result<String>> call(String alias) async {
+  Future<Either<Failure, String>> call(String alias) async {
     return _repository.resolveWalletIdByAlias(alias);
   }
 }
