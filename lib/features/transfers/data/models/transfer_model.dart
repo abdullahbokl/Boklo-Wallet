@@ -1,3 +1,4 @@
+import 'package:boklo/core/utils/json_converters.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -14,6 +15,9 @@ class TransferModel {
     required this.status,
     required this.createdAt,
     this.failureReason,
+    this.reasons,
+    this.riskLevel,
+    this.riskMode,
   });
 
   factory TransferModel.fromJson(Map<String, dynamic> json) =>
@@ -29,6 +33,9 @@ class TransferModel {
       status: entity.status,
       createdAt: entity.createdAt,
       failureReason: entity.failureReason,
+      reasons: entity.reasons,
+      riskLevel: entity.riskLevel,
+      riskMode: entity.riskMode,
     );
   }
 
@@ -38,8 +45,12 @@ class TransferModel {
   final double amount;
   final String currency;
   final TransferStatus status;
+  @TimestampConverter()
   final DateTime createdAt;
   final String? failureReason;
+  final List<String>? reasons;
+  final String? riskLevel;
+  final String? riskMode;
 
   Map<String, dynamic> toJson() => _$TransferModelToJson(this);
 
@@ -53,6 +64,9 @@ class TransferModel {
       status: status,
       createdAt: createdAt,
       failureReason: failureReason,
+      reasons: reasons,
+      riskLevel: riskLevel,
+      riskMode: riskMode,
     );
   }
 }

@@ -138,9 +138,20 @@ class TransferCubit extends BaseCubit<TransferState> {
           .firstWhere(
             (either) => either.fold(
               (l) => true,
-              (t) =>
-                  t?.status == TransferStatus.completed ||
-                  t?.status == TransferStatus.failed,
+              (t) {
+                if (t == null) return false;
+                // Terminal statuses
+                final isTerminal = t.status == TransferStatus.completed ||
+                    t.status == TransferStatus.failed;
+                if (isTerminal) return true;
+
+                // Risk Block (ENFORCE)
+                if (t.riskMode == 'ENFORCE' &&
+                    (t.reasons?.isNotEmpty ?? false)) {
+                  return true;
+                }
+                return false;
+              },
             ),
           )
           .timeout(const Duration(seconds: 15));
@@ -161,11 +172,17 @@ class TransferCubit extends BaseCubit<TransferState> {
             );
             emitSuccess(const TransferState());
           } else {
-            // Log detailed failure reason from backend
-            final reason = transfer?.failureReason ?? 'Transfer failed on backend';
-            unawaited(_analyticsService.logTransferFailure(reason: reason));
+            // Check for risk enforcement reasons first
+            String reason = 'Transfer failed';
 
-            // Emit error with the specific reason
+            if (transfer?.riskMode == 'ENFORCE' &&
+                (transfer?.reasons?.isNotEmpty ?? false)) {
+              reason = transfer!.reasons!.join('. ');
+            } else {
+              reason = transfer?.failureReason ?? 'Transfer failed on backend';
+            }
+
+            unawaited(_analyticsService.logTransferFailure(reason: reason));
             emitError(UnknownFailure(reason));
           }
         },
