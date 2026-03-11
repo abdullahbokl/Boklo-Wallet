@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 
 class ContactItem extends StatelessWidget {
   const ContactItem({
-    super.key,
     required this.contact,
+    super.key,
     this.onTap,
     this.onSendMoney,
     this.onRequestMoney,
@@ -52,49 +52,73 @@ class ContactItem extends StatelessWidget {
                   Text(
                     contact.email,
                     style: AppTypography.caption.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.6),
                     ),
                   ),
                 ],
               ),
             ),
             if (!isPickMode)
-              PopupMenuButton<String>(
-                icon: Icon(
-                  Icons.more_vert,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-                onSelected: (value) {
-                  if (value == 'send') onSendMoney?.call();
-                  if (value == 'request') onRequestMoney?.call();
-                  if (value == 'remove') onRemove?.call();
-                },
-                itemBuilder: (context) => [
-                  _buildMenuItem(
-                    context,
-                    'send',
-                    Icons.send_rounded,
-                    'Send Money',
-                  ),
-                  _buildMenuItem(
-                    context,
-                    'request',
-                    Icons.request_page_rounded,
-                    'Request Payment',
-                  ),
-                  const PopupMenuDivider(),
-                  _buildMenuItem(
-                    context,
-                    'remove',
-                    Icons.delete_outline_rounded,
-                    'Remove Contact',
-                    isDestructive: true,
-                  ),
-                ],
+              _ContactActionMenu(
+                onSendMoney: onSendMoney,
+                onRequestMoney: onRequestMoney,
+                onRemove: onRemove,
               ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ContactActionMenu extends StatelessWidget {
+  const _ContactActionMenu({
+    this.onSendMoney,
+    this.onRequestMoney,
+    this.onRemove,
+  });
+
+  final VoidCallback? onSendMoney;
+  final VoidCallback? onRequestMoney;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: Icon(
+        Icons.more_vert,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+      ),
+      onSelected: (value) {
+        if (value == 'send') onSendMoney?.call();
+        if (value == 'request') onRequestMoney?.call();
+        if (value == 'remove') onRemove?.call();
+      },
+      itemBuilder: (context) => [
+        _buildMenuItem(
+          context,
+          'send',
+          Icons.send_rounded,
+          'Send Money',
+        ),
+        _buildMenuItem(
+          context,
+          'request',
+          Icons.request_page_rounded,
+          'Request Payment',
+        ),
+        const PopupMenuDivider(),
+        _buildMenuItem(
+          context,
+          'remove',
+          Icons.delete_outline_rounded,
+          'Remove Contact',
+          isDestructive: true,
+        ),
+      ],
     );
   }
 
@@ -105,7 +129,8 @@ class ContactItem extends StatelessWidget {
     String label, {
     bool isDestructive = false,
   }) {
-    final color = isDestructive ? Colors.red : Theme.of(context).colorScheme.onSurface;
+    final color =
+        isDestructive ? Colors.red : Theme.of(context).colorScheme.onSurface;
     return PopupMenuItem(
       value: value,
       child: Row(
