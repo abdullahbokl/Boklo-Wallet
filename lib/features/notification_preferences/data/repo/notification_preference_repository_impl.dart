@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/notification_preferences/data/model/notification_preference_model.dart';
 import 'package:boklo/features/notification_preferences/domain/entity/notification_preference_entity.dart';
 import 'package:boklo/features/notification_preferences/domain/repo/notification_preference_repository.dart';
@@ -17,10 +17,10 @@ class NotificationPreferenceRepositoryImpl
   NotificationPreferenceRepositoryImpl(this._firestore, this._auth);
 
   @override
-  Stream<Result<NotificationPreferenceEntity>> watchPreferences() {
+  Stream<Either<Failure, NotificationPreferenceEntity>> watchPreferences() {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
-      return Stream.value(Failure(const UnknownError('User not logged in')));
+      return Stream.value(const Left(ServerFailure('User not logged in')));
     }
 
     return _firestore
@@ -30,33 +30,33 @@ class NotificationPreferenceRepositoryImpl
         .doc('notifications')
         .snapshots()
         .transform(StreamTransformer<DocumentSnapshot<Map<String, dynamic>>,
-            Result<NotificationPreferenceEntity>>.fromHandlers(
+            Either<Failure, NotificationPreferenceEntity>>.fromHandlers(
           handleData: (snapshot, sink) {
             try {
               if (!snapshot.exists || snapshot.data() == null) {
                 // Default preferences if doc doesn't exist
-                sink.add(Success(const NotificationPreferenceEntity()));
+                sink.add(const Right(NotificationPreferenceEntity()));
               } else {
                 final model =
                     NotificationPreferenceModel.fromJson(snapshot.data()!);
-                sink.add(Success(model.toEntity()));
+                sink.add(Right(model.toEntity()));
               }
             } catch (e) {
-              sink.add(Failure(UnknownError(e.toString())));
+              sink.add(Left(UnknownFailure(e.toString())));
             }
           },
           handleError: (error, stack, sink) {
-            sink.add(Failure(UnknownError(error.toString())));
+            sink.add(Left(UnknownFailure(error.toString())));
           },
         ));
   }
 
   @override
-  Future<Result<void>> updatePreferences(
+  Future<Either<Failure, void>> updatePreferences(
       NotificationPreferenceEntity preferences) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
-      return Failure(const UnknownError('User not logged in'));
+      return const Left(ServerFailure('User not logged in'));
     }
 
     try {
@@ -67,9 +67,9 @@ class NotificationPreferenceRepositoryImpl
           .collection('preferences')
           .doc('notifications')
           .set(model.toJson(), SetOptions(merge: true));
-      return Success(null);
+      return const Right(null);
     } catch (e) {
-      return Failure(UnknownError(e.toString()));
+      return Left(UnknownFailure(e.toString()));
     }
   }
 }

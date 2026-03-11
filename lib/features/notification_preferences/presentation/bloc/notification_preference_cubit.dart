@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
-import 'package:boklo/core/base/result.dart';
+import 'package:boklo/core/error/failures.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:boklo/features/notification_preferences/domain/entity/notification_preference_entity.dart';
 import 'package:boklo/features/notification_preferences/domain/repo/notification_preference_repository.dart';
 import 'package:boklo/features/notification_preferences/presentation/bloc/notification_preference_state.dart';
@@ -11,7 +12,7 @@ import 'package:injectable/injectable.dart';
 class NotificationPreferenceCubit
     extends BaseCubit<NotificationPreferenceState> {
   final NotificationPreferenceRepository _repository;
-  StreamSubscription<Result<NotificationPreferenceEntity>>? _sub;
+  StreamSubscription<Either<Failure, NotificationPreferenceEntity>>? _sub;
 
   NotificationPreferenceCubit(this._repository)
       : super(const BaseState.initial());
