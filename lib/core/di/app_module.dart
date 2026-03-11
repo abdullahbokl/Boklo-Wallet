@@ -1,5 +1,5 @@
 import 'package:boklo/core/config/app_config.dart' as app_config;
-import 'package:boklo/core/config/feature_flags.dart';
+import 'package:boklo/core/config/app_feature_flags.dart';
 import 'package:boklo/core/network/interceptors/auth_interceptor.dart';
 import 'package:boklo/core/network/interceptors/logger_interceptor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -60,7 +60,7 @@ abstract class AppModule {
         environment: app_config.Environment.dev,
         apiBaseUrl: 'https://dev-api.boklo.com',
         firebaseProjectId: 'boklo-dev',
-        featureFlags: FeatureFlags(
+        featureFlags: AppFeatureFlags(
           enableBiometrics: true,
           enableBetaFeatures: true,
           backendAuthoritativeTransfers: true,
@@ -73,12 +73,12 @@ abstract class AppModule {
         environment: app_config.Environment.prod,
         apiBaseUrl: 'https://api.boklo.com',
         firebaseProjectId: 'boklo-prod',
-        featureFlags: FeatureFlags(
+        featureFlags: AppFeatureFlags(
           enableBiometrics: true,
           backendAuthoritativeTransfers: true,
         ),
       );
 
   @singleton
-  FeatureFlags featureFlags(app_config.AppConfig config) => config.featureFlags;
+  AppFeatureFlags featureFlags(app_config.AppConfig config) => config.featureFlags;
 }

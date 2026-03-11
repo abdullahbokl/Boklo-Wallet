@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
-import 'package:boklo/core/config/feature_flags.dart';
+import 'package:boklo/core/config/app_feature_flags.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
@@ -29,7 +29,7 @@ class TransferCubit extends BaseCubit<TransferState> {
   final ResolveRecipientUseCase _resolveRecipientUseCase;
   final ObserveTransferStatusUseCase _observeTransferStatusUseCase;
   final AnalyticsService _analyticsService;
-  final FeatureFlags _featureFlags;
+  final AppFeatureFlags _featureFlags;
 
   DateTime? _lastExecution;
   static const _minTransferInterval = Duration(seconds: 2);

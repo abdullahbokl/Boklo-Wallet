@@ -1,5 +1,5 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:boklo/core/config/feature_flags.dart';
+import 'package:boklo/core/config/app_feature_flags.dart';
 import 'package:boklo/core/services/analytics_service.dart';
 
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
@@ -25,7 +25,7 @@ class MockObserveTransferStatusUseCase extends Mock
 
 class MockAnalyticsService extends Mock implements AnalyticsService {}
 
-class MockFeatureFlags extends Mock implements FeatureFlags {}
+class MockFeatureFlags extends Mock implements AppFeatureFlags {}
 
 void main() {
   late TransferCubit cubit;

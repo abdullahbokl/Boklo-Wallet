@@ -1,5 +1,5 @@
-class FeatureFlags {
-  const FeatureFlags({
+class AppFeatureFlags {
+  const AppFeatureFlags({
     this.enableBiometrics = false,
     this.enableBetaFeatures = false,
     this.backendAuthoritativeTransfers = false,

@@ -1,4 +1,4 @@
-import 'package:boklo/core/config/feature_flags.dart';
+import 'package:boklo/core/config/app_feature_flags.dart';
 
 enum Environment { dev, prod }
 
@@ -13,7 +13,7 @@ class AppConfig {
   final Environment environment;
   final String apiBaseUrl;
   final String firebaseProjectId;
-  final FeatureFlags featureFlags;
+  final AppFeatureFlags featureFlags;
 
   bool get isDev => environment == Environment.dev;
   bool get isProd => environment == Environment.prod;
