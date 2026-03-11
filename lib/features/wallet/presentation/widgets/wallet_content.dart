@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
-import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/quick_actions_row.dart';
+import 'package:boklo/features/wallet/presentation/widgets/transaction_filters.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_list.dart';
 import 'package:boklo/shared/widgets/molecules/app_section_header.dart';
 import 'package:boklo/shared/widgets/molecules/balance_card.dart';
@@ -64,7 +64,7 @@ class WalletContent extends StatelessWidget {
               const SizedBox(height: AppDimens.xl),
               const AppSectionHeader(title: 'Recent Transactions'),
               const SizedBox(height: AppDimens.md),
-              _TransactionFilters(data: data),
+              TransactionFilters(data: data),
               const SizedBox(height: AppDimens.sm),
             ]),
           ),
@@ -82,50 +82,6 @@ class WalletContent extends StatelessWidget {
         ),
         const SliverPadding(padding: EdgeInsets.only(bottom: AppDimens.md)),
       ],
-    );
-  }
-}
-
-class _TransactionFilters extends StatelessWidget {
-  const _TransactionFilters({required this.data});
-
-  final WalletState data;
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          FilterChip(
-            label: const Text('All'),
-            selected: data.filterType == null,
-            onSelected: (bool selected) {
-              context.read<WalletCubit>().setFilterType(null);
-            },
-          ),
-          const SizedBox(width: AppDimens.sm),
-          FilterChip(
-            label: const Text('Income'),
-            selected: data.filterType == TransactionType.credit,
-            onSelected: (bool selected) {
-              context.read<WalletCubit>().setFilterType(
-                    selected ? TransactionType.credit : null,
-                  );
-            },
-          ),
-          const SizedBox(width: AppDimens.sm),
-          FilterChip(
-            label: const Text('Expense'),
-            selected: data.filterType == TransactionType.debit,
-            onSelected: (bool selected) {
-              context.read<WalletCubit>().setFilterType(
-                    selected ? TransactionType.debit : null,
-                  );
-            },
-          ),
-        ],
-      ),
     );
   }
 }
