@@ -1,9 +1,12 @@
+import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/widgets/atoms/status_chip.dart';
 import 'package:flutter/material.dart';
-import '../../../../config/theme/app_colors.dart';
-import '../../../../config/theme/app_dimens.dart';
-import '../../../../config/theme/app_typography.dart';
-import '../atoms/status_chip.dart';
 
+/// A themed transaction tile with credit/debit styling and status badge.
+///
+/// Uses theme colors instead of hardcoded light-mode values
+/// so it works correctly in both light and dark modes.
 class TransactionTile extends StatelessWidget {
   const TransactionTile({
     required this.title,
@@ -12,6 +15,7 @@ class TransactionTile extends StatelessWidget {
     required this.status,
     required this.isCredit,
     super.key,
+    this.onTap,
   });
 
   final String title;
@@ -19,71 +23,86 @@ class TransactionTile extends StatelessWidget {
   final String date;
   final TransactionStatus status;
   final bool isCredit;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: AppDimens.xs),
-      padding: const EdgeInsets.all(AppDimens.md),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+    final scheme = Theme.of(context).colorScheme;
+    final successColor = const Color(0xFF10B981);
+    final errorColor = scheme.error;
+
+    return Material(
+      color: scheme.surface,
+      borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+      child: InkWell(
         borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-        boxShadow: AppColors.shadowSm,
-        border:
-            Border.all(color: AppColors.textSecondaryLight.withOpacity(0.1)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppDimens.sm),
-            decoration: BoxDecoration(
-              color: isCredit
-                  ? AppColors.success.withOpacity(0.1)
-                  : AppColors.error.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isCredit
-                  ? Icons.arrow_downward_rounded
-                  : Icons.arrow_upward_rounded,
-              color: isCredit ? AppColors.success : AppColors.error,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: AppDimens.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.bodyMedium
-                      .copyWith(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  date,
-                  style: AppTypography.caption
-                      .copyWith(color: AppColors.textSecondaryLight),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimens.md),
+          child: Row(
             children: [
-              Text(
-                '${isCredit ? '+' : '-'}$amount',
-                style: AppTypography.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color:
-                      isCredit ? AppColors.success : AppColors.textPrimaryLight,
+              _TransactionIcon(isCredit: isCredit),
+              const SizedBox(width: AppDimens.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      date,
+                      style: AppTypography.caption.copyWith(
+                        color: scheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 4),
-              StatusChip(status: status),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${isCredit ? '+' : '-'}$amount',
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: isCredit ? successColor : errorColor,
+                    ),
+                  ),
+                  const SizedBox(height: AppDimens.xs4),
+                  StatusChip(status: status),
+                ],
+              ),
             ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TransactionIcon extends StatelessWidget {
+  const _TransactionIcon({required this.isCredit});
+
+  final bool isCredit;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isCredit ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+    return Container(
+      padding: const EdgeInsets.all(AppDimens.sm),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+        color: color,
+        size: 20,
       ),
     );
   }
