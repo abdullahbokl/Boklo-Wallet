@@ -1,4 +1,4 @@
-import 'package:boklo/core/error/app_error.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'base_state.freezed.dart';
@@ -9,7 +9,7 @@ part 'base_state.freezed.dart';
 /// 1. [Freezed]: Ensures immutability and generates consistent `copyWith`/`toString`.
 /// 2. [Sealed Class]: Enforces exhaustive matching (switch cases must handle all states).
 /// 3. [Generic T]: Allows reusability across any feature (Auth, Products, etc.) without code duplication.
-/// 4. [AppError]: Enforces strongly-typed error handling instead of generic Strings or Exceptions.
+/// 4. [Failure]: Enforces strongly-typed error handling instead of generic Strings or Exceptions.
 @freezed
 class BaseState<T> with _$BaseState<T> {
   /// Initial state before any action is triggered.
@@ -21,15 +21,15 @@ class BaseState<T> with _$BaseState<T> {
   /// Success state carrying the resulting data [T].
   const factory BaseState.success(T data) = _Success;
 
-  /// Error state carrying a specific [AppError].
-  const factory BaseState.error(AppError error) = _Error;
+  /// Error state carrying a specific [Failure].
+  const factory BaseState.error(Failure error) = _Error;
 }
 
 extension BaseStateX<T> on BaseState<T> {
   bool get isLoading => maybeMap(loading: (_) => true, orElse: () => false);
   bool get isSuccess => maybeMap(success: (_) => true, orElse: () => false);
   bool get isError => maybeMap(error: (_) => true, orElse: () => false);
-  AppError? get error =>
+  Failure? get error =>
       maybeMap(error: (state) => state.error, orElse: () => null);
   T? get data => maybeMap(success: (state) => state.data, orElse: () => null);
 }

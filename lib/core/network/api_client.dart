@@ -1,4 +1,4 @@
-import 'package:boklo/core/error/app_error.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
@@ -40,21 +40,18 @@ class ApiClient {
     }
   }
 
-  AppError _mapDioError(DioException e) {
+  Failure _mapDioError(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return NetworkError('Connection timed out', e);
+        return NetworkFailure('Connection timed out');
       case DioExceptionType.badResponse:
-        return NetworkError(
-          'Bad response: ${e.response?.statusCode}',
-          e.response?.data,
-        );
+        return NetworkFailure('Bad response: ${e.response?.statusCode}');
       case DioExceptionType.unknown:
-        return UnknownError('Unknown error', e);
+        return UnknownFailure('Unknown error');
       default:
-        return NetworkError('Network error', e);
+        return NetworkFailure('Network error');
     }
   }
 }

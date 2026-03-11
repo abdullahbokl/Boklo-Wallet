@@ -1,7 +1,7 @@
-import 'package:boklo/core/error/app_error.dart';
-import 'package:boklo/core/base/result.dart';
+import 'package:boklo/core/error/failures.dart';
+import 'package:fpdart/fpdart.dart';
 
-Future<Result<T>> performNetworkOperation<T>({
+Future<Either<Failure, T>> performNetworkOperation<T>({
   required Future<bool> Function() isConnected,
   required Future<T> Function() networkCall,
   required Future<void> Function(T data) cacheData,
@@ -11,19 +11,19 @@ Future<Result<T>> performNetworkOperation<T>({
     try {
       final remoteData = await networkCall();
       await cacheData(remoteData);
-      return Success(remoteData);
+      return Right(remoteData);
     } catch (e) {
-      if (e is AppError) {
-        return Failure(e);
+      if (e is Failure) {
+        return Left(e);
       }
-      return Failure(UnknownError(e.toString()));
+      return Left(UnknownFailure(e.toString()));
     }
   } else {
     try {
       final localData = await localCall();
-      return Success(localData);
+      return Right(localData);
     } catch (e) {
-      return const Failure(CacheError('No local data found'));
+      return const Left(CacheFailure('No local data found'));
     }
   }
 }

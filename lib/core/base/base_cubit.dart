@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:boklo/core/base/base_state.dart';
-import 'package:boklo/core/error/app_error.dart';
-import 'package:boklo/core/base/result.dart';
+import 'package:boklo/core/error/failures.dart';
+import 'package:fpdart/fpdart.dart';
 
 /// A generic base class for Cubits that adhere to Clean Architecture.
 ///
@@ -17,7 +17,7 @@ abstract class BaseCubit<T> extends Cubit<BaseState<T>> {
   void emitSuccess(T data) => safeEmit(BaseState<T>.success(data));
 
   /// Emits [BaseState.error] with the provided [error].
-  void emitError(AppError error) => safeEmit(BaseState<T>.error(error));
+  void emitError(Failure error) => safeEmit(BaseState<T>.error(error));
 
   /// Safely emits a state if the Cubit is not closed.
   void safeEmit(BaseState<T> state) {
@@ -26,15 +26,15 @@ abstract class BaseCubit<T> extends Cubit<BaseState<T>> {
     }
   }
 
-  /// Executes a [Future] returning [Result] and handles state emission automatically.
+  /// Executes a [Future] returning [Either] and handles state emission automatically.
   ///
   /// 1. Emits [BaseState.loading].
   /// 2. Awaits [action].
   /// 3. Emits [BaseState.success] or [BaseState.error] based on the result.
   Future<void> runBlocCatching<R>({
-    required Future<Result<T>> Function() action,
+    required Future<Either<Failure, T>> Function() action,
     void Function(T data)? onSuccess,
-    void Function(AppError error)? onError,
+    void Function(Failure error)? onError,
     bool doOnSuccessOrError = true,
   }) async {
     emitLoading();
