@@ -1,10 +1,10 @@
 import 'package:boklo/config/theme/app_dimens.dart';
-import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/notification_preferences/presentation/bloc/notification_preference_cubit.dart';
 import 'package:boklo/features/notification_preferences/presentation/bloc/notification_preference_state.dart';
+import 'package:boklo/features/notification_preferences/presentation/widgets/preference_item.dart';
 import 'package:boklo/shared/responsive/responsive_constraint.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:boklo/shared/widgets/molecules/app_section_header.dart';
@@ -72,7 +72,7 @@ class NotificationSettingsPage extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         child: Column(
                           children: [
-                            _PreferenceItem(
+                            PreferenceItem(
                               title: 'Incoming Transfers',
                               subtitle: 'Receive alerts when money arrives',
                               value: prefs.enableIncoming,
@@ -84,7 +84,7 @@ class NotificationSettingsPage extends StatelessWidget {
                                 height: 1,
                                 indent: AppDimens.lg,
                                 color: scheme.outlineVariant),
-                            _PreferenceItem(
+                            PreferenceItem(
                               title: 'Outgoing Transfers',
                               subtitle: 'Receive alerts when money is sent',
                               value: prefs.enableOutgoing,
@@ -107,60 +107,6 @@ class NotificationSettingsPage extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _PreferenceItem extends StatelessWidget {
-  const _PreferenceItem({
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String title;
-  final String subtitle;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.lg,
-        vertical: AppDimens.md,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: AppTypography.caption.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch.adaptive(
-            value: value,
-            onChanged: onChanged,
-            activeTrackColor: scheme.primary,
-          ),
-        ],
       ),
     );
   }
