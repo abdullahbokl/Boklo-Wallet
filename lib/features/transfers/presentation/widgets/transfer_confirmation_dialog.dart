@@ -1,6 +1,6 @@
-import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/widgets/molecules/summary_item.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:flutter/material.dart';
 
@@ -74,13 +74,13 @@ class TransferConfirmationDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppDimens.xl),
-            _SummaryItem(
+            SummaryItem(
               label: 'Amount',
               value: '$amount $currency',
               isPrimary: true,
             ),
             const Divider(height: AppDimens.xl),
-            _SummaryItem(
+            SummaryItem(
               label: 'Recipient',
               value: recipient,
             ),
@@ -101,38 +101,6 @@ class TransferConfirmationDialog extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _SummaryItem extends StatelessWidget {
-  const _SummaryItem({
-    required this.label,
-    required this.value,
-    this.isPrimary = false,
-  });
-
-  final String label;
-  final String value;
-  final bool isPrimary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: AppTypography.bodySmall.copyWith(
-            color: AppColors.textSecondaryLight,
-          ),
-        ),
-        const SizedBox(height: AppDimens.xs),
-        Text(
-          value,
-          style: isPrimary ? AppTypography.title : AppTypography.bodyMedium,
-          textAlign: TextAlign.center,
-        ),
-      ],
     );
   }
 }

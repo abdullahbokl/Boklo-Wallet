@@ -1,5 +1,9 @@
 import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:injectable/injectable.dart';
+
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/data/datasources/transfer_remote_data_source.dart';
 import 'package:boklo/features/transfers/data/models/transfer_model.dart';
@@ -8,8 +12,6 @@ import 'package:boklo/features/transfers/domain/repositories/transfer_repository
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: TransferRepository)
 class TransferRepositoryImpl implements TransferRepository {
@@ -26,44 +28,46 @@ class TransferRepositoryImpl implements TransferRepository {
     try {
       final fromWalletModel =
           await _dataSource.getWallet(transfer.fromWalletId);
-
-      // Unified Resolution for recipient
       final toWalletModel = await _resolveWallet(transfer.toWalletId);
 
       if (fromWalletModel == null || toWalletModel == null) {
         return const Left(ValidationFailure('One or both wallets not found'));
       }
 
-      final validationResult = _validator.validate(
+      final validation = _validator.validate(
         fromWallet: fromWalletModel.toEntity(),
         toWallet: toWalletModel.toEntity(),
         amount: transfer.amount,
       );
 
-      return validationResult.fold(
+      return validation.fold(
         Left.new,
-        (_) async {
-          try {
-            // Use the resolved recipient ID
-            final transferModel = TransferModel(
-              id: transfer.id,
-              fromWalletId: transfer.fromWalletId,
-              toWalletId: toWalletModel.id,
-              amount: transfer.amount,
-              currency: transfer.currency,
-              status: TransferStatus.pending,
-              createdAt: transfer.createdAt,
-            );
-
-            await _dataSource.createTransfer(transferModel);
-            return const Right(null);
-          } on FirebaseException catch (e) {
-            return Left(ServerFailure(e.message ?? 'Unknown error'));
-          } on Object catch (e) {
-            return Left(UnknownFailure(e.toString()));
-          }
-        },
+        (_) => _executeTransfer(transfer, toWalletModel.id),
       );
+    } on FirebaseException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Unknown error'));
+    } on Object catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  Future<Either<Failure, void>> _executeTransfer(
+    TransferEntity transfer,
+    String resolvedRecipientId,
+  ) async {
+    try {
+      final transferModel = TransferModel(
+        id: transfer.id,
+        fromWalletId: transfer.fromWalletId,
+        toWalletId: resolvedRecipientId,
+        amount: transfer.amount,
+        currency: transfer.currency,
+        status: TransferStatus.pending,
+        createdAt: transfer.createdAt,
+      );
+
+      await _dataSource.createTransfer(transferModel);
+      return const Right(null);
     } on FirebaseException catch (e) {
       return Left(ServerFailure(e.message ?? 'Unknown error'));
     } on Object catch (e) {
@@ -83,20 +87,14 @@ class TransferRepositoryImpl implements TransferRepository {
 
   @override
   Stream<Either<Failure, TransferEntity?>> observeTransfer(String transferId) {
-    return _dataSource.observeTransfer(transferId).transform(
-          StreamTransformer<TransferModel?,
-              Either<Failure, TransferEntity?>>.fromHandlers(
-            handleData: (data, sink) {
-              try {
-                sink.add(Right(data?.toEntity()));
-              } catch (e) {
-                sink.add(Left(UnknownFailure(e.toString())));
-              }
-            },
-            handleError: (error, stack, sink) {
-              sink.add(Left(UnknownFailure(error.toString())));
-            },
-          ),
+    return _dataSource
+        .observeTransfer(transferId)
+        .map<Either<Failure, TransferEntity?>>(
+          (data) => Right(data?.toEntity()),
+        )
+        .handleError(
+          (Object error) =>
+              Left<Failure, TransferEntity?>(UnknownFailure(error.toString())),
         );
   }
 
@@ -104,33 +102,20 @@ class TransferRepositoryImpl implements TransferRepository {
   Future<Either<Failure, WalletEntity>> getWallet(String id) async {
     try {
       final model = await _resolveWallet(id);
-      if (model == null) {
-        return const Left(ValidationFailure('Wallet not found'));
-      }
-      return Right(model.toEntity());
+      return model == null
+          ? const Left(ValidationFailure('Wallet not found'))
+          : Right(model.toEntity());
     } on Object catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
   }
 
-  /// Unified Wallet Resolution Logic
-  /// 1. Email
-  /// 2. Alias
-  /// 3. ID
   Future<WalletModel?> _resolveWallet(String input) async {
-    final cleanedInput = input.trim();
-
-    // 1. Email Resolution
-    if (cleanedInput.contains('@')) {
-      return _dataSource.getWalletByEmail(cleanedInput);
+    final cleaned = input.trim();
+    if (cleaned.contains('@')) return _dataSource.getWalletByEmail(cleaned);
+    if (cleaned.toUpperCase().startsWith('BOKLO-')) {
+      return _dataSource.getWalletByAlias(cleaned.toUpperCase());
     }
-
-    // 2. Alias Resolution
-    if (cleanedInput.toUpperCase().startsWith('BOKLO-')) {
-      return _dataSource.getWalletByAlias(cleanedInput.toUpperCase());
-    }
-
-    // 3. ID Resolution (Default)
-    return _dataSource.getWallet(cleanedInput);
+    return _dataSource.getWallet(cleaned);
   }
 }
