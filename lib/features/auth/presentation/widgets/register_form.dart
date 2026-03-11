@@ -1,3 +1,4 @@
+import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
@@ -5,7 +6,6 @@ import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/email_field.dart';
 import 'package:boklo/features/auth/presentation/widgets/password_field.dart';
-import 'package:boklo/shared/theme/tokens/app_spacing.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,22 +63,23 @@ class _RegisterFormState extends State<RegisterForm> {
                 controller: _emailController,
                 enabled: !isLoading,
               ),
-              const SizedBox(height: AppSpacing.m),
+              const SizedBox(height: AppDimens.md),
               PasswordField(
                 controller: _passwordController,
                 enabled: !isLoading,
               ),
-              const SizedBox(height: AppSpacing.m),
+              const SizedBox(height: AppDimens.md),
               PasswordField(
                 controller: _confirmPasswordController,
                 hintText: 'Confirm Password',
                 enabled: !isLoading,
               ),
-              const SizedBox(height: AppSpacing.l),
+              const SizedBox(height: AppDimens.xl),
               AppButton(
-                text: 'Register',
+                text: 'Create Account',
                 onPressed: _onRegisterPressed,
                 isLoading: isLoading,
+                width: double.infinity,
               ),
             ],
           );

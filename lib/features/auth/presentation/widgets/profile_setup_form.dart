@@ -1,4 +1,3 @@
-import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
@@ -45,22 +44,27 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Choose a unique username',
-            style: AppTypography.headline,
+            'Create Your Identity',
+            style: AppTypography.headline.copyWith(
+              fontWeight: FontWeight.bold,
+              color: scheme.onSurface,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppDimens.sm),
-          const SizedBox(height: AppDimens.sm),
           Text(
-            'This will be your identity for sending and receiving money.',
-            style: AppTypography.caption.copyWith(
-              color: AppColors.textSecondaryLight,
+            'Choose a unique username to send and receive money.',
+            style: AppTypography.bodySmall.copyWith(
+              color: scheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
@@ -68,7 +72,7 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
           AppTextField(
             controller: _usernameController,
             label: 'Username',
-            hintText: 'boklo_user',
+            hintText: 'john_doe',
             prefixIcon: const Icon(Icons.alternate_email),
             inputFormatters: [
               FilteringTextInputFormatter.allow(_usernameRegex),
@@ -87,7 +91,7 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
               return null;
             },
           ),
-          const SizedBox(height: AppDimens.md),
+          const SizedBox(height: AppDimens.lg),
           AppTextField(
             controller: _nameController,
             label: 'Display Name (Optional)',
@@ -97,7 +101,7 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
               LengthLimitingTextInputFormatter(50),
             ],
           ),
-          const SizedBox(height: AppDimens.xl),
+          const SizedBox(height: AppDimens.xxl),
           BlocBuilder<AuthCubit, BaseState<User?>>(
             builder: (context, state) {
               final isLoading = state.maybeWhen(
@@ -106,9 +110,10 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
               );
 
               return AppButton(
-                text: 'Continue',
-                isLoading: isLoading,
+                text: 'Complete Setup',
                 onPressed: _submit,
+                isLoading: isLoading,
+                width: double.infinity,
               );
             },
           ),

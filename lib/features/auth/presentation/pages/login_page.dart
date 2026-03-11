@@ -1,3 +1,5 @@
+import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
@@ -6,8 +8,7 @@ import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_form.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_header.dart';
-import 'package:boklo/shared/responsive/responsive_constraint.dart';
-import 'package:boklo/shared/theme/tokens/app_spacing.dart';
+import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,24 +39,79 @@ class LoginPage extends StatelessWidget {
           },
         );
       },
-      child: Scaffold(
-        body: ResponsiveConstraint(
-          maxWidth: 500,
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.l),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  LoginHeader(),
-                  SizedBox(height: AppSpacing.xxl),
-                  LoginForm(),
-                ],
-              ),
+      child: Builder(
+        builder: (context) {
+          final scheme = Theme.of(context).colorScheme;
+
+          return Scaffold(
+            body: Stack(
+              children: [
+                // Background Gradient
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        scheme.primary.withValues(alpha: 0.1),
+                        scheme.primaryContainer.withValues(alpha: 0.05),
+                        scheme.surface,
+                      ],
+                      stops: const [0.0, 0.4, 1.0],
+                    ),
+                  ),
+                ),
+
+                // Main Content
+                SafeArea(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(AppDimens.lg),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const LoginHeader(
+                            title: 'Welcome Back!',
+                            subtitle: 'Sign in to continue to Boklo Wallet',
+                          ),
+                          const SizedBox(height: AppDimens.xxl),
+                          AppCard(
+                            useGlass: true,
+                            padding: const EdgeInsets.all(AppDimens.lg),
+                            child: const LoginForm(),
+                          ),
+                          const SizedBox(height: AppDimens.xl),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Don\'t have an account? ',
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: scheme.onSurface.withValues(alpha: 0.7),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    getIt<NavigationService>().push('/register'),
+                                child: Text(
+                                  'Register Now',
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: scheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

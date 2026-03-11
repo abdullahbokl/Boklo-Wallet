@@ -15,46 +15,59 @@ class LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         TweenAnimationBuilder<double>(
           duration: const Duration(seconds: 1),
           tween: Tween(begin: 0, end: 1),
+          curve: Curves.easeOutBack,
           builder: (context, value, child) {
             return Transform.scale(
               scale: value,
-              child: child,
+              child: Opacity(
+                opacity: value.clamp(0.0, 1.0),
+                child: child,
+              ),
             );
           },
-          child: RepaintBoundary(
-            child: Container(
-              padding: const EdgeInsets.all(AppDimens.lg),
-              decoration: const BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                shape: BoxShape.circle,
-                // boxShadow: AppColors.shadowLg,
-              ),
-              child: const Icon(
-                Icons.account_balance_wallet_rounded,
-                size: 48,
-                color: Colors.white,
-              ),
+          child: Container(
+            padding: const EdgeInsets.all(AppDimens.lg),
+            decoration: BoxDecoration(
+              gradient: AppColors.primaryGradient,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.account_balance_wallet_rounded,
+              size: 48,
+              color: Colors.white,
             ),
           ),
         ),
         const SizedBox(height: AppDimens.xl),
         Text(
           title,
-          style:
-              AppTypography.display.copyWith(color: AppColors.textPrimaryLight),
+          style: AppTypography.display.copyWith(
+            color: scheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: AppDimens.xs),
         Text(
           subtitle,
-          style: AppTypography.bodyLarge
-              .copyWith(color: AppColors.textSecondaryLight),
+          style: AppTypography.bodyLarge.copyWith(
+            color: scheme.onSurface.withValues(alpha: 0.6),
+          ),
           textAlign: TextAlign.center,
         ),
       ],

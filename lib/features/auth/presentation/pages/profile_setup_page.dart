@@ -6,6 +6,7 @@ import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/profile_setup_form.dart';
+import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:boklo/shared/responsive/responsive_constraint.dart';
@@ -15,31 +16,48 @@ class ProfileSetupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Complete Profile'),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
-      body: BlocListener<AuthCubit, BaseState<User?>>(
-        listener: (context, state) {
-          state.whenOrNull(
-            success: (user) {
-              if (user != null && user.username != null) {
-                // Profile set! Go to home.
-                getIt<NavigationService>().go('/wallet');
-              }
-            },
-            error: (error) {
-              getIt<SnackbarService>().showError(error.message);
-            },
-          );
-        },
-        child: const ResponsiveConstraint(
-          maxWidth: 500,
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(AppDimens.lg),
-            child: ProfileSetupForm(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              scheme.surface,
+              scheme.primary.withValues(alpha: 0.1),
+              scheme.surface,
+            ],
+          ),
+        ),
+        child: BlocListener<AuthCubit, BaseState<User?>>(
+          listener: (context, state) {
+            state.whenOrNull(
+              success: (user) {
+                if (user != null && user.username != null) {
+                  getIt<NavigationService>().go('/wallet');
+                }
+              },
+              error: (error) {
+                getIt<SnackbarService>().showError(error.message);
+              },
+            );
+          },
+          child: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppDimens.lg),
+                child: ResponsiveConstraint(
+                  maxWidth: 450,
+                  child: AppCard(
+                    useGlass: true,
+                    padding: const EdgeInsets.all(AppDimens.xl),
+                    child: const ProfileSetupForm(),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
