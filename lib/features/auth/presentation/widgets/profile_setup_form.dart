@@ -44,30 +44,13 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'Create Your Identity',
-            style: AppTypography.headline.copyWith(
-              fontWeight: FontWeight.bold,
-              color: scheme.onSurface,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppDimens.sm),
-          Text(
-            'Choose a unique username to send and receive money.',
-            style: AppTypography.bodySmall.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          const _FormHeader(),
           const SizedBox(height: AppDimens.xl),
           AppTextField(
             controller: _usernameController,
@@ -119,6 +102,35 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _FormHeader extends StatelessWidget {
+  const _FormHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        Text(
+          'Create Your Identity',
+          style: AppTypography.headline.copyWith(
+            fontWeight: FontWeight.bold,
+            color: scheme.onSurface,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: AppDimens.sm),
+        Text(
+          'Choose a unique username to send and receive money.',
+          style: AppTypography.bodySmall.copyWith(
+            color: scheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

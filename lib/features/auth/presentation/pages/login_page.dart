@@ -6,6 +6,7 @@ import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:boklo/features/auth/presentation/widgets/auth_background.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_form.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_header.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
@@ -39,80 +40,62 @@ class LoginPage extends StatelessWidget {
           },
         );
       },
-      child: Builder(
-        builder: (context) {
-          final scheme = Theme.of(context).colorScheme;
-
-          return Scaffold(
-            body: Stack(
-              children: [
-                // Background Gradient
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        scheme.primary.withValues(alpha: 0.1),
-                        scheme.primaryContainer.withValues(alpha: 0.05),
-                        scheme.surface,
-                      ],
-                      stops: const [0.0, 0.4, 1.0],
-                    ),
+      child: Scaffold(
+        body: AuthBackground(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppDimens.lg),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const LoginHeader(
+                    title: 'Welcome Back!',
+                    subtitle: 'Sign in to continue to Boklo Wallet',
                   ),
-                ),
-
-                // Main Content
-                SafeArea(
-                  child: Center(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(AppDimens.lg),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const LoginHeader(
-                            title: 'Welcome Back!',
-                            subtitle: 'Sign in to continue to Boklo Wallet',
-                          ),
-                          const SizedBox(height: AppDimens.xxl),
-                          AppCard(
-                            useGlass: true,
-                            padding: const EdgeInsets.all(AppDimens.lg),
-                            child: const LoginForm(),
-                          ),
-                          const SizedBox(height: AppDimens.xl),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Don\'t have an account? ',
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: scheme.onSurface.withValues(alpha: 0.7),
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () =>
-                                    getIt<NavigationService>().push('/register'),
-                                child: Text(
-                                  'Register Now',
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    color: scheme.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  const SizedBox(height: AppDimens.xxl),
+                  AppCard(
+                    useGlass: true,
+                    padding: const EdgeInsets.all(AppDimens.lg),
+                    child: const LoginForm(),
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppDimens.xl),
+                  const _LoginFooter(),
+                ],
+              ),
             ),
-          );
-        },
+          ),
+        ),
       ),
+    );
+  }
+}
+
+class _LoginFooter extends StatelessWidget {
+  const _LoginFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Don\'t have an account? ',
+          style: AppTypography.bodyMedium.copyWith(
+            color: scheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        TextButton(
+          onPressed: () => getIt<NavigationService>().push('/register'),
+          child: Text(
+            'Register Now',
+            style: AppTypography.bodyMedium.copyWith(
+              color: scheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
