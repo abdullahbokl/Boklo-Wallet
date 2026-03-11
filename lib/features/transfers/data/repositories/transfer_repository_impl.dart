@@ -1,5 +1,6 @@
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'dart:async';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/data/datasources/transfer_remote_data_source.dart';
 import 'package:boklo/features/transfers/data/models/transfer_model.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
@@ -21,7 +22,7 @@ class TransferRepositoryImpl implements TransferRepository {
   final TransferValidator _validator;
 
   @override
-  Future<Result<void>> createTransfer(TransferEntity transfer) async {
+  Future<Either<Failure, void>> createTransfer(TransferEntity transfer) async {
     try {
       final fromWalletModel =
           await _dataSource.getWallet(transfer.fromWalletId);
@@ -30,7 +31,7 @@ class TransferRepositoryImpl implements TransferRepository {
       final toWalletModel = await _resolveWallet(transfer.toWalletId);
 
       if (fromWalletModel == null || toWalletModel == null) {
-        return const Failure(ValidationError('One or both wallets not found'));
+        return const Left(ValidationFailure('One or both wallets not found'));
       }
 
       final validationResult = _validator.validate(
@@ -40,7 +41,7 @@ class TransferRepositoryImpl implements TransferRepository {
       );
 
       return validationResult.fold(
-        Failure.new,
+        Left.new,
         (_) async {
           try {
             // Use the resolved recipient ID
@@ -55,48 +56,60 @@ class TransferRepositoryImpl implements TransferRepository {
             );
 
             await _dataSource.createTransfer(transferModel);
-            return const Success(null);
+            return const Right(null);
           } on FirebaseException catch (e) {
-            return Failure(FirebaseError(e.message ?? 'Unknown error', e.code));
+            return Left(ServerFailure(e.message ?? 'Unknown error'));
           } on Object catch (e) {
-            return Failure(UnknownError('Failed to create transfer', e));
+            return Left(UnknownFailure(e.toString()));
           }
         },
       );
     } on FirebaseException catch (e) {
-      return Failure(FirebaseError(e.message ?? 'Unknown error', e.code));
+      return Left(ServerFailure(e.message ?? 'Unknown error'));
     } on Object catch (e) {
-      return Failure(UnknownError('An unexpected error occurred', e));
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
   @override
-  Future<Result<List<TransferEntity>>> getTransfers() async {
+  Future<Either<Failure, List<TransferEntity>>> getTransfers() async {
     try {
       final models = await _dataSource.getTransfers();
-      return Success(models.map((e) => e.toEntity()).toList());
+      return Right(models.map((e) => e.toEntity()).toList());
     } on Object catch (e) {
-      return Failure(UnknownError('Failed to load transfers', e));
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
   @override
-  Stream<TransferEntity?> observeTransfer(String transferId) {
-    return _dataSource.observeTransfer(transferId).map((model) {
-      return model?.toEntity();
-    });
+  Stream<Either<Failure, TransferEntity?>> observeTransfer(String transferId) {
+    return _dataSource.observeTransfer(transferId).transform(
+          StreamTransformer<TransferModel?,
+              Either<Failure, TransferEntity?>>.fromHandlers(
+            handleData: (data, sink) {
+              try {
+                sink.add(Right(data?.toEntity()));
+              } catch (e) {
+                sink.add(Left(UnknownFailure(e.toString())));
+              }
+            },
+            handleError: (error, stack, sink) {
+              sink.add(Left(UnknownFailure(error.toString())));
+            },
+          ),
+        );
   }
 
   @override
-  Future<Result<WalletEntity>> getWallet(String id) async {
+  Future<Either<Failure, WalletEntity>> getWallet(String id) async {
     try {
       final model = await _resolveWallet(id);
       if (model == null) {
-        return const Failure(ValidationError('Wallet not found'));
+        return const Left(ValidationFailure('Wallet not found'));
       }
-      return Success(model.toEntity());
+      return Right(model.toEntity());
     } on Object catch (e) {
-      return Failure(UnknownError('Failed to get wallet', e));
+      return Left(UnknownFailure(e.toString()));
     }
   }
 

@@ -1,3 +1,5 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:injectable/injectable.dart';
@@ -8,7 +10,7 @@ class ObserveTransferStatusUseCase {
 
   final TransferRepository repository;
 
-  Stream<TransferEntity?> call(String transferId) {
+  Stream<Either<Failure, TransferEntity?>> call(String transferId) {
     return repository.observeTransfer(transferId);
   }
 }

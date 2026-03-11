@@ -1,5 +1,5 @@
-import 'package:boklo/core/base/result.dart';
-
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
 import 'package:injectable/injectable.dart';
@@ -11,7 +11,7 @@ class ResolveRecipientUseCase {
 
   const ResolveRecipientUseCase(this._emailUseCase, this._usernameUseCase);
 
-  Future<Result<String>> call(String recipient) async {
+  Future<Either<Failure, String>> call(String recipient) async {
     if (recipient.contains('@')) {
       return _emailUseCase(recipient);
     } else if (recipient.length < 28 &&
@@ -22,7 +22,7 @@ class ResolveRecipientUseCase {
         (error) {
           // If username resolution fails, check if it COULD be a wallet ID.
           if (recipient.length != 28) {
-            return Failure(error);
+            return left(error);
           }
           // Fallback to treating as Wallet ID is handled by caller or implicitly if we return error/null here?
           // Actually, the original logic said: "If it IS 28 chars, ignore username error and try as Wallet ID"
@@ -32,13 +32,13 @@ class ResolveRecipientUseCase {
           // If resolution fails, and length != 28, return error.
           // If resolution fails, and length == 28, keep original recipient.
 
-          return Success(recipient);
+          return right(recipient);
         },
-        (id) => Success(id),
+        (id) => right(id),
       );
     }
 
     // Default: Assume it's a Wallet ID
-    return Success(recipient);
+    return right(recipient);
   }
 }

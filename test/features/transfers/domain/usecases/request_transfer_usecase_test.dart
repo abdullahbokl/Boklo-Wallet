@@ -1,5 +1,5 @@
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
@@ -53,15 +53,15 @@ void main() {
       () async {
     // Arrange
     when(() => mockRepository.getWallet('1'))
-        .thenAnswer((_) async => Success(tFromWallet));
+        .thenAnswer((_) async => right(tFromWallet));
     when(() => mockRepository.getWallet('2'))
-        .thenAnswer((_) async => Success(tToWallet));
+        .thenAnswer((_) async => right(tToWallet));
 
     when(() => mockValidator.validate(
           fromWallet: any(named: 'fromWallet'),
           toWallet: any(named: 'toWallet'),
           amount: any(named: 'amount'),
-        )).thenReturn(const Success(null));
+        )).thenReturn(right(null));
 
     // Act
     final result = await useCase.call(
@@ -71,27 +71,31 @@ void main() {
     );
 
     // Assert
-    expect(result, isA<Success<TransferEntity>>());
-    final transfer = (result as Success<TransferEntity>).data;
-    expect(transfer.status, TransferStatus.pending);
-    expect(transfer.amount, 10.0);
-    expect(transfer.fromWalletId, tFromWallet.id);
-    expect(transfer.toWalletId, tToWallet.id);
+    expect(result.isRight(), isTrue);
+    result.fold(
+      (l) => fail('Should be right'),
+      (transfer) {
+        expect(transfer.status, TransferStatus.pending);
+        expect(transfer.amount, 10.0);
+        expect(transfer.fromWalletId, tFromWallet.id);
+        expect(transfer.toWalletId, tToWallet.id);
+      },
+    );
   });
 
   test('should return Failure when validation fails', () async {
     // Arrange
     when(() => mockRepository.getWallet('1'))
-        .thenAnswer((_) async => Success(tFromWallet));
+        .thenAnswer((_) async => right(tFromWallet));
     when(() => mockRepository.getWallet('2'))
-        .thenAnswer((_) async => Success(tToWallet));
+        .thenAnswer((_) async => right(tToWallet));
 
-    const tError = ValidationError('Insufficient balance');
+    const tError = ValidationFailure('Insufficient balance');
     when(() => mockValidator.validate(
           fromWallet: any(named: 'fromWallet'),
           toWallet: any(named: 'toWallet'),
           amount: any(named: 'amount'),
-        )).thenReturn(const Failure(tError));
+        )).thenReturn(left(tError));
 
     // Act
     final result = await useCase.call(
@@ -101,7 +105,10 @@ void main() {
     );
 
     // Assert
-    expect(result, isA<Failure<TransferEntity>>());
-    expect((result as Failure).error, tError);
+    expect(result.isLeft(), isTrue);
+    result.fold(
+      (l) => expect(l, tError),
+      (r) => fail('Should be left'),
+    );
   });
 }

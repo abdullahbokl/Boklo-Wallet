@@ -1,5 +1,5 @@
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/data/datasources/transfer_remote_data_source.dart';
 import 'package:boklo/features/transfers/data/repositories/transfer_repository_impl.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
@@ -45,8 +45,8 @@ void main() {
       verify(() => mockDataSource.getWalletByEmail('alice@example.com'))
           .called(1);
       verifyNever(() => mockDataSource.getWallet(any()));
-      expect(result, isA<Success<WalletEntity>>());
-      expect((result as Success).data.id, tWalletModel.id);
+      expect(result, isA<Right<Failure, WalletEntity>>());
+      expect((result as Right<Failure, WalletEntity>).value.id, tWalletModel.id);
     });
 
     test('should resolve by Alias when input starts with BOKLO-', () async {
@@ -60,7 +60,7 @@ void main() {
       // Assert
       verify(() => mockDataSource.getWalletByAlias('BOKLO-123')).called(1);
       verifyNever(() => mockDataSource.getWallet(any()));
-      expect(result, isA<Success<WalletEntity>>());
+      expect(result, isA<Right<Failure, WalletEntity>>());
     });
 
     test('should resolve by ID when input is normal string', () async {
@@ -74,7 +74,7 @@ void main() {
       // Assert
       verify(() => mockDataSource.getWallet('wallet-123')).called(1);
       verifyNever(() => mockDataSource.getWalletByEmail(any()));
-      expect(result, isA<Success<WalletEntity>>());
+      expect(result, isA<Right<Failure, WalletEntity>>());
     });
 
     test('should return Failure when wallet not found', () async {
@@ -86,8 +86,8 @@ void main() {
       final result = await repository.getWallet('unknown@example.com');
 
       // Assert
-      expect(result, isA<Failure<WalletEntity>>());
-      expect((result as Failure).error, isA<ValidationError>());
+      expect(result, isA<Left<Failure, WalletEntity>>());
+      expect((result as Left<Failure, WalletEntity>).value, isA<ValidationFailure>());
     });
   });
 }

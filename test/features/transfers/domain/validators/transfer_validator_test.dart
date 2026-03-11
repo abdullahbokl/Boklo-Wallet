@@ -1,5 +1,5 @@
-import 'package:boklo/core/base/result.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,7 +31,7 @@ void main() {
         amount: 100,
       );
 
-      expect(result, isA<Success<void>>());
+      expect(result, isA<Right<Failure, void>>());
     });
 
     test('should return Failure when amount is zero or negative', () {
@@ -46,12 +46,12 @@ void main() {
         amount: -10,
       );
 
-      expect(resultZero, isA<Failure<void>>());
+      expect(resultZero, isA<Left<Failure, void>>());
       expect(
-        (resultZero as Failure).error,
-        const ValidationError('Amount must be greater than zero'),
+        (resultZero as Left<Failure, void>).value,
+        const ValidationFailure('Amount must be greater than zero'),
       );
-      expect(resultNeg, isA<Failure<void>>());
+      expect(resultNeg, isA<Left<Failure, void>>());
     });
 
     test('should return Failure when sender and receiver are the same', () {
@@ -61,10 +61,10 @@ void main() {
         amount: 100,
       );
 
-      expect(result, isA<Failure<void>>());
+      expect(result, isA<Left<Failure, void>>());
       expect(
-        (result as Failure).error,
-        const ValidationError('Cannot transfer to the same wallet'),
+        (result as Left<Failure, void>).value,
+        const ValidationFailure('Cannot transfer to the same wallet'),
       );
     });
 
@@ -76,10 +76,10 @@ void main() {
         amount: 100,
       );
 
-      expect(result, isA<Failure<void>>());
+      expect(result, isA<Left<Failure, void>>());
       expect(
-        (result as Failure).error,
-        const ValidationError('Wallets must utilize the same currency'),
+        (result as Left<Failure, void>).value,
+        const ValidationFailure('Wallets must utilize the same currency'),
       );
     });
 
@@ -90,10 +90,10 @@ void main() {
         amount: 1500,
       );
 
-      expect(result, isA<Failure<void>>());
+      expect(result, isA<Left<Failure, void>>());
       expect(
-        (result as Failure).error,
-        const ValidationError('Insufficient balance'),
+        (result as Left<Failure, void>).value,
+        const ValidationFailure('Insufficient balance'),
       );
     });
   });

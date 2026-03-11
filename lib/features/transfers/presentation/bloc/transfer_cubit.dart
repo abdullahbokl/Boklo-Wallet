@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:boklo/core/base/result.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/config/feature_flags.dart';
-import 'package:boklo/core/error/app_error.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
@@ -45,7 +45,7 @@ class TransferCubit extends BaseCubit<TransferState> {
     if (_lastExecution != null &&
         now.difference(_lastExecution!) < _minTransferInterval) {
       // Silently ignore or show error
-      emitError(const ValidationError('Please wait before trying again'));
+      emitError(const ValidationFailure('Please wait before trying again'));
       return;
     }
     _lastExecution = now;
@@ -57,7 +57,7 @@ class TransferCubit extends BaseCubit<TransferState> {
       final resolutionResult = await _resolveRecipientUseCase(recipient);
 
       var toWalletId = recipient;
-      AppError? resolutionError;
+      Failure? resolutionError;
 
       resolutionResult.fold(
         (error) => resolutionError = error,
@@ -81,7 +81,7 @@ class TransferCubit extends BaseCubit<TransferState> {
         );
 
         await requestResult.fold(
-          (error) {
+          (error) async {
             unawaited(
                 _analyticsService.logTransferFailure(reason: error.message));
             emitError(error);
@@ -93,7 +93,7 @@ class TransferCubit extends BaseCubit<TransferState> {
             final persistResult = await _createTransferUseCase(transfer);
 
             await persistResult.fold(
-              (error) {
+              (error) async {
                 unawaited(_analyticsService.logTransferFailure(
                     reason: error.message));
                 emitError(error);
@@ -124,7 +124,7 @@ class TransferCubit extends BaseCubit<TransferState> {
       }
     } catch (e) {
       unawaited(_analyticsService.logTransferFailure(reason: e.toString()));
-      emitError(const UnknownError('An unexpected error occurred'));
+      emitError(const UnknownFailure('An unexpected error occurred'));
     }
   }
 
@@ -134,45 +134,57 @@ class TransferCubit extends BaseCubit<TransferState> {
     String currency,
   ) async {
     try {
-      final transfer = await _observeTransferStatusUseCase(transferId)
+      final transferOrFailure = await _observeTransferStatusUseCase(transferId)
           .firstWhere(
-            (t) =>
-                t?.status == TransferStatus.completed ||
-                t?.status == TransferStatus.failed,
+            (either) => either.fold(
+              (l) => true,
+              (t) =>
+                  t?.status == TransferStatus.completed ||
+                  t?.status == TransferStatus.failed,
+            ),
           )
           .timeout(const Duration(seconds: 15));
 
-      if (transfer?.status == TransferStatus.completed) {
-        unawaited(
-          _analyticsService.logTransferInitiated(
-            amount: amount,
-            currency: currency,
-          ),
-        );
-        emitSuccess(const TransferState());
-      } else {
-        // Log detailed failure reason from backend
-        final reason = transfer?.failureReason ?? 'Transfer failed on backend';
-        unawaited(_analyticsService.logTransferFailure(reason: reason));
+      transferOrFailure.fold(
+        (failure) {
+          final reason = failure.message;
+          unawaited(_analyticsService.logTransferFailure(reason: reason));
+          emitError(UnknownFailure(reason));
+        },
+        (transfer) {
+          if (transfer?.status == TransferStatus.completed) {
+            unawaited(
+              _analyticsService.logTransferInitiated(
+                amount: amount,
+                currency: currency,
+              ),
+            );
+            emitSuccess(const TransferState());
+          } else {
+            // Log detailed failure reason from backend
+            final reason = transfer?.failureReason ?? 'Transfer failed on backend';
+            unawaited(_analyticsService.logTransferFailure(reason: reason));
 
-        // Emit error with the specific reason
-        emitError(UnknownError(reason));
-      }
+            // Emit error with the specific reason
+            emitError(UnknownFailure(reason));
+          }
+        },
+      );
     } on TimeoutException catch (_) {
       unawaited(
         _analyticsService.logTransferFailure(reason: 'Transfer timed out'),
       );
-      emitError(const UnknownError('Transfer processing timed out'));
+      emitError(const UnknownFailure('Transfer processing timed out'));
     } catch (e) {
       unawaited(
         _analyticsService.logTransferFailure(reason: e.toString()),
       );
-      emitError(const UnknownError('Transfer processing failed'));
+      emitError(const UnknownFailure('Transfer processing failed'));
     }
   }
 
   void _handlePersistenceResult(
-    Result<void> result,
+    Either<Failure, void> result,
     double amount,
     String currency,
   ) {

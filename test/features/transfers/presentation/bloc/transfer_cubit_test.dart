@@ -1,4 +1,4 @@
-import 'package:boklo/core/base/result.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/config/feature_flags.dart';
 import 'package:boklo/core/services/analytics_service.dart';
 
@@ -51,7 +51,7 @@ void main() {
     when(() => mockResolveRecipientUseCase.call(any()))
         .thenAnswer((invocation) async {
       final recipient = invocation.positionalArguments.first as String;
-      return Success(recipient);
+      return right(recipient);
     });
 
     registerFallbackValue(
@@ -90,7 +90,7 @@ void main() {
       when(() => mockFeatureFlags.backendAuthoritativeTransfers)
           .thenReturn(false);
       when(() => mockCreateTransferUseCase.call(any()))
-          .thenAnswer((_) async => const Success(null));
+          .thenAnswer((_) async => right(null));
       when(() => mockAnalyticsService.logTransferInitiated(
           amount: any(named: 'amount'),
           currency: any(named: 'currency'))).thenAnswer((_) async {});
@@ -135,10 +135,10 @@ void main() {
             fromWalletId: any(named: 'fromWalletId'),
             toWalletId: any(named: 'toWalletId'),
             amount: any(named: 'amount'),
-          )).thenAnswer((_) async => Success(tTransfer));
+          )).thenAnswer((_) async => right(tTransfer));
 
       when(() => mockCreateTransferUseCase.call(any()))
-          .thenAnswer((_) async => const Success(null));
+          .thenAnswer((_) async => right(null));
 
       when(() => mockAnalyticsService.logTransferInitiated(
           amount: any(named: 'amount'),
@@ -147,7 +147,7 @@ void main() {
       // Mock Observation Stream
       when(() => mockObserveTransferStatusUseCase.call(any())).thenAnswer(
         (_) => Stream.fromIterable([
-          TransferEntity(
+          right(TransferEntity(
             id: 'new_id',
             fromWalletId: tFromId,
             toWalletId: tToId,
@@ -155,8 +155,8 @@ void main() {
             currency: tCurrency,
             status: TransferStatus.pending,
             createdAt: DateTime.now(),
-          ),
-          TransferEntity(
+          )),
+          right(TransferEntity(
             id: 'new_id',
             fromWalletId: tFromId,
             toWalletId: tToId,
@@ -164,7 +164,7 @@ void main() {
             currency: tCurrency,
             status: TransferStatus.completed,
             createdAt: DateTime.now(),
-          ),
+          )),
         ]),
       );
 
