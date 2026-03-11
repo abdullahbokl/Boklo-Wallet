@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 
 class EmulatorConfig {
   static const int _authPort = 9099;
-  static const int _firestorePort = 8080;
+  static const int _firestorePort = 8085;
   static const int _functionsPort = 5001;
   static const int _storagePort = 9199;
 
