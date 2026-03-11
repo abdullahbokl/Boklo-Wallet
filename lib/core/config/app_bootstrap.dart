@@ -109,7 +109,7 @@ class MyApp extends StatelessWidget {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             theme: AppTheme.lightTheme,
-            showPerformanceOverlay: kDebugMode || kProfileMode,
+            // showPerformanceOverlay: kDebugMode || kProfileMode,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeMode,
             routerConfig: appRouter.router,
