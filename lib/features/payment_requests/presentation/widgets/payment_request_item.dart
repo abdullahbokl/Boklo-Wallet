@@ -3,6 +3,8 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/payment_requests/domain/entity/payment_request_entity.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
+import 'package:boklo/features/payment_requests/presentation/widgets/payment_request_action_button.dart';
+import 'package:boklo/features/payment_requests/presentation/widgets/payment_request_status_chip.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -48,7 +50,7 @@ class PaymentRequestItem extends StatelessWidget {
                     ),
                   ],
                 ),
-                _StatusChip(status: request.status),
+                PaymentRequestStatusChip(status: request.status),
               ],
             ),
             if (request.note != null && request.note!.isNotEmpty) ...[
@@ -63,7 +65,7 @@ class PaymentRequestItem extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: _ActionButton(
+                    child: PaymentRequestActionButton(
                       label: 'Decline',
                       icon: Icons.close,
                       color: AppColors.error,
@@ -74,7 +76,7 @@ class PaymentRequestItem extends StatelessWidget {
                   ),
                   const SizedBox(width: AppDimens.md),
                   Expanded(
-                    child: _ActionButton(
+                    child: PaymentRequestActionButton(
                       label: 'Accept',
                       icon: Icons.check,
                       color: AppColors.success,
@@ -95,107 +97,3 @@ class PaymentRequestItem extends StatelessWidget {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.status});
-  final PaymentRequestStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    Color color;
-    switch (status) {
-      case PaymentRequestStatus.pending:
-        color = AppColors.warning;
-        break;
-      case PaymentRequestStatus.accepted:
-        color = AppColors.success;
-        break;
-      case PaymentRequestStatus.declined:
-        color = AppColors.error;
-        break;
-      case PaymentRequestStatus.invalid:
-        color = AppColors.textSecondaryLight;
-        break;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppDimens.sm,
-        vertical: AppDimens.xs,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppDimens.radiusSm),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Text(
-        status.label.toUpperCase(),
-        style: AppTypography.label.copyWith(
-          color: color,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.label,
-    required this.icon,
-    required this.color,
-    required this.onPressed,
-    this.isPrimary = false,
-    this.isLoading = false,
-  });
-
-  final String label;
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onPressed;
-  final bool isPrimary;
-  final bool isLoading;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: isPrimary ? color.withValues(alpha: 0.1) : Colors.transparent,
-      borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: AppDimens.sm),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: color.withValues(alpha: isPrimary ? 0.3 : 0.1),
-            ),
-            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (isLoading)
-                SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: color,
-                  ),
-                )
-              else ...[
-                Icon(icon, size: 16, color: color),
-                const SizedBox(width: AppDimens.xs),
-                Text(
-                  label,
-                  style: AppTypography.label.copyWith(color: color),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
