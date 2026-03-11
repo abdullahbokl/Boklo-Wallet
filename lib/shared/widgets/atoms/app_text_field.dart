@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../config/theme/app_colors.dart';
-import '../../../../config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_dimens.dart';
 import '../../../../config/theme/app_typography.dart';
 
 class AppTextField extends StatelessWidget {
@@ -18,6 +17,7 @@ class AppTextField extends StatelessWidget {
     this.onSubmitted,
     this.enabled = true,
     this.inputFormatters,
+    this.autofocus = false,
   });
 
   final TextEditingController controller;
@@ -31,17 +31,22 @@ class AppTextField extends StatelessWidget {
   final void Function(String)? onSubmitted;
   final bool enabled;
   final List<TextInputFormatter>? inputFormatters;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
           Text(
             label!,
-            style:
-                AppTypography.label.copyWith(color: AppColors.textPrimaryLight),
+            style: AppTypography.label.copyWith(
+              color: scheme.onSurface.withValues(alpha: 0.7),
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: AppDimens.xs),
         ],
@@ -53,15 +58,34 @@ class AppTextField extends StatelessWidget {
           validator: validator,
           onFieldSubmitted: onSubmitted,
           inputFormatters: inputFormatters,
-          style: AppTypography.bodyLarge
-              .copyWith(color: AppColors.textPrimaryLight),
-          cursorColor: AppColors.primary,
+          autofocus: autofocus,
+          style: AppTypography.bodyLarge.copyWith(
+            color: scheme.onSurface,
+          ),
+          cursorColor: scheme.primary,
           decoration: InputDecoration(
             hintText: hintText,
-            prefixIcon: prefixIcon,
-            suffixIcon: suffixIcon,
-            // Theme InputDecoration is applied here automatically from AppTheme
-            // We can override specifics if needed, but defaults should work.
+            hintStyle: AppTypography.bodyLarge.copyWith(
+              color: scheme.onSurface.withValues(alpha: 0.4),
+            ),
+            prefixIcon: prefixIcon != null
+                ? IconTheme(
+                    data: IconThemeData(
+                      color: scheme.onSurface.withValues(alpha: 0.5),
+                      size: 20,
+                    ),
+                    child: prefixIcon!,
+                  )
+                : null,
+            suffixIcon: suffixIcon != null
+                ? IconTheme(
+                    data: IconThemeData(
+                      color: scheme.onSurface.withValues(alpha: 0.5),
+                      size: 20,
+                    ),
+                    child: suffixIcon!,
+                  )
+                : null,
           ),
         ),
       ],

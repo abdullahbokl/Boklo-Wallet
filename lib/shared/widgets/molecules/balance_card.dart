@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_decorations.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/shared/widgets/molecules/balance_card_badge.dart';
+import 'package:boklo/shared/widgets/atoms/app_shimmer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -98,13 +98,14 @@ class BalanceCard extends StatelessWidget {
   }
 
   Widget _buildSkeleton() {
-    return Container(
-      width: double.infinity,
-      height: 160,
-      padding: const EdgeInsets.all(AppDimens.lg),
-      decoration: BoxDecoration(
-        color: AppColors.shimmerBaseLight,
-        borderRadius: BorderRadius.circular(AppDimens.radiusXl),
+    return AppShimmer(
+      child: Container(
+        width: double.infinity,
+        height: 140,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppDimens.radiusXl),
+        ),
       ),
     );
   }

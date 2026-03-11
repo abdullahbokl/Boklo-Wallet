@@ -13,12 +13,14 @@ class AppAvatar extends StatelessWidget {
     this.name,
     this.size = AppDimens.avatarMd,
     this.showBorder = false,
+    this.onTap,
   });
 
   final String? photoUrl;
   final String? name;
   final double size;
   final bool showBorder;
+  final VoidCallback? onTap;
 
   String get _initials {
     if (name == null || name!.isEmpty) return '?';
@@ -41,14 +43,13 @@ class AppAvatar extends StatelessWidget {
           )
         : null;
 
-    return Container(
+    final avatar = Container(
       width: size,
       height: size,
       decoration: borderDecoration,
       child: CircleAvatar(
         radius: size / 2,
-        backgroundImage:
-            photoUrl != null ? NetworkImage(photoUrl!) : null,
+        backgroundImage: photoUrl != null ? NetworkImage(photoUrl!) : null,
         backgroundColor: AppColors.primary.withValues(alpha: 0.15),
         child: photoUrl == null
             ? Text(
@@ -60,6 +61,13 @@ class AppAvatar extends StatelessWidget {
               )
             : null,
       ),
+    );
+
+    if (onTap == null) return avatar;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: avatar,
     );
   }
 }

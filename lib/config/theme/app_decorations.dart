@@ -41,4 +41,25 @@ class AppDecorations {
       boxShadow: AppColors.shadowSm,
     );
   }
+
+  /// Main background gradient for screens.
+  static BoxDecoration mainGradient(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: isDark
+            ? [
+                AppColors.primary.withValues(alpha: 0.15),
+                Theme.of(context).scaffoldBackgroundColor,
+              ]
+            : [
+                AppColors.primary.withValues(alpha: 0.08),
+                Theme.of(context).scaffoldBackgroundColor,
+              ],
+        stops: const [0.0, 0.4],
+      ),
+    );
+  }
 }
