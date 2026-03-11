@@ -4,6 +4,7 @@ import 'package:boklo/features/transfers/presentation/widgets/transfer_balance_d
 import 'package:boklo/features/transfers/presentation/widgets/transfer_recipient_input.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
+import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 
 class TransferFormContent extends StatelessWidget {
@@ -26,32 +27,36 @@ class TransferFormContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: formKey,
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimens.md),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppDimens.md),
+      child: Form(
+        key: formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TransferBalanceDisplay(wallet: wallet),
-            const SizedBox(height: AppDimens.xl),
-            TransferRecipientInput(
-              controller: recipientController,
-              enabled: !isLoading,
-            ),
-            const SizedBox(height: AppDimens.md),
-            TransferAmountInput(
-              controller: amountController,
-              enabled: !isLoading,
-            ),
-            const SizedBox(height: AppDimens.xl),
-            SizedBox(
-              height: 56, // Large touch target
-              child: AppButton(
-                onPressed: isLoading ? null : onSubmit,
-                text: 'Confirm Transfer',
-                isLoading: isLoading,
+            const SizedBox(height: AppDimens.lg),
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TransferRecipientInput(
+                    controller: recipientController,
+                    enabled: !isLoading,
+                  ),
+                  const SizedBox(height: AppDimens.md),
+                  TransferAmountInput(
+                    controller: amountController,
+                    enabled: !isLoading,
+                  ),
+                  const SizedBox(height: AppDimens.lg),
+                  AppButton(
+                    onPressed: isLoading ? null : onSubmit,
+                    text: 'Confirm Transfer',
+                    isLoading: isLoading,
+                    width: double.infinity,
+                  ),
+                ],
               ),
             ),
           ],

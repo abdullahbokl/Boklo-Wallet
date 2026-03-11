@@ -1,8 +1,7 @@
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
-import 'package:boklo/core/di/di_initializer.dart';
-import 'package:boklo/core/services/navigation_service.dart';
+import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:flutter/material.dart';
 
 class TransferConfirmationDialog extends StatelessWidget {
@@ -19,35 +18,119 @@ class TransferConfirmationDialog extends StatelessWidget {
   final String recipient;
   final VoidCallback onConfirm;
 
+  static Future<void> show({
+    required BuildContext context,
+    required double amount,
+    required String currency,
+    required String recipient,
+    required VoidCallback onConfirm,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => TransferConfirmationDialog(
+        amount: amount,
+        currency: currency,
+        recipient: recipient,
+        onConfirm: onConfirm,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Confirm Transfer', style: AppTypography.headline),
-      content: Text(
-        'Send $amount $currency to $recipient?',
-        style: AppTypography.bodyMedium,
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppDimens.radiusXl),
+        ),
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+      padding: const EdgeInsets.all(AppDimens.lg),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: AppDimens.lg),
+                decoration: BoxDecoration(
+                  color: scheme.onSurface.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppDimens.radiusSm),
+                ),
+              ),
+            ),
+            Text(
+              'Confirm Transfer',
+              style: AppTypography.headline,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppDimens.xl),
+            _SummaryItem(
+              label: 'Amount',
+              value: '$amount $currency',
+              isPrimary: true,
+            ),
+            const Divider(height: AppDimens.xl),
+            _SummaryItem(
+              label: 'Recipient',
+              value: recipient,
+            ),
+            const SizedBox(height: AppDimens.xxl),
+            AppButton(
+              text: 'Confirm & Send',
+              onPressed: () {
+                Navigator.pop(context);
+                onConfirm();
+              },
+            ),
+            const SizedBox(height: AppDimens.sm),
+            AppButton(
+              text: 'Cancel',
+              isSecondary: true,
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => getIt<NavigationService>().pop(),
-          child: Text(
-            'Cancel',
-            style: AppTypography.label
-                .copyWith(color: AppColors.textSecondaryLight),
+    );
+  }
+}
+
+class _SummaryItem extends StatelessWidget {
+  const _SummaryItem({
+    required this.label,
+    required this.value,
+    this.isPrimary = false,
+  });
+
+  final String label;
+  final String value;
+  final bool isPrimary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.textSecondaryLight,
           ),
         ),
-        TextButton(
-          onPressed: () {
-            getIt<NavigationService>().pop();
-            onConfirm();
-          },
-          child: Text(
-            'Confirm',
-            style: AppTypography.label.copyWith(color: AppColors.primary),
-          ),
+        const SizedBox(height: AppDimens.xs),
+        Text(
+          value,
+          style: isPrimary ? AppTypography.title : AppTypography.bodyMedium,
+          textAlign: TextAlign.center,
         ),
       ],
     );

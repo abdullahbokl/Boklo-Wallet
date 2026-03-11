@@ -51,22 +51,21 @@ class _TransferFormState extends State<TransferForm> {
       final recipient = _recipientController.text;
 
       unawaited(
-        getIt<NavigationService>().showDialog<void>(
-          builder: (dialogContext) => TransferConfirmationDialog(
-            amount: amount,
-            currency: currency,
-            recipient: recipient,
-            onConfirm: () {
-              unawaited(
-                context.read<TransferCubit>().createTransfer(
-                      fromWalletId: fromWalletId,
-                      recipient: recipient,
-                      amount: amount,
-                      currency: currency,
-                    ),
-              );
-            },
-          ),
+        TransferConfirmationDialog.show(
+          context: context,
+          amount: amount,
+          currency: currency,
+          recipient: recipient,
+          onConfirm: () {
+            unawaited(
+              context.read<TransferCubit>().createTransfer(
+                    fromWalletId: fromWalletId,
+                    recipient: recipient,
+                    amount: amount,
+                    currency: currency,
+                  ),
+            );
+          },
         ),
       );
     }

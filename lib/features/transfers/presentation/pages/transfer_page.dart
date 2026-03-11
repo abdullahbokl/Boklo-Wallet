@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:boklo/config/theme/app_decorations.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_form.dart';
@@ -27,9 +29,24 @@ class TransferPage extends StatelessWidget {
         ),
       ],
       child: Scaffold(
-        appBar: AppBar(title: const Text('Send Money')),
-        body: ResponsiveConstraint(
-          child: TransferForm(prefilledRecipient: prefilledRecipient),
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          title: Text(
+            'Send Money',
+            style: AppTypography.title.copyWith(fontWeight: FontWeight.w700),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+        ),
+        body: Container(
+          decoration: AppDecorations.mainGradient(context),
+          child: SafeArea(
+            bottom: false,
+            child: ResponsiveConstraint(
+              child: TransferForm(prefilledRecipient: prefilledRecipient),
+            ),
+          ),
         ),
       ),
     );
