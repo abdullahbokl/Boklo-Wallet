@@ -14,6 +14,7 @@ import 'package:boklo/features/payment_requests/presentation/pages/payment_reque
 import 'package:boklo/features/payment_requests/presentation/pages/create_payment_request_page.dart';
 import 'package:boklo/features/contacts/presentation/page/contact_list_page.dart';
 import 'package:boklo/features/notification_preferences/presentation/page/notification_settings_page.dart';
+import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
@@ -41,6 +42,10 @@ class AppRouter {
       GoRoute(
         path: '/profile-setup',
         builder: (context, state) => const ProfileSetupPage(),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfilePage(),
       ),
       GoRoute(
         path: '/wallet',
