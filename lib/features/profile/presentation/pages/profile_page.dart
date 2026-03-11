@@ -37,39 +37,54 @@ class ProfilePage extends StatelessWidget {
         ),
         child: BlocBuilder<AuthCubit, BaseState<User?>>(
           builder: (context, state) {
-            final user = state.maybeWhen(
-              success: (user) => user,
-              orElse: () => null,
-            );
-
-            if (user == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            return SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppDimens.lg),
+            return state.when(
+              initial: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (failure) => Center(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ProfileHeader(user: user),
-                    const SizedBox(height: AppDimens.xl * 1.5),
-                    const AccountDetailsCard(),
-                    const SizedBox(height: AppDimens.xl * 2),
+                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                    const SizedBox(height: AppDimens.md),
+                    Text(failure.message),
+                    const SizedBox(height: AppDimens.md),
                     AppButton(
-                      text: 'Sign Out',
-                      isSecondary: true,
-                      onPressed: () => context.read<AuthCubit>().logout(),
-                    ),
-                    const SizedBox(height: AppDimens.xl),
-                    Text(
-                      'v1.0.0 (BETA)',
-                      style: AppTypography.caption.copyWith(
-                        color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
-                      ),
+                      text: 'Retry',
+                      onPressed: () => context.read<AuthCubit>().checkAuthStatus(),
                     ),
                   ],
                 ),
               ),
+              success: (user) {
+                if (user == null) {
+                  return const Center(child: Text('Please login to view profile'));
+                }
+                return SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppDimens.lg),
+                    child: Column(
+                      children: [
+                        ProfileHeader(user: user),
+                        const SizedBox(height: AppDimens.xl * 1.5),
+                        const AccountDetailsCard(),
+                        const SizedBox(height: AppDimens.xl * 2),
+                        AppButton(
+                          text: 'Sign Out',
+                          isSecondary: true,
+                          onPressed: () => context.read<AuthCubit>().logout(),
+                        ),
+                        const SizedBox(height: AppDimens.xl),
+                        Text(
+                          'v1.0.0 (BETA)',
+                          style: AppTypography.caption.copyWith(
+                            color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
