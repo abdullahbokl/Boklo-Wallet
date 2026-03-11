@@ -1,13 +1,14 @@
-import 'dart:async';
-
-import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
+import 'package:boklo/shared/widgets/atoms/app_avatar.dart';
+import 'package:boklo/shared/widgets/atoms/app_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,20 +18,47 @@ class WalletAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      leading: Padding(
+        padding: const EdgeInsets.only(left: AppDimens.md),
+        child: BlocBuilder<AuthCubit, BaseState<User?>>(
+          builder: (context, authState) {
+            final user = authState.maybeWhen(
+              success: (user) => user,
+              orElse: () => null,
+            );
+            return AppAvatar(
+              size: 40,
+              name: user?.displayName ?? user?.email,
+              onTap: () => getIt<NavigationService>().push('/profile'),
+            );
+          },
+        ),
+      ),
+      leadingWidth: 40 + AppDimens.md,
       title: BlocBuilder<WalletCubit, BaseState<WalletState>>(
         builder: (context, walletState) {
           final name = walletState.maybeWhen(
             success: (data) => data.wallet.ownerName,
             orElse: () => null,
           );
-          return Text(
-            name != null && name.isNotEmpty ? 'Hi 👋, $name!' : 'Hi 👋',
-            style: AppTypography.headline.copyWith(
-              color: AppColors.textPrimaryLight,
-              fontWeight: FontWeight.bold,
-            ),
-            overflow: TextOverflow.visible,
-            softWrap: true,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Good morning',
+                style: AppTypography.bodySmall.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              Text(
+                name != null && name.isNotEmpty ? name : 'User',
+                style: AppTypography.headline.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -38,75 +66,21 @@ class WalletAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      actions: const [_LogoutButton()],
+      actions: [
+        AppIconButton(
+          icon: Icons.notifications_none_rounded,
+          onTap: () => getIt<NavigationService>().push('/notifications'),
+        ),
+        const SizedBox(width: AppDimens.xs),
+        AppIconButton(
+          icon: Icons.settings_outlined,
+          onTap: () => getIt<NavigationService>().push('/notification-settings'),
+        ),
+        const SizedBox(width: AppDimens.md),
+      ],
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
-
-class _LogoutButton extends StatelessWidget {
-  const _LogoutButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppDimens.md),
-      child: BlocBuilder<AuthCubit, BaseState<User?>>(
-        builder: (context, authState) {
-          final isLoggingOut = authState.isLoading;
-          return InkWell(
-            onTap: isLoggingOut
-                ? null
-                : () {
-                    unawaited(context.read<AuthCubit>().logout());
-                  },
-            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimens.md,
-                vertical: AppDimens.xs,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppDimens.radiusSm),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isLoggingOut)
-                    const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.primary,
-                      ),
-                    )
-                  else
-                    const Icon(
-                      Icons.logout_rounded,
-                      size: 18,
-                      color: AppColors.primary,
-                    ),
-                  const SizedBox(width: 8),
-                  Text(
-                    isLoggingOut ? 'Logging out...' : 'Logout',
-                    style: AppTypography.label.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 8);
 }

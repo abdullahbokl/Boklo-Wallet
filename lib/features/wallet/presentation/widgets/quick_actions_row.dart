@@ -1,15 +1,18 @@
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 
 class QuickActionsRow extends StatelessWidget {
+  final VoidCallback onSendTap;
   final VoidCallback onPaymentRequestsTap;
   final VoidCallback onContactsTap;
   final VoidCallback onNotificationsTap;
 
   const QuickActionsRow({
     super.key,
+    required this.onSendTap,
     required this.onPaymentRequestsTap,
     required this.onContactsTap,
     required this.onNotificationsTap,
@@ -17,29 +20,30 @@ class QuickActionsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.symmetric(
         vertical: AppDimens.md,
-        horizontal: AppDimens.sm,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-        boxShadow: AppColors.shadowSm,
+        horizontal: AppDimens.xs,
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _QuickActionItem(
-            icon: Icons.move_to_inbox_rounded,
-            label: 'Requests',
+            icon: Icons.send_rounded,
+            label: 'Send',
             color: AppColors.primary,
+            onTap: onSendTap,
+          ),
+          _QuickActionItem(
+            icon: Icons.move_to_inbox_rounded,
+            label: 'Request',
+            color: AppColors.secondary,
             onTap: onPaymentRequestsTap,
           ),
           _QuickActionItem(
             icon: Icons.people_alt_rounded,
             label: 'Contacts',
-            color: AppColors.secondary,
+            color: AppColors.success,
             onTap: onContactsTap,
           ),
           _QuickActionItem(
@@ -74,14 +78,14 @@ class _QuickActionItem extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppDimens.radiusMd),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppDimens.sm,
+          horizontal: AppDimens.xs,
           vertical: AppDimens.xs,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(AppDimens.md),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
@@ -96,8 +100,8 @@ class _QuickActionItem extends StatelessWidget {
             Text(
               label,
               style: AppTypography.label.copyWith(
-                color: AppColors.textPrimaryLight,
                 fontWeight: FontWeight.w600,
+                fontSize: 12,
               ),
             ),
           ],

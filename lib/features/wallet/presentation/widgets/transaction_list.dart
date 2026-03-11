@@ -1,9 +1,9 @@
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart'
     as domain;
-import 'package:boklo/shared/widgets/molecules/transaction_tile.dart'; // NEW
-import 'package:boklo/shared/widgets/atoms/status_chip.dart'; // NEW Enum mapping
+import 'package:boklo/shared/widgets/molecules/transaction_tile.dart';
+import 'package:boklo/shared/widgets/atoms/status_chip.dart';
+import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
-import 'package:boklo/config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -32,46 +32,12 @@ class TransactionList extends StatelessWidget {
     }
 
     if (transactions.isEmpty) {
-      return SliverToBoxAdapter(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppDimens.xxl,
-              horizontal: AppDimens.xl,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(AppDimens.lg),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.receipt_long_rounded,
-                    size: 48,
-                    color: Colors.grey.withOpacity(0.5),
-                  ),
-                ),
-                const SizedBox(height: AppDimens.md),
-                Text(
-                  'No transactions yet',
-                  style: AppTypography.title.copyWith(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Your income and expenses will appear here.',
-                  style: AppTypography.bodyMedium.copyWith(color: Colors.grey),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
+      return const SliverFillRemaining(
+        hasScrollBody: false,
+        child: AppEmptyState(
+          icon: Icons.receipt_long_rounded,
+          title: 'No transactions yet',
+          subtitle: 'Your income and expenses will appear here.',
         ),
       );
     }

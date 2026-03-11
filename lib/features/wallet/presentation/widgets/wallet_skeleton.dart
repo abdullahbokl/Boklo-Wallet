@@ -1,4 +1,5 @@
 import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/shared/widgets/atoms/app_shimmer.dart';
 import 'package:boklo/shared/widgets/molecules/balance_card.dart';
 import 'package:flutter/material.dart';
 
@@ -7,51 +8,44 @@ class WalletSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Static skeleton without external dependencies
     return Padding(
       padding: const EdgeInsets.all(AppDimens.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Balance Card Skeleton
           const BalanceCard(
             balance: 0,
             currency: '',
             isLoading: true,
           ),
           const SizedBox(height: AppDimens.lg),
-          // Primary Action Skeleton
-          Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-            ),
-          ),
-          const SizedBox(height: AppDimens.md),
-          // Quick Actions Skeleton
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(
-              3,
-              (index) => Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          // Quick Actions Skeleton (4 items)
+          AppShimmer(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(
+                4,
+                (index) => Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                  ),
                 ),
               ),
             ),
           ),
           const SizedBox(height: AppDimens.xl),
           // Recent Transactions Title Skeleton
-          Container(
-            width: 150,
-            height: 20,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(4),
+          AppShimmer(
+            child: Container(
+              width: 150,
+              height: 20,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
           ),
           const SizedBox(height: AppDimens.md),
@@ -62,42 +56,44 @@ class WalletSkeleton extends StatelessWidget {
               itemCount: 5,
               itemBuilder: (context, index) => Padding(
                 padding: const EdgeInsets.only(bottom: AppDimens.md),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        shape: BoxShape.circle,
+                child: AppShimmer(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppDimens.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(4),
+                      const SizedBox(width: AppDimens.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Container(
-                            width: 100,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(4),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: 100,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
