@@ -15,19 +15,19 @@
       "host": "0.0.0.0"
     },
     "auth": {
-      "port": 9099,
+      "port": 9098,
       "host": "0.0.0.0"
     },
     "firestore": {
-      "port": 8085,
+      "port": 8086,
       "host": "0.0.0.0"
     },
     "database": {
-      "port": 9000,
+      "port": 9001,
       "host": "0.0.0.0"
     },
     "storage": {
-      "port": 9199,
+      "port": 9200,
       "host": "0.0.0.0"
     },
     "ui": {

@@ -9,10 +9,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 class EmulatorConfig {
-  static const int _authPort = 9099;
-  static const int _firestorePort = 8085;
+  static const int _authPort = 9098;
+  static const int _firestorePort = 8086;
   static const int _functionsPort = 5001;
-  static const int _storagePort = 9199;
+  static const int _storagePort = 9200;
 
   static const String _androidEmulatorHost = '10.0.2.2';
   static const String _localhost = 'localhost';

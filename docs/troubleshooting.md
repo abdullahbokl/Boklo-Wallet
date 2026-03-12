@@ -46,7 +46,7 @@ App shows network errors or timeouts when connecting to `10.0.2.2:xxxx`.
       ```
 3.  **Correct Ports?**:
     - Check `emulator_config.dart`.
-    - Defaults: Auth(9099), Firestore(8080), Functions(5001).
+    - Defaults: Auth(9098), Firestore(8086), Functions(5001), Storage(9200).
     - Ensure `firebase.json` matches these ports.
 
 ---
