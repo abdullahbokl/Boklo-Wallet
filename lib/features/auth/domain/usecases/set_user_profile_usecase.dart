@@ -1,13 +1,14 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/core/usecases/usecase.dart';
 import 'package:boklo/features/auth/data/datasources/user_remote_data_source.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 class SetUserProfileParams {
+  SetUserProfileParams({required this.username, this.name});
+
   final String username;
   final String? name;
-  SetUserProfileParams({required this.username, this.name});
 }
 
 @lazySingleton
@@ -24,7 +25,9 @@ class SetUserProfileUseCase implements UseCase<void, SetUserProfileParams> {
         name: params.name,
       );
       return const Right(null);
-    } catch (e) {
+    } on Failure catch (e) {
+      return Left(e);
+    } on Object catch (e) {
       return Left(UnknownFailure('Failed to set profile: $e'));
     }
   }

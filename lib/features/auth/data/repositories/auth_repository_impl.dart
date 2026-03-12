@@ -1,10 +1,10 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:boklo/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: AuthRepository)
@@ -27,6 +27,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return Right(profile.toEntity());
       }
       return Right(userModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on FirebaseAuthException catch (e) {
       return Left(_mapFirebaseError(e));
     } on Object catch (e) {
@@ -41,6 +43,8 @@ class AuthRepositoryImpl implements AuthRepository {
       // Backend creates user document via Cloud Function.
       // We don't create it client-side anymore.
       return Right(userModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on FirebaseAuthException catch (e) {
       return Left(_mapFirebaseError(e));
     } on Object catch (e) {
@@ -53,6 +57,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.logout();
       return const Right(null);
+    } on Failure catch (e) {
+      return Left(e);
     } on FirebaseAuthException catch (e) {
       return Left(_mapFirebaseError(e));
     } on Object catch (e) {
@@ -71,6 +77,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return Right(profile.toEntity());
       }
       return Right(userModel.toEntity());
+    } on Failure catch (e) {
+      return Left(e);
     } on FirebaseAuthException catch (e) {
       return Left(_mapFirebaseError(e));
     } on Object catch (e) {

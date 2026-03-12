@@ -26,6 +26,17 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
         return UserModel.fromJson(doc.data()!);
       }
       return null;
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        throw const ServerFailure(
+          'Access denied while loading profile. If this is prod debug mode, '
+          'register your App Check debug token in Firebase Console.',
+        );
+      }
+      if (e.code == 'unavailable') {
+        throw const NetworkFailure('Unable to reach profile service');
+      }
+      throw UnknownFailure('Failed to fetch user profile: ${e.code}');
     } catch (e) {
       throw UnknownFailure('Failed to fetch user profile: $e');
     }
@@ -65,6 +76,18 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
           'Profile record missing on backend. '
           '(Trigger failure or manual sync needed)',
         );
+      } else if (e.code == 'failed-precondition' ||
+          e.code == 'permission-denied') {
+        throw const ServerFailure(
+          'Security check failed. For prod debug builds, add your App Check '
+          'debug token in Firebase Console and retry.',
+        );
+      } else if (e.code == 'unauthenticated') {
+        throw const ServerFailure(
+          'Your session expired. Please sign in again.',
+        );
+      } else if (e.code == 'unavailable') {
+        throw const NetworkFailure('Unable to reach profile service');
       }
       throw UnknownFailure('Profile update failed: ${e.code}');
     } catch (e) {
