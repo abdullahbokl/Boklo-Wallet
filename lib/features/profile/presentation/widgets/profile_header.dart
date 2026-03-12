@@ -2,6 +2,7 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/shared/widgets/atoms/app_avatar.dart';
+import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -16,51 +17,36 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    scheme.primary.withValues(alpha: 0.2),
-                    scheme.secondary.withValues(alpha: 0.2),
-                  ],
-                ),
-              ),
+    return AppCard(
+      padding: const EdgeInsets.all(AppDimens.xl),
+      child: Column(
+        children: [
+          AppAvatar(
+            size: AppDimens.avatarXl,
+            name: user.displayName ?? user.username ?? user.email,
+            showBorder: true,
+          ),
+          const SizedBox(height: AppDimens.lg),
+          Text(
+            user.displayName ?? 'Boklo user',
+            style: AppTypography.headline.copyWith(color: scheme.onSurface),
+          ),
+          const SizedBox(height: AppDimens.xs4),
+          Text(
+            '@${user.username ?? 'pending'}',
+            style: AppTypography.bodyMedium.copyWith(
+              color: scheme.primary,
             ),
-            AppAvatar(
-              size: 100,
-              name: user.displayName ?? user.username ?? user.email,
+          ),
+          const SizedBox(height: AppDimens.sm),
+          Text(
+            user.email,
+            style: AppTypography.bodySmall.copyWith(
+              color: scheme.onSurfaceVariant,
             ),
-          ],
-        ),
-        const SizedBox(height: AppDimens.lg),
-        Text(
-          user.displayName ?? 'User',
-          style: AppTypography.headline.copyWith(
-            fontWeight: FontWeight.bold,
           ),
-        ),
-        Text(
-          '@${user.username}',
-          style: AppTypography.bodyMedium.copyWith(
-            color: scheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: AppDimens.sm),
-        Text(
-          user.email,
-          style: AppTypography.caption.copyWith(
-            color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

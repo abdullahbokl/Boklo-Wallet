@@ -11,43 +11,31 @@ class AccountDetailsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppDimens.lg),
-      child: AppCard(
-        padding: EdgeInsets.zero,
-        child: Column(
-          children: [
-            _SettingTile(
-              icon: Icons.person_outline,
-              title: 'Personal Info',
-              onTap: () {
-                // TODO(boklo): Implement personal info edit page
-              },
-            ),
-            Divider(
-              height: 1,
-              indent: 56,
-              color: scheme.outlineVariant,
-            ),
-            _SettingTile(
-              icon: Icons.notifications_none_outlined,
-              title: 'Notifications',
-              onTap: () => context.push('/notification-settings'),
-            ),
-            Divider(
-              height: 1,
-              indent: 56,
-              color: scheme.outlineVariant,
-            ),
-            _SettingTile(
-              icon: Icons.security_outlined,
-              title: 'Security',
-              onTap: () {
-                // TODO(boklo): Implement security settings
-              },
-            ),
-          ],
-        ),
+    return AppCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
+          _SettingTile(
+            icon: Icons.person_outline_rounded,
+            title: 'Personal information',
+            subtitle: 'Review the details linked to your Boklo account.',
+            onTap: () {},
+          ),
+          Divider(height: 1, color: scheme.outlineVariant),
+          _SettingTile(
+            icon: Icons.notifications_none_outlined,
+            title: 'Notifications',
+            subtitle: 'Choose which alerts Boklo should send you.',
+            onTap: () => context.push('/notification-settings'),
+          ),
+          Divider(height: 1, color: scheme.outlineVariant),
+          _SettingTile(
+            icon: Icons.security_outlined,
+            title: 'Security',
+            subtitle: 'Security tools and protections for your wallet.',
+            onTap: () {},
+          ),
+        ],
       ),
     );
   }
@@ -57,11 +45,13 @@ class _SettingTile extends StatelessWidget {
   const _SettingTile({
     required this.icon,
     required this.title,
+    required this.subtitle,
     required this.onTap,
   });
 
   final IconData icon;
   final String title;
+  final String subtitle;
   final VoidCallback onTap;
 
   @override
@@ -74,20 +64,33 @@ class _SettingTile extends StatelessWidget {
         padding: const EdgeInsets.all(AppDimens.lg),
         child: Row(
           children: [
-            Icon(icon, color: scheme.primary),
+            Container(
+              padding: const EdgeInsets.all(AppDimens.sm),
+              decoration: BoxDecoration(
+                color: scheme.primaryContainer.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+              ),
+              child: Icon(icon, color: scheme.primary),
+            ),
             const SizedBox(width: AppDimens.md),
             Expanded(
-              child: Text(
-                title,
-                style: AppTypography.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTypography.subtitle),
+                  const SizedBox(height: AppDimens.xs4),
+                  Text(
+                    subtitle,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ),
             Icon(
-              Icons.chevron_right,
-              color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
-              size: 20,
+              Icons.chevron_right_rounded,
+              color: scheme.onSurfaceVariant,
             ),
           ],
         ),
