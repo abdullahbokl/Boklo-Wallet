@@ -75,7 +75,8 @@ class WalletAppBar extends StatelessWidget implements PreferredSizeWidget {
         const SizedBox(width: AppDimens.xs),
         AppIconButton(
           icon: Icons.tune_rounded,
-          onTap: () => getIt<NavigationService>().push('/notification-settings'),
+          onTap: () =>
+              getIt<NavigationService>().push('/notification-settings'),
         ),
         const SizedBox(width: AppDimens.pageHorizontalPadding),
       ],
