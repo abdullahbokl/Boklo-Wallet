@@ -1,4 +1,3 @@
-import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/payment_requests/domain/entity/payment_request_entity.dart';
@@ -23,55 +22,66 @@ class PaymentRequestItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDimens.md),
       child: AppCard(
+        padding: const EdgeInsets.all(AppDimens.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${request.amount} ${request.currency}',
-                      style: AppTypography.title,
-                    ),
-                    const SizedBox(height: AppDimens.xs),
-                    Text(
-                      isOutgoing 
-                          ? 'To: ${request.payerId}' 
-                          : 'From: ${request.requesterId}',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondaryLight,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${request.amount} ${request.currency}',
+                        style: AppTypography.amountSmall.copyWith(
+                          color: scheme.onSurface,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: AppDimens.xs),
+                      Text(
+                        isOutgoing
+                            ? 'Requested from ${request.payerId}'
+                            : 'Requested by ${request.requesterId}',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 PaymentRequestStatusChip(status: request.status),
               ],
             ),
             if (request.note != null && request.note!.isNotEmpty) ...[
-              const SizedBox(height: AppDimens.sm),
+              const SizedBox(height: AppDimens.md),
               Text(
                 request.note!,
-                style: AppTypography.bodyMedium,
+                style: AppTypography.bodyMedium.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
             ],
             if (!isOutgoing && request.status == PaymentRequestStatus.pending) ...[
-              const SizedBox(height: AppDimens.md),
+              const SizedBox(height: AppDimens.lg),
               Row(
                 children: [
                   Expanded(
                     child: PaymentRequestActionButton(
                       label: 'Decline',
                       icon: Icons.close,
-                      color: AppColors.error,
-                      onPressed: isLoading 
-                          ? null 
-                          : () => context.read<PaymentRequestCubit>().declineRequest(request.id),
+                      color: scheme.error,
+                      onPressed: isLoading
+                          ? null
+                          : () => context
+                              .read<PaymentRequestCubit>()
+                              .declineRequest(request.id),
                     ),
                   ),
                   const SizedBox(width: AppDimens.md),
@@ -79,12 +89,14 @@ class PaymentRequestItem extends StatelessWidget {
                     child: PaymentRequestActionButton(
                       label: 'Accept',
                       icon: Icons.check,
-                      color: AppColors.success,
+                      color: Colors.green.shade700,
                       isPrimary: true,
                       isLoading: isLoading,
-                      onPressed: isLoading 
-                          ? null 
-                          : () => context.read<PaymentRequestCubit>().acceptRequest(request.id),
+                      onPressed: isLoading
+                          ? null
+                          : () => context
+                              .read<PaymentRequestCubit>()
+                              .acceptRequest(request.id),
                     ),
                   ),
                 ],
@@ -96,4 +108,3 @@ class PaymentRequestItem extends StatelessWidget {
     );
   }
 }
-

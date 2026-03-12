@@ -1,5 +1,5 @@
-import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
 import 'package:boklo/shared/widgets/atoms/app_avatar.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
@@ -25,6 +25,8 @@ class ContactItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDimens.md),
       child: AppCard(
@@ -44,18 +46,15 @@ class ContactItem extends StatelessWidget {
                 children: [
                   Text(
                     contact.displayName,
-                    style: AppTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
+                    style: AppTypography.subtitle.copyWith(
+                      color: scheme.onSurface,
                     ),
                   ),
+                  const SizedBox(height: AppDimens.xs4),
                   Text(
                     contact.email,
-                    style: AppTypography.caption.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.6),
+                    style: AppTypography.bodySmall.copyWith(
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -88,34 +87,26 @@ class _ContactActionMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
-      icon: Icon(
-        Icons.more_vert,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-      ),
+      icon: const Icon(Icons.more_horiz_rounded),
       onSelected: (value) {
         if (value == 'send') onSendMoney?.call();
         if (value == 'request') onRequestMoney?.call();
         if (value == 'remove') onRemove?.call();
       },
       itemBuilder: (context) => [
-        _buildMenuItem(
-          context,
-          'send',
-          Icons.send_rounded,
-          'Send Money',
-        ),
+        _buildMenuItem(context, 'send', Icons.send_rounded, 'Send money'),
         _buildMenuItem(
           context,
           'request',
           Icons.request_page_rounded,
-          'Request Payment',
+          'Request payment',
         ),
         const PopupMenuDivider(),
         _buildMenuItem(
           context,
           'remove',
           Icons.delete_outline_rounded,
-          'Remove Contact',
+          'Remove contact',
           isDestructive: true,
         ),
       ],
@@ -129,18 +120,16 @@ class _ContactActionMenu extends StatelessWidget {
     String label, {
     bool isDestructive = false,
   }) {
-    final color =
-        isDestructive ? Colors.red : Theme.of(context).colorScheme.onSurface;
-    return PopupMenuItem(
+    final color = isDestructive
+        ? Theme.of(context).colorScheme.error
+        : Theme.of(context).colorScheme.onSurface;
+    return PopupMenuItem<String>(
       value: value,
       child: Row(
         children: [
-          Icon(icon, size: 20, color: color),
+          Icon(icon, size: AppDimens.iconMd, color: color),
           const SizedBox(width: AppDimens.sm),
-          Text(
-            label,
-            style: AppTypography.bodyMedium.copyWith(color: color),
-          ),
+          Text(label, style: AppTypography.bodyMedium.copyWith(color: color)),
         ],
       ),
     );

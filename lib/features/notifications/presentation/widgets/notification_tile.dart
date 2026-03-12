@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/notifications/domain/entities/notification_entity.dart';
+import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -20,120 +21,91 @@ class NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isRead = notification.status == NotificationStatus.read;
+    final tone = _toneForType(notification.type, scheme);
 
     return Dismissible(
       key: Key(notification.id),
       direction: DismissDirection.endToStart,
       onDismissed: (_) => onDelete?.call(),
-      background: _buildDismissBackground(scheme),
-      child: GestureDetector(
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: AppDimens.lg),
+        decoration: BoxDecoration(
+          color: scheme.error,
+          borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        ),
+        child: Icon(Icons.delete_outline_rounded, color: scheme.onError),
+      ),
+      child: AppCard(
         onTap: onMarkRead,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.all(AppDimens.md),
-          decoration: BoxDecoration(
-            color: isRead ? scheme.surface : scheme.primaryContainer.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-            border: Border.all(
-              color: isRead ? scheme.outlineVariant : scheme.primary.withValues(alpha: 0.2),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _NotificationIcon(type: notification.type, isRead: isRead),
-              const SizedBox(width: AppDimens.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            notification.title,
-                            style: AppTypography.bodyMedium.copyWith(
-                              fontWeight: isRead ? FontWeight.w500 : FontWeight.w700,
-                              color: scheme.onSurface,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          DateFormat('HH:mm').format(notification.createdAt),
-                          style: AppTypography.caption.copyWith(
-                            color: scheme.onSurface.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppDimens.xs),
-                    Text(
-                      notification.body,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: scheme.onSurface.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
-                ),
+        padding: const EdgeInsets.all(AppDimens.md),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppDimens.sm),
+              decoration: BoxDecoration(
+                color: tone.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
-            ],
-          ),
+              child: Icon(
+                _iconForType(notification.type),
+                color: tone.withValues(alpha: isRead ? 0.7 : 1),
+                size: AppDimens.iconMd,
+              ),
+            ),
+            const SizedBox(width: AppDimens.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notification.title,
+                          style: AppTypography.subtitle.copyWith(
+                            color: scheme.onSurface,
+                            fontWeight:
+                                isRead ? FontWeight.w500 : FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        DateFormat('HH:mm').format(notification.createdAt),
+                        style: AppTypography.caption.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppDimens.xs),
+                  Text(
+                    notification.body,
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildDismissBackground(ColorScheme scheme) {
-    return Container(
-      alignment: Alignment.centerRight,
-      padding: const EdgeInsets.symmetric(horizontal: AppDimens.lg),
-      decoration: BoxDecoration(
-        color: scheme.error,
-        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-      ),
-      child: Icon(Icons.delete_outline_rounded, color: scheme.onError),
-    );
+  Color _toneForType(String type, ColorScheme scheme) {
+    if (type.contains('SUCCESS')) return Colors.green.shade700;
+    if (type.contains('FAILED')) return scheme.error;
+    if (type.contains('RECEIVED')) return scheme.primary;
+    return scheme.secondary;
   }
-}
 
-class _NotificationIcon extends StatelessWidget {
-  const _NotificationIcon({required this.type, required this.isRead});
-
-  final String type;
-  final bool isRead;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    IconData iconData;
-    Color iconColor;
-
-    if (type.contains('SUCCESS')) {
-      iconData = Icons.check_circle_outline_rounded;
-      iconColor = Colors.green;
-    } else if (type.contains('FAILED')) {
-      iconData = Icons.error_outline_rounded;
-      iconColor = scheme.error;
-    } else if (type.contains('RECEIVED')) {
-      iconData = Icons.account_balance_wallet_rounded;
-      iconColor = scheme.primary;
-    } else {
-      iconData = Icons.notifications_active_rounded;
-      iconColor = scheme.secondary;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(AppDimens.sm),
-      decoration: BoxDecoration(
-        color: iconColor.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        iconData,
-        color: isRead ? iconColor.withValues(alpha: 0.5) : iconColor,
-        size: 24,
-      ),
-    );
+  IconData _iconForType(String type) {
+    if (type.contains('SUCCESS')) return Icons.check_circle_outline_rounded;
+    if (type.contains('FAILED')) return Icons.error_outline_rounded;
+    if (type.contains('RECEIVED')) return Icons.account_balance_wallet_outlined;
+    return Icons.notifications_active_outlined;
   }
 }
