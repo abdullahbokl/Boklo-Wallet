@@ -21,19 +21,18 @@ class LoginPage extends StatelessWidget {
     return BlocListener<AuthCubit, BaseState<User?>>(
       listener: (context, state) {
         state.whenOrNull(
-          error: (error) {
-            getIt<SnackbarService>().showError(error.message);
-          },
+          error: (error) => getIt<SnackbarService>().showError(error.message),
           success: (user) {
             if (user != null) {
               if (user.username == null) {
                 getIt<NavigationService>().go('/profile-setup');
-                getIt<SnackbarService>()
-                    .showSuccess('Please set up your profile');
+                getIt<SnackbarService>().showSuccess(
+                  'Please complete your profile setup.',
+                );
               } else {
                 getIt<NavigationService>().go('/wallet');
                 getIt<SnackbarService>().showSuccess(
-                  'Welcome ${user.displayName ?? "User"}',
+                  'Welcome back, ${user.displayName ?? 'User'}.',
                 );
               }
             }
@@ -44,23 +43,28 @@ class LoginPage extends StatelessWidget {
         body: AuthBackground(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppDimens.lg),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const LoginHeader(
-                    title: 'Welcome Back!',
-                    subtitle: 'Sign in to continue to Boklo Wallet',
-                  ),
-                  const SizedBox(height: AppDimens.xxl),
-                  AppCard(
-                    useGlass: true,
-                    padding: const EdgeInsets.all(AppDimens.lg),
-                    child: const LoginForm(),
-                  ),
-                  const SizedBox(height: AppDimens.xl),
-                  const _LoginFooter(),
-                ],
+              padding: const EdgeInsets.symmetric(vertical: AppDimens.xl),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppDimens.maxFormWidth,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const LoginHeader(
+                      title: 'Sign in to Boklo',
+                      subtitle:
+                          'Secure access to your wallet, transfers, and requests.',
+                    ),
+                    const SizedBox(height: AppDimens.xl),
+                    AppCard(
+                      padding: const EdgeInsets.all(AppDimens.xl),
+                      child: const LoginForm(),
+                    ),
+                    const SizedBox(height: AppDimens.lg),
+                    const _LoginFooter(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -76,26 +80,22 @@ class _LoginFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Don\'t have an account? ',
-          style: AppTypography.bodyMedium.copyWith(
-            color: scheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        TextButton(
-          onPressed: () => getIt<NavigationService>().push('/register'),
-          child: Text(
-            'Register Now',
+    return Center(
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            'New to Boklo? ',
             style: AppTypography.bodyMedium.copyWith(
-              color: scheme.primary,
-              fontWeight: FontWeight.bold,
+              color: scheme.onSurfaceVariant,
             ),
           ),
-        ),
-      ],
+          TextButton(
+            onPressed: () => getIt<NavigationService>().push('/register'),
+            child: const Text('Create account'),
+          ),
+        ],
+      ),
     );
   }
 }

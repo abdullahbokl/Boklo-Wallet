@@ -1,4 +1,5 @@
 import 'package:boklo/config/routes/app_router.dart';
+import 'package:boklo/config/theme/app_decorations.dart';
 import 'package:boklo/config/theme/app_theme.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
@@ -32,22 +33,9 @@ class MyApp extends StatelessWidget {
             themeMode: themeMode,
             routerConfig: appRouter.router,
             builder: (context, child) {
-              return Stack(
-                children: [
-                  RepaintBoundary(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/BG.png'),
-                          fit: BoxFit.cover,
-                          opacity: 0.3,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (child != null) child,
-                ],
+              return DecoratedBox(
+                decoration: AppDecorations.mainGradient(context),
+                child: child ?? const SizedBox.shrink(),
               );
             },
           );

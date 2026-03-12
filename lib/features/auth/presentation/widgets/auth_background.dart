@@ -1,37 +1,84 @@
+import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:flutter/material.dart';
 
 class AuthBackground extends StatelessWidget {
-  final Widget? child;
-  final List<Widget>? stackChildren;
-
   const AuthBackground({
     super.key,
     this.child,
     this.stackChildren,
   });
 
+  final Widget? child;
+  final List<Widget>? stackChildren;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            scheme.primary.withValues(alpha: 0.1),
-            scheme.primaryContainer.withValues(alpha: 0.05),
+            scheme.primaryContainer.withValues(alpha: 0.55),
+            scheme.surface,
             scheme.surface,
           ],
-          stops: const [0.0, 0.4, 1.0],
+          stops: const [0, 0.3, 1],
         ),
       ),
       child: Stack(
         children: [
+          Positioned(
+            top: -60,
+            right: -20,
+            child: _GlowOrb(
+              size: 180,
+              color: scheme.primary.withValues(alpha: 0.08),
+            ),
+          ),
+          Positioned(
+            left: -50,
+            bottom: 60,
+            child: _GlowOrb(
+              size: 140,
+              color: scheme.secondary.withValues(alpha: 0.08),
+            ),
+          ),
           if (stackChildren != null) ...stackChildren!,
-          if (child != null) SafeArea(child: child!),
+          if (child != null)
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimens.pageHorizontalPadding,
+                ),
+                child: child!,
+              ),
+            ),
         ],
+      ),
+    );
+  }
+}
+
+class _GlowOrb extends StatelessWidget {
+  const _GlowOrb({
+    required this.size,
+    required this.color,
+  });
+
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: size,
+      width: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
       ),
     );
   }

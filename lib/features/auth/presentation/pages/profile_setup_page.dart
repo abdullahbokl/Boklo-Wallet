@@ -5,32 +5,20 @@ import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:boklo/features/auth/presentation/widgets/auth_background.dart';
+import 'package:boklo/features/auth/presentation/widgets/login_header.dart';
 import 'package:boklo/features/auth/presentation/widgets/profile_setup_form.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:boklo/shared/responsive/responsive_constraint.dart';
 
 class ProfileSetupPage extends StatelessWidget {
   const ProfileSetupPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              scheme.surface,
-              scheme.primary.withValues(alpha: 0.1),
-              scheme.surface,
-            ],
-          ),
-        ),
+      body: AuthBackground(
         child: BlocListener<AuthCubit, BaseState<User?>>(
           listener: (context, state) {
             state.whenOrNull(
@@ -39,22 +27,30 @@ class ProfileSetupPage extends StatelessWidget {
                   getIt<NavigationService>().go('/wallet');
                 }
               },
-              error: (error) {
-                getIt<SnackbarService>().showError(error.message);
-              },
+              error: (error) => getIt<SnackbarService>().showError(error.message),
             );
           },
-          child: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppDimens.lg),
-                child: ResponsiveConstraint(
-                  maxWidth: 450,
-                  child: AppCard(
-                    useGlass: true,
-                    padding: const EdgeInsets.all(AppDimens.xl),
-                    child: const ProfileSetupForm(),
-                  ),
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: AppDimens.xl),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppDimens.maxFormWidth,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const LoginHeader(
+                      title: 'Set up your profile',
+                      subtitle:
+                          'Choose a username others can use to find and pay you.',
+                    ),
+                    const SizedBox(height: AppDimens.xl),
+                    AppCard(
+                      padding: const EdgeInsets.all(AppDimens.xl),
+                      child: const ProfileSetupForm(),
+                    ),
+                  ],
                 ),
               ),
             ),

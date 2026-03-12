@@ -21,22 +21,13 @@ class RegisterPage extends StatelessWidget {
     return BlocListener<AuthCubit, BaseState<User?>>(
       listener: (context, state) {
         state.whenOrNull(
-          error: (error) {
-            getIt<SnackbarService>().showError(error.message);
-          },
+          error: (error) => getIt<SnackbarService>().showError(error.message),
           success: (user) {
             if (user != null) {
-              if (user.username == null) {
-                getIt<NavigationService>().go('/profile-setup');
-                getIt<SnackbarService>().showSuccess(
-                  'Registration successful! Please set up your profile.',
-                );
-              } else {
-                getIt<NavigationService>().go('/wallet');
-                getIt<SnackbarService>().showSuccess(
-                  'Registration successful! Welcome.',
-                );
-              }
+              getIt<NavigationService>().go('/profile-setup');
+              getIt<SnackbarService>().showSuccess(
+                'Account created. Finish setting up your profile.',
+              );
             }
           },
         );
@@ -44,40 +35,40 @@ class RegisterPage extends StatelessWidget {
       child: Scaffold(
         body: AuthBackground(
           stackChildren: [
-            // Back Button
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.only(
-                  left: AppDimens.sm,
-                  top: AppDimens.sm,
-                ),
+                padding: const EdgeInsets.only(left: AppDimens.xs),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded),
                   onPressed: () => getIt<NavigationService>().pop(),
-                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
           ],
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppDimens.lg),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const LoginHeader(
-                    title: 'Create Account',
-                    subtitle: 'Join Boklo Wallet today',
-                  ),
-                  const SizedBox(height: AppDimens.xxl),
-                  AppCard(
-                    useGlass: true,
-                    padding: const EdgeInsets.all(AppDimens.lg),
-                    child: const RegisterForm(),
-                  ),
-                  const SizedBox(height: AppDimens.xl),
-                  const _RegisterFooter(),
-                ],
+              padding: const EdgeInsets.symmetric(vertical: AppDimens.xl),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppDimens.maxFormWidth,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const LoginHeader(
+                      title: 'Create your Boklo account',
+                      subtitle:
+                          'Open a secure wallet and start sending or requesting money.',
+                    ),
+                    const SizedBox(height: AppDimens.xl),
+                    AppCard(
+                      padding: const EdgeInsets.all(AppDimens.xl),
+                      child: const RegisterForm(),
+                    ),
+                    const SizedBox(height: AppDimens.lg),
+                    const _RegisterFooter(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -93,26 +84,22 @@ class _RegisterFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Already have an account? ',
-          style: AppTypography.bodyMedium.copyWith(
-            color: scheme.onSurface.withValues(alpha: 0.7),
-          ),
-        ),
-        TextButton(
-          onPressed: () => getIt<NavigationService>().pop(),
-          child: Text(
-            'Login',
+    return Center(
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            'Already have an account? ',
             style: AppTypography.bodyMedium.copyWith(
-              color: scheme.primary,
-              fontWeight: FontWeight.bold,
+              color: scheme.onSurfaceVariant,
             ),
           ),
-        ),
-      ],
+          TextButton(
+            onPressed: () => getIt<NavigationService>().pop(),
+            child: const Text('Sign in'),
+          ),
+        ],
+      ),
     );
   }
 }
