@@ -17,55 +17,56 @@ class WalletAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return AppBar(
+      toolbarHeight: AppDimens.appBarHeight,
       leading: Padding(
-        padding: const EdgeInsets.only(left: AppDimens.md),
+        padding: const EdgeInsets.only(left: AppDimens.pageHorizontalPadding),
         child: BlocBuilder<AuthCubit, BaseState<User?>>(
           builder: (context, authState) {
             final user = authState.maybeWhen(
               success: (user) => user,
               orElse: () => null,
             );
+
             return AppAvatar(
-              size: 40,
+              size: AppDimens.avatarMd,
               name: user?.displayName ?? user?.email,
               onTap: () => getIt<NavigationService>().push('/profile'),
             );
           },
         ),
       ),
-      leadingWidth: 40 + AppDimens.md,
+      leadingWidth: 56,
+      titleSpacing: AppDimens.md,
       title: BlocBuilder<WalletCubit, BaseState<WalletState>>(
         builder: (context, walletState) {
           final name = walletState.maybeWhen(
             success: (data) => data.wallet.ownerName,
             orElse: () => null,
           );
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Good morning',
+                'Boklo Wallet',
                 style: AppTypography.bodySmall.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
               Text(
-                name != null && name.isNotEmpty ? name : 'User',
-                style: AppTypography.headline.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                name != null && name.isNotEmpty ? name : 'Your dashboard',
+                style: AppTypography.title.copyWith(
+                  color: scheme.onSurface,
                 ),
               ),
             ],
           );
         },
       ),
-      centerTitle: false,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      scrolledUnderElevation: 0,
       actions: [
         AppIconButton(
           icon: Icons.notifications_none_rounded,
@@ -73,14 +74,14 @@ class WalletAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         const SizedBox(width: AppDimens.xs),
         AppIconButton(
-          icon: Icons.settings_outlined,
+          icon: Icons.tune_rounded,
           onTap: () => getIt<NavigationService>().push('/notification-settings'),
         ),
-        const SizedBox(width: AppDimens.md),
+        const SizedBox(width: AppDimens.pageHorizontalPadding),
       ],
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 8);
+  Size get preferredSize => const Size.fromHeight(AppDimens.appBarHeight);
 }

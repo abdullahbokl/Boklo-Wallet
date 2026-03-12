@@ -1,5 +1,3 @@
-import 'package:boklo/config/theme/app_colors.dart';
-import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
@@ -11,7 +9,7 @@ import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/wallet_app_bar.dart';
 import 'package:boklo/features/wallet/presentation/widgets/wallet_content.dart';
 import 'package:boklo/features/wallet/presentation/widgets/wallet_skeleton.dart';
-import 'package:boklo/shared/responsive/responsive_constraint.dart';
+import 'package:boklo/shared/widgets/molecules/wallet_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -26,12 +24,10 @@ class WalletPage extends StatelessWidget {
           success: (user) {
             if (user == null) {
               getIt<NavigationService>().go('/login');
-              getIt<SnackbarService>().showSuccess('Logged out successfully');
+              getIt<SnackbarService>().showSuccess('Signed out successfully.');
             }
           },
-          error: (error) {
-            getIt<SnackbarService>().showError(error.message);
-          },
+          error: (error) => getIt<SnackbarService>().showError(error.message),
         );
       },
       child: BlocBuilder<WalletCubit, BaseState<WalletState>>(
@@ -39,31 +35,16 @@ class WalletPage extends StatelessWidget {
           return Scaffold(
             appBar: const WalletAppBar(),
             body: state.when(
-              initial: () => const WalletSkeleton(),
-              loading: () => const WalletSkeleton(),
-              error: (error) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline,
-                        size: 48, color: AppColors.error),
-                    const SizedBox(height: AppDimens.md),
-                    Text(error.message),
-                    const SizedBox(height: AppDimens.md),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Trigger a retry if available, or just re-emit loading
-                        // Ideally Cubit should have a retry method or we assume auto-retry/init
-                        // For now just show error
-                      },
-                      child: const Text('Retry'),
-                    ),
-                  ],
+              initial: WalletSkeleton.new,
+              loading: WalletSkeleton.new,
+              error: (error) => Padding(
+                padding: const EdgeInsets.all(20),
+                child: WalletErrorView(
+                  title: error.message,
+                  onRetry: () => context.read<WalletCubit>().loadWallet(),
                 ),
               ),
-              success: (data) => ResponsiveConstraint(
-                child: WalletContent(data: data),
-              ),
+              success: (data) => WalletContent(data: data),
             ),
           );
         },

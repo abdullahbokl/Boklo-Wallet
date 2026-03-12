@@ -14,7 +14,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WalletContent extends StatelessWidget {
-  const WalletContent({required this.data, super.key});
+  const WalletContent({
+    required this.data,
+    super.key,
+  });
 
   final WalletState data;
 
@@ -22,20 +25,19 @@ class WalletContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.all(AppDimens.md),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              // Entrance Animation for Balance Card
-              TweenAnimationBuilder<double>(
-                duration: const Duration(milliseconds: 600),
-                tween: Tween(begin: 0.9, end: 1),
-                curve: Curves.easeOutBack,
-                builder: (context, scale, child) => Transform.scale(
-                  scale: scale,
-                  child: child,
-                ),
-                child: RepaintBoundary(
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(top: AppDimens.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 380),
+                  tween: Tween(begin: 0.96, end: 1),
+                  curve: Curves.easeOut,
+                  builder: (context, value, child) {
+                    return Transform.scale(scale: value, child: child);
+                  },
                   child: BalanceCard(
                     balance: data.wallet.balance,
                     currency: data.wallet.currency,
@@ -44,43 +46,50 @@ class WalletContent extends StatelessWidget {
                     alias: data.wallet.alias,
                   ),
                 ),
-              ),
-              const SizedBox(height: AppDimens.lg),
-              // Quick Actions
-              QuickActionsRow(
-                onSendTap: () async {
-                  unawaited(getIt<NavigationService>().push('/transfer'));
-                },
-                onPaymentRequestsTap: () {
-                  unawaited(getIt<NavigationService>().push('/payment-requests'));
-                },
-                onContactsTap: () {
-                  unawaited(getIt<NavigationService>().push('/contacts'));
-                },
-                onNotificationsTap: () {
-                  unawaited(getIt<NavigationService>().push('/notification-settings'));
-                },
-              ),
-              const SizedBox(height: AppDimens.xl),
-              const AppSectionHeader(title: 'Recent Transactions'),
-              const SizedBox(height: AppDimens.md),
-              TransactionFilters(data: data),
-              const SizedBox(height: AppDimens.sm),
-            ]),
+                const SizedBox(height: AppDimens.lg),
+                QuickActionsRow(
+                  onSendTap: () {
+                    unawaited(getIt<NavigationService>().push('/transfer'));
+                  },
+                  onPaymentRequestsTap: () {
+                    unawaited(getIt<NavigationService>().push('/payment-requests'));
+                  },
+                  onContactsTap: () {
+                    unawaited(getIt<NavigationService>().push('/contacts'));
+                  },
+                  onNotificationsTap: () {
+                    unawaited(getIt<NavigationService>().push('/notification-settings'));
+                  },
+                ),
+                const SizedBox(height: AppDimens.sectionGap),
+                AppSectionHeader(
+                  title: 'Recent activity',
+                  subtitle: 'Track completed and pending money movement.',
+                  trailing: TextButton(
+                    onPressed: data.filterType != null || data.filterStatus != null
+                        ? () => context.read<WalletCubit>().clearFilters()
+                        : null,
+                    child: const Text('Clear filters'),
+                  ),
+                ),
+                const SizedBox(height: AppDimens.sm),
+                TransactionFilters(data: data),
+                const SizedBox(height: AppDimens.md),
+              ],
+            ),
           ),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: AppDimens.md),
-          sliver: TransactionList(
-            transactions: data.transactions,
-            hasMore: data.hasMore,
-            isLoadingMore: data.isLoadingMore,
-            onLoadMore: () {
-              context.read<WalletCubit>().loadMoreTransactions();
-            },
-          ),
+        TransactionList(
+          transactions: data.transactions,
+          hasMore: data.hasMore,
+          isLoadingMore: data.isLoadingMore,
+          onLoadMore: () {
+            context.read<WalletCubit>().loadMoreTransactions();
+          },
         ),
-        const SliverPadding(padding: EdgeInsets.only(bottom: AppDimens.md)),
+        const SliverPadding(
+          padding: EdgeInsets.only(bottom: AppDimens.xl),
+        ),
       ],
     );
   }

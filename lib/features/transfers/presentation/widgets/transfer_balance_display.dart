@@ -5,43 +5,45 @@ import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 
 class TransferBalanceDisplay extends StatelessWidget {
-  const TransferBalanceDisplay({required this.wallet, super.key});
+  const TransferBalanceDisplay({
+    required this.wallet,
+    super.key,
+  });
 
   final WalletEntity wallet;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final scheme = Theme.of(context).colorScheme;
 
     return AppCard(
       padding: const EdgeInsets.all(AppDimens.lg),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Available Balance',
-            style: AppTypography.bodyMedium.copyWith(
-              color: colorScheme.onSurfaceVariant,
+            'Available balance',
+            style: AppTypography.bodySmall.copyWith(
+              color: scheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: AppDimens.xs),
+          const SizedBox(height: AppDimens.sm),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 wallet.currency,
-                style: AppTypography.headline.copyWith(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.w600,
+                style: AppTypography.amountSmall.copyWith(
+                  color: scheme.primary,
                 ),
               ),
               const SizedBox(width: AppDimens.xs),
-              Text(
-                wallet.balance.toStringAsFixed(2),
-                style: AppTypography.display.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w800,
+              Expanded(
+                child: Text(
+                  wallet.balance.toStringAsFixed(2),
+                  style: AppTypography.amount.copyWith(
+                    color: scheme.onSurface,
+                  ),
                 ),
               ),
             ],
