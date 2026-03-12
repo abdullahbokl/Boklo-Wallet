@@ -59,7 +59,6 @@ dependencies:
   flutter_local_notifications: ^19.5.0
   google_fonts: ^8.0.0
   firebase_analytics: ^12.1.1
-  firebase_app_check: ^0.4.1+4
   fpdart: ^1.2.0
 
 dev_dependencies:

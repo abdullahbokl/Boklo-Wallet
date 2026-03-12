@@ -28,10 +28,12 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       return null;
     } on FirebaseException catch (e) {
       if (e.code == 'permission-denied') {
-        throw const ServerFailure(
-          'Access denied while loading profile. If this is prod debug mode, '
-          'register your App Check debug token in Firebase Console.',
+        log(
+          '⚠️ getUser denied for uid=$uid. '
+          'Likely unauthenticated Firestore request or App Check/API enforcement. '
+          'Falling back to FirebaseAuth user.',
         );
+        return null;
       }
       if (e.code == 'unavailable') {
         throw const NetworkFailure('Unable to reach profile service');
@@ -79,8 +81,8 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       } else if (e.code == 'failed-precondition' ||
           e.code == 'permission-denied') {
         throw const ServerFailure(
-          'Security check failed. For prod debug builds, add your App Check '
-          'debug token in Firebase Console and retry.',
+          'Request blocked by backend security rules or function '
+          'preconditions.',
         );
       } else if (e.code == 'unauthenticated') {
         throw const ServerFailure(

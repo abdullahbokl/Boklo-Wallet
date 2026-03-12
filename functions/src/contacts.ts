@@ -10,7 +10,7 @@ const db = admin.firestore();
  * Adds a contact by email or username.
  * Lookups the user and if found, adds them to the requesting user's contacts.
  */
-export const addContact = onCall({ enforceAppCheck: true }, async (request) => {
+export const addContact = onCall(async (request) => {
     if (!request.auth) {
         throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
     }
