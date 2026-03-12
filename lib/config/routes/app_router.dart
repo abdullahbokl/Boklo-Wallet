@@ -68,7 +68,7 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: '/ledger-debug',
+        path: '/ledger',
         builder: (context, state) => const LedgerDebugPage(),
       ),
       GoRoute(

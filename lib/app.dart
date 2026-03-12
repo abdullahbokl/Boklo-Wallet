@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
           return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
             title: 'Boklo',
             scaffoldMessengerKey: snackbarService.scaffoldMessengerKey,
             localizationsDelegates: AppLocalizations.localizationsDelegates,

@@ -7,7 +7,6 @@ import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/shared/widgets/atoms/app_shimmer.dart';
 import 'package:boklo/shared/widgets/molecules/balance_card_badge.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class BalanceCard extends StatelessWidget {
@@ -36,9 +35,7 @@ class BalanceCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        if (kDebugMode || kProfileMode) {
-          unawaited(getIt<NavigationService>().push('/ledger-debug'));
-        }
+        unawaited(getIt<NavigationService>().push('/ledger'));
       },
       child: Container(
         width: double.infinity,
@@ -105,7 +102,7 @@ class BalanceCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppDimens.radiusFull),
               ),
               child: Text(
-                kDebugMode ? 'Debug tap opens ledger view' : 'Protected wallet balance',
+                'Tap to view ledger',
                 style: AppTypography.caption.copyWith(
                   color: Colors.white.withValues(alpha: 0.82),
                 ),

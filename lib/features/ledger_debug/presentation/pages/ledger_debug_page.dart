@@ -23,9 +23,7 @@ class LedgerDebugPage extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Ledger Debug (Dev)'),
-          backgroundColor: AppColors.backgroundDark,
-          foregroundColor: Colors.white,
+          title: const Text('Ledger'),
         ),
         body: BlocBuilder<LedgerCubit, LedgerState>(
           builder: (context, state) {
@@ -33,11 +31,12 @@ class LedgerDebugPage extends StatelessWidget {
               initial: () => const Center(child: CircularProgressIndicator()),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (message) => Center(child: Text('Error: $message')),
-              empty: () => _buildEmpty(),
+              empty: () => _buildEmpty(context),
               success: (entries, totalCredits, totalDebits, netDelta) {
                 return Column(
                   children: [
-                    _buildSummaryCard(totalCredits, totalDebits, netDelta),
+                    _buildSummaryCard(
+                        context, totalCredits, totalDebits, netDelta),
                     Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.all(AppDimens.md),
@@ -57,52 +56,54 @@ class LedgerDebugPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.receipt_long_rounded, size: 64, color: Colors.grey),
+          Icon(Icons.receipt_long_rounded,
+              size: 64, color: scheme.onSurfaceVariant),
           const SizedBox(height: AppDimens.md),
-          Text('No Ledger Entries Found', style: AppTypography.title),
+          Text('No transactions yet', style: AppTypography.title),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard(double credits, double debits, double delta) {
+  Widget _buildSummaryCard(
+      BuildContext context, double credits, double debits, double delta) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(AppDimens.md),
-      color: AppColors.backgroundDark,
-      child: Column(
+      color: scheme.surfaceContainer,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                  child:
-                      _statItem('Total Credits', credits, AppColors.success)),
-              Expanded(
-                  child: _statItem('Total Debits', debits, AppColors.error)),
-              Expanded(
-                  child: _statItem('Net Delta', delta,
-                      delta == 0 ? Colors.white : Colors.orange)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'System Integrity Check',
-            style: AppTypography.caption.copyWith(color: Colors.white54),
-          ),
+          Expanded(
+              child: _statItem(context, 'Credits', credits, AppColors.success)),
+          Expanded(
+              child: _statItem(context, 'Debits', debits, AppColors.error)),
+          Expanded(
+              child: _statItem(
+                  context,
+                  'Net',
+                  delta,
+                  delta == 0
+                      ? scheme.onSurface
+                      : (delta > 0 ? AppColors.success : AppColors.error))),
         ],
       ),
     );
   }
 
-  Widget _statItem(String label, double value, Color color) {
+  Widget _statItem(
+      BuildContext context, String label, double value, Color color) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         Text(label,
-            style: AppTypography.caption.copyWith(color: Colors.white70)),
+            style:
+                AppTypography.caption.copyWith(color: scheme.onSurfaceVariant)),
         const SizedBox(height: 4),
         Text(
           value.toStringAsFixed(2),
@@ -112,3 +113,4 @@ class LedgerDebugPage extends StatelessWidget {
     );
   }
 }
+

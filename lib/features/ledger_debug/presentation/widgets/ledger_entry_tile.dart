@@ -18,15 +18,15 @@ class LedgerEntryTile extends StatelessWidget {
     final isCredit = entry.direction == 'CREDIT';
     final color = isCredit ? AppColors.success : AppColors.error;
     final prefix = isCredit ? '+' : '-';
+    final scheme = Theme.of(context).colorScheme;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: AppDimens.xs),
       padding: const EdgeInsets.all(AppDimens.md),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-        border:
-            Border.all(color: AppColors.textSecondaryLight.withOpacity(0.1)),
+        border: Border.all(color: scheme.outlineVariant),
         boxShadow: AppColors.shadowSm,
       ),
       child: Column(
@@ -39,7 +39,7 @@ class LedgerEntryTile extends StatelessWidget {
                 'TX: ${entry.transactionId.substring(0, 8)}...',
                 style: AppTypography.caption.copyWith(
                   fontFamily: 'monospace',
-                  color: AppColors.textSecondaryLight,
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
               Container(
@@ -84,7 +84,7 @@ class LedgerEntryTile extends StatelessWidget {
                         Icon(
                           Icons.copy_rounded,
                           size: 12,
-                          color: AppColors.textSecondaryLight,
+                          color: scheme.onSurfaceVariant,
                         ),
                       ],
                     ),
@@ -92,7 +92,7 @@ class LedgerEntryTile extends StatelessWidget {
                   Text(
                     DateFormat('HH:mm:ss.SSS').format(entry.occurredAt),
                     style: AppTypography.caption
-                        .copyWith(color: AppColors.textSecondaryLight),
+                        .copyWith(color: scheme.onSurfaceVariant),
                   ),
                 ],
               ),
