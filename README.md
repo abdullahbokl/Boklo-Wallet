@@ -18,19 +18,50 @@ Boklo Wallet is a next-generation financial application designed with **correctn
 
 ---
 
-## 📸 Screenshots
+## ⚡ Core Technical Concepts
 
-| Login | Register | Wallet |
+Boklo is built on advanced FinTech engineering principles to ensure zero data loss and maximum security.
+
+### 📓 Ledger-Based Architecture
+- **Immutable Ledger**: Every financial movement is recorded as an append-only entry. Balances are derived views, not direct state.
+- **Source of Truth**: The ledger is the absolute authority for auditability and compliance.
+
+### 🔄 Atomic Transactions & Integrity
+- **Firestore Transactions**: All wallet updates use multi-document atomic transactions to guarantee consistency.
+- **Atomic Increments**: Use of operational transformations to prevent race conditions during concurrent updates.
+- **Idempotency**: All transfer requests use unique keys to prevent double-spending or re-processing.
+
+### 📡 Event-Driven System
+- **Eventarc Routing**: Decoupled architecture where actions trigger Cloud Events (e.g., `transaction.completed`).
+- **Cloud Functions (2nd Gen)**: Stateless, auto-scaling backend logic triggered by events or HTTPS.
+- **Asynchronous Side-Effects**: Notifications and logging are handled out-of-band to keep the main flow fast.
+
+### 🛡️ Security & Scalability
+- **Firestore Security Rules**: Field-level security ensuring users only access their own data and cannot mutate sensitive balance fields.
+- **Firebase App Check**: Protection against bot traffic and unauthorized API usage using Play Integrity/App Attest.
+- **Custom Indexes**: Optimized composite indexes to support performant ledger queries and filtering.
+- **Real-time Notifications**: Integrated FCM for backend-triggered push alerts.
+
+---
+
+## 📸 Showcase & Demo
+
+### 🎥 Video Demonstration
+> Watch the app in action: **[Boklo Wallet Demo Video](https://drive.google.com/file/d/1WIKmr1MGux7wckQmstE6nW4CbeBBNtF6/view?usp=sharing)**
+
+### 🖼️ App Screens
+
+| Wallet Home | Transfer Money | Payment Requests |
 | :---: | :---: | :---: |
-| ![Login](docs/screenshots/login_page.png) | ![Register](docs/screenshots/register_page.png) | ![Wallet](docs/screenshots/wallet_page.png) |
+| ![Wallet](docs/screenshots/wallet_page.png) | ![Transfer](docs/screenshots/transfer_page.png) | ![Requests](docs/screenshots/requests_page.png) |
 
-| Transfer | Requests | Contacts |
+| Contacts | Notifications | Profile Settings |
 | :---: | :---: | :---: |
-| ![Transfer](docs/screenshots/transfer_page.png) | ![Requests](docs/screenshots/requests_page.png) | ![Contacts](docs/screenshots/contacts_page.png) |
+| ![Contacts](docs/screenshots/contacts_page.png) | ![Notifications](docs/screenshots/notifications_list_page.png) | ![Profile](docs/screenshots/profile_page.png) |
 
-| Notifications |
-| :---: |
-| ![Notifications](docs/screenshots/notification_settings_page.png) |
+| Alert Settings | Personal Info | Login |
+| :---: | :---: | :---: |
+| ![Alerts](docs/screenshots/notification_settings_page.png) | ![Personal Info](docs/screenshots/personal_info_page.png) | ![Login](docs/screenshots/login_page.png) |
 
 ---
 
