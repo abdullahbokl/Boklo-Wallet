@@ -5,12 +5,11 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
-import 'package:boklo/shared/widgets/molecules/balance_card_badge.dart';
 import 'package:boklo/shared/widgets/atoms/app_shimmer.dart';
+import 'package:boklo/shared/widgets/molecules/balance_card_badge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Displays the wallet balance with gradient styling and owner info badge.
 class BalanceCard extends StatelessWidget {
   const BalanceCard({
     required this.balance,
@@ -31,7 +30,9 @@ class BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return _buildSkeleton();
+    if (isLoading) {
+      return _buildSkeleton();
+    }
 
     return GestureDetector(
       onTap: () {
@@ -41,59 +42,78 @@ class BalanceCard extends StatelessWidget {
       },
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(AppDimens.lg),
+        padding: const EdgeInsets.all(AppDimens.xl),
         decoration: AppDecorations.gradientCard(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
-            const SizedBox(height: AppDimens.sm),
-            _buildBalance(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Available balance',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: Colors.white.withValues(alpha: 0.76),
+                      ),
+                    ),
+                    const SizedBox(height: AppDimens.xs4),
+                    Text(
+                      'Funds ready to send or request',
+                      style: AppTypography.caption.copyWith(
+                        color: Colors.white.withValues(alpha: 0.64),
+                      ),
+                    ),
+                  ],
+                ),
+                BalanceCardBadge(
+                  username: username,
+                  alias: alias,
+                  walletId: walletId,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppDimens.xl),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  currency,
+                  style: AppTypography.amountSmall.copyWith(
+                    color: Colors.white.withValues(alpha: 0.88),
+                  ),
+                ),
+                const SizedBox(width: AppDimens.xs),
+                Expanded(
+                  child: Text(
+                    balance.toStringAsFixed(2),
+                    style: AppTypography.amount.copyWith(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppDimens.lg),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDimens.sm,
+                vertical: AppDimens.xs,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+              ),
+              child: Text(
+                kDebugMode ? 'Debug tap opens ledger view' : 'Protected wallet balance',
+                style: AppTypography.caption.copyWith(
+                  color: Colors.white.withValues(alpha: 0.82),
+                ),
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Total Balance',
-          style: AppTypography.bodyMedium.copyWith(
-            color: Colors.white.withValues(alpha: 0.8),
-          ),
-        ),
-        BalanceCardBadge(
-          username: username,
-          alias: alias,
-          walletId: walletId,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBalance() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Text(
-          currency,
-          style: AppTypography.headline.copyWith(
-            color: Colors.white.withValues(alpha: 0.9),
-          ),
-        ),
-        const SizedBox(width: AppDimens.xs),
-        Text(
-          balance.toStringAsFixed(2),
-          style: AppTypography.display.copyWith(
-            color: Colors.white,
-            letterSpacing: -1,
-          ),
-        ),
-      ],
     );
   }
 
@@ -101,7 +121,7 @@ class BalanceCard extends StatelessWidget {
     return AppShimmer(
       child: Container(
         width: double.infinity,
-        height: 140,
+        height: 190,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(AppDimens.radiusXl),

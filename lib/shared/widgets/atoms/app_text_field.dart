@@ -1,7 +1,7 @@
+import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:boklo/config/theme/app_dimens.dart';
-import '../../../../config/theme/app_typography.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({
@@ -18,6 +18,7 @@ class AppTextField extends StatelessWidget {
     this.enabled = true,
     this.inputFormatters,
     this.autofocus = false,
+    this.helperText,
   });
 
   final TextEditingController controller;
@@ -32,6 +33,7 @@ class AppTextField extends StatelessWidget {
   final bool enabled;
   final List<TextInputFormatter>? inputFormatters;
   final bool autofocus;
+  final String? helperText;
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +45,8 @@ class AppTextField extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: AppTypography.label.copyWith(
-              color: scheme.onSurface.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w600,
+            style: AppTypography.bodySmall.copyWith(
+              color: scheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: AppDimens.xs),
@@ -59,20 +60,16 @@ class AppTextField extends StatelessWidget {
           onFieldSubmitted: onSubmitted,
           inputFormatters: inputFormatters,
           autofocus: autofocus,
-          style: AppTypography.bodyLarge.copyWith(
-            color: scheme.onSurface,
-          ),
+          style: AppTypography.bodyLarge.copyWith(color: scheme.onSurface),
           cursorColor: scheme.primary,
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: AppTypography.bodyLarge.copyWith(
-              color: scheme.onSurface.withValues(alpha: 0.4),
-            ),
+            helperText: helperText,
             prefixIcon: prefixIcon != null
                 ? IconTheme(
                     data: IconThemeData(
-                      color: scheme.onSurface.withValues(alpha: 0.5),
-                      size: 20,
+                      color: scheme.onSurfaceVariant,
+                      size: AppDimens.iconMd,
                     ),
                     child: prefixIcon!,
                   )
@@ -80,8 +77,8 @@ class AppTextField extends StatelessWidget {
             suffixIcon: suffixIcon != null
                 ? IconTheme(
                     data: IconThemeData(
-                      color: scheme.onSurface.withValues(alpha: 0.5),
-                      size: 20,
+                      color: scheme.onSurfaceVariant,
+                      size: AppDimens.iconMd,
                     ),
                     child: suffixIcon!,
                   )

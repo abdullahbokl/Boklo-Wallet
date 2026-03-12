@@ -1,10 +1,6 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:flutter/material.dart';
 
-/// A circular icon button with a tinted background.
-///
-/// Used in app bars, quick-action grids, and dialogs
-/// for consistent icon-button styling.
 class AppIconButton extends StatelessWidget {
   const AppIconButton({
     required this.icon,
@@ -29,17 +25,19 @@ class AppIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final effectiveColor = color ?? scheme.onSurface;
-    final bgColor =
-        backgroundColor ?? effectiveColor.withValues(alpha: 0.08);
+    final bgColor = backgroundColor ?? scheme.surfaceContainerLow;
 
     Widget button = Material(
       color: bgColor,
-      shape: const CircleBorder(),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
       child: InkWell(
-        customBorder: const CircleBorder(),
+        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(AppDimens.xs),
+          padding: const EdgeInsets.all(AppDimens.sm),
           child: Icon(icon, size: size, color: effectiveColor),
         ),
       ),
@@ -55,6 +53,7 @@ class AppIconButton extends StatelessWidget {
     if (tooltip != null) {
       return Tooltip(message: tooltip!, child: button);
     }
+
     return button;
   }
 }

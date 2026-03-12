@@ -3,10 +3,8 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
-/// A premium, standardized button with gradient support.
-///
-/// Primary style: gradient background with white text.
-/// Secondary style: flat text button with primary color text.
+enum AppButtonVariant { primary, secondary, tonal, destructive }
+
 class AppButton extends StatelessWidget {
   const AppButton({
     required this.text,
@@ -17,6 +15,7 @@ class AppButton extends StatelessWidget {
     this.icon,
     this.width,
     this.height,
+    this.variant,
   });
 
   final String text;
@@ -26,45 +25,64 @@ class AppButton extends StatelessWidget {
   final IconData? icon;
   final double? width;
   final double? height;
+  final AppButtonVariant? variant;
 
   @override
   Widget build(BuildContext context) {
-    if (isSecondary) return _SecondaryButton(button: this);
-    return _PrimaryButton(button: this);
-  }
-}
-
-class _PrimaryButton extends StatelessWidget {
-  const _PrimaryButton({required this.button});
-  final AppButton button;
-
-  @override
-  Widget build(BuildContext context) {
+    final effectiveVariant =
+        variant ?? (isSecondary ? AppButtonVariant.secondary : AppButtonVariant.primary);
+    final enabled = onPressed != null && !isLoading;
     final scheme = Theme.of(context).colorScheme;
-    final enabled = button.onPressed != null && !button.isLoading;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: enabled ? AppColors.primaryGradient : null,
-        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-        boxShadow: enabled ? AppColors.shadowSm : null,
-        color: enabled ? null : scheme.onSurface.withValues(alpha: 0.12),
-      ),
-      child: SizedBox(
-        width: button.width,
-        height: button.height,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-            onTap: enabled ? button.onPressed : null,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppDimens.md,
-                horizontal: AppDimens.lg,
-              ),
-              child: Center(
-                child: _ButtonContent(button: button, color: Colors.white),
+    final config = switch (effectiveVariant) {
+      AppButtonVariant.primary => _ButtonConfig(
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+          borderColor: scheme.primary,
+        ),
+      AppButtonVariant.secondary => _ButtonConfig(
+          backgroundColor: Colors.transparent,
+          foregroundColor: scheme.onSurface,
+          borderColor: scheme.outlineVariant,
+        ),
+      AppButtonVariant.tonal => _ButtonConfig(
+          backgroundColor: scheme.primaryContainer.withValues(alpha: 0.75),
+          foregroundColor: scheme.primary,
+          borderColor: Colors.transparent,
+        ),
+      AppButtonVariant.destructive => _ButtonConfig(
+          backgroundColor: AppColors.error,
+          foregroundColor: scheme.onError,
+          borderColor: AppColors.error,
+        ),
+    };
+
+    return SizedBox(
+      width: width,
+      height: height ?? AppDimens.buttonHeight,
+      child: Material(
+        color: enabled
+            ? config.backgroundColor
+            : scheme.onSurface.withValues(alpha: 0.08),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          side: BorderSide(
+            color: enabled
+                ? config.borderColor
+                : scheme.outlineVariant.withValues(alpha: 0.6),
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          onTap: enabled ? onPressed : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppDimens.lg),
+            child: Center(
+              child: _ButtonContent(
+                button: this,
+                color: enabled
+                    ? config.foregroundColor
+                    : scheme.onSurface.withValues(alpha: 0.45),
               ),
             ),
           ),
@@ -74,35 +92,24 @@ class _PrimaryButton extends StatelessWidget {
   }
 }
 
-class _SecondaryButton extends StatelessWidget {
-  const _SecondaryButton({required this.button});
-  final AppButton button;
+class _ButtonConfig {
+  const _ButtonConfig({
+    required this.backgroundColor,
+    required this.foregroundColor,
+    required this.borderColor,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: button.width,
-      height: button.height,
-      child: TextButton(
-        onPressed: button.isLoading ? null : button.onPressed,
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppDimens.md,
-            horizontal: AppDimens.lg,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDimens.radiusMd),
-          ),
-        ),
-        child: _ButtonContent(button: button, color: scheme.primary),
-      ),
-    );
-  }
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final Color borderColor;
 }
 
 class _ButtonContent extends StatelessWidget {
-  const _ButtonContent({required this.button, required this.color});
+  const _ButtonContent({
+    required this.button,
+    required this.color,
+  });
+
   final AppButton button;
   final Color color;
 
@@ -110,17 +117,20 @@ class _ButtonContent extends StatelessWidget {
   Widget build(BuildContext context) {
     if (button.isLoading) {
       return SizedBox(
-        height: 20,
-        width: 20,
-        child: CircularProgressIndicator(strokeWidth: 2, color: color),
+        height: 18,
+        width: 18,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: color,
+        ),
       );
     }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (button.icon != null) ...[
-          Icon(button.icon, size: 20, color: color),
+          Icon(button.icon, size: AppDimens.iconMd, color: color),
           const SizedBox(width: AppDimens.xs),
         ],
         Text(

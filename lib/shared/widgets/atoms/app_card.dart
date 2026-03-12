@@ -2,15 +2,11 @@ import 'package:boklo/config/theme/app_decorations.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:flutter/material.dart';
 
-/// A themed card with glassmorphic or surface styling.
-///
-/// Uses [AppDecorations.glassCard] by default.
-/// Set [useGlass] to false for a solid surface card.
 class AppCard extends StatelessWidget {
   const AppCard({
     required this.child,
     super.key,
-    this.useGlass = true,
+    this.useGlass = false,
     this.padding,
     this.margin,
     this.onTap,
@@ -28,16 +24,25 @@ class AppCard extends StatelessWidget {
         ? AppDecorations.glassCard(context)
         : AppDecorations.surfaceCard(context);
 
-    final card = Container(
+    final card = AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
       margin: margin,
       padding: padding ?? const EdgeInsets.all(AppDimens.md),
       decoration: decoration,
       child: child,
     );
 
-    if (onTap != null) {
-      return GestureDetector(onTap: onTap, child: card);
+    if (onTap == null) {
+      return card;
     }
-    return card;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        onTap: onTap,
+        child: card,
+      ),
+    );
   }
 }

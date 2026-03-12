@@ -1,11 +1,7 @@
-import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
-/// Displays a user avatar with photo or gradient initials fallback.
-///
-/// Sizes: [AppDimens.avatarSm], [AppDimens.avatarMd], [AppDimens.avatarLg].
 class AppAvatar extends StatelessWidget {
   const AppAvatar({
     super.key,
@@ -23,7 +19,10 @@ class AppAvatar extends StatelessWidget {
   final VoidCallback? onTap;
 
   String get _initials {
-    if (name == null || name!.isEmpty) return '?';
+    if (name == null || name!.isEmpty) {
+      return '?';
+    }
+
     final parts = name!.trim().split(' ');
     if (parts.length >= 2) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
@@ -33,37 +32,46 @@ class AppAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderDecoration = showBorder
-        ? BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.primary.withValues(alpha: 0.3),
-              width: 2,
-            ),
-          )
-        : null;
-
+    final scheme = Theme.of(context).colorScheme;
     final avatar = Container(
       width: size,
       height: size,
-      decoration: borderDecoration,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: showBorder
+            ? Border.all(
+                color: scheme.primary.withValues(alpha: 0.25),
+                width: 2,
+              )
+            : null,
+        gradient: LinearGradient(
+          colors: [
+            scheme.primaryContainer,
+            scheme.surfaceContainerHighest,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
       child: CircleAvatar(
         radius: size / 2,
+        backgroundColor: Colors.transparent,
         backgroundImage: photoUrl != null ? NetworkImage(photoUrl!) : null,
-        backgroundColor: AppColors.primary.withValues(alpha: 0.15),
         child: photoUrl == null
             ? Text(
                 _initials,
                 style: AppTypography.label.copyWith(
-                  color: AppColors.primary,
-                  fontSize: size * 0.35,
+                  color: scheme.primary,
+                  fontSize: size * 0.32,
                 ),
               )
             : null,
       ),
     );
 
-    if (onTap == null) return avatar;
+    if (onTap == null) {
+      return avatar;
+    }
 
     return GestureDetector(
       onTap: onTap,
