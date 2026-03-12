@@ -28,27 +28,39 @@ class AppTheme {
       colorScheme: scheme,
       dividerColor: divider,
       textTheme: _textTheme(textPrimary, textSecondary, primary),
-      appBarTheme: _appBarTheme(textPrimary, bg),
+      appBarTheme: _appBarTheme(textPrimary),
       elevatedButtonTheme: _elevatedButtonTheme(primary),
-      inputDecorationTheme: AppComponentThemes.input(isDark, textSecondary, surface),
+      inputDecorationTheme:
+          AppComponentThemes.input(isDark, textSecondary, surface),
       cardTheme: AppComponentThemes.card(surface),
       chipTheme: AppComponentThemes.chip(isDark, textPrimary, surface, primary),
       listTileTheme: AppComponentThemes.listTile(textPrimary),
       tabBarTheme: AppComponentThemes.tabBar(primary, textSecondary),
       dividerTheme: DividerThemeData(color: divider, thickness: 1),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+        ),
+      ),
     );
   }
-
-  // ── Color Schemes ──
 
   static const _lightScheme = ColorScheme.light(
     primary: AppColors.primary,
     secondary: AppColors.secondary,
     surface: AppColors.surfaceLight,
+    surfaceContainerLow: AppColors.surfaceLightElevated,
+    surfaceContainerHighest: Color(0xFFF0F4F7),
     error: AppColors.error,
     onPrimary: Colors.white,
     onSecondary: Colors.white,
     onSurface: AppColors.textPrimaryLight,
+    onSurfaceVariant: AppColors.textSecondaryLight,
+    outline: AppColors.borderLight,
+    outlineVariant: AppColors.dividerLight,
+    primaryContainer: Color(0xFFD8E7F2),
     onError: Colors.white,
   );
 
@@ -56,14 +68,18 @@ class AppTheme {
     primary: AppColors.primaryLight,
     secondary: AppColors.secondary,
     surface: AppColors.surfaceDark,
+    surfaceContainerLow: AppColors.surfaceDarkElevated,
+    surfaceContainerHighest: Color(0xFF223243),
     error: AppColors.error,
     onPrimary: Colors.white,
     onSecondary: Colors.white,
     onSurface: AppColors.textPrimaryDark,
+    onSurfaceVariant: AppColors.textSecondaryDark,
+    outline: AppColors.borderDark,
+    outlineVariant: AppColors.dividerDark,
+    primaryContainer: Color(0xFF173450),
     onError: Colors.white,
   );
-
-  // ── Component Themes ──
 
   static TextTheme _textTheme(
     Color primary,
@@ -77,20 +93,20 @@ class AppTheme {
       titleMedium: AppTypography.subtitle.copyWith(color: primary),
       bodyLarge: AppTypography.bodyLarge.copyWith(color: primary),
       bodyMedium: AppTypography.bodyMedium.copyWith(color: primary),
-      bodySmall: AppTypography.caption.copyWith(color: secondary),
+      bodySmall: AppTypography.bodySmall.copyWith(color: secondary),
       labelLarge: AppTypography.label.copyWith(color: accent),
       labelSmall: AppTypography.overline.copyWith(color: secondary),
     );
   }
 
-  static AppBarTheme _appBarTheme(Color foreground, Color bg) {
+  static AppBarTheme _appBarTheme(Color foreground) {
     return AppBarTheme(
-      backgroundColor: bg,
+      backgroundColor: Colors.transparent,
       foregroundColor: foreground,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
-      titleTextStyle: AppTypography.headline.copyWith(color: foreground),
+      titleTextStyle: AppTypography.title.copyWith(color: foreground),
     );
   }
 
@@ -100,12 +116,13 @@ class AppTheme {
         backgroundColor: primary,
         foregroundColor: Colors.white,
         elevation: 0,
+        minimumSize: const Size.fromHeight(AppDimens.buttonHeight),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDimens.radiusMd),
         ),
         textStyle: AppTypography.label.copyWith(fontSize: 16),
         padding: const EdgeInsets.symmetric(
-          vertical: AppDimens.md,
+          vertical: AppDimens.sm,
           horizontal: AppDimens.lg,
         ),
       ),

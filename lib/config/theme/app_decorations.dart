@@ -1,12 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:flutter/material.dart';
 
-/// Reusable decoration presets for cards, containers, and sections.
 class AppDecorations {
   AppDecorations._();
 
-  /// Frosted-glass card decoration — adapts to light/dark.
   static BoxDecoration glassCard(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return BoxDecoration(
@@ -15,11 +13,10 @@ class AppDecorations {
       border: Border.all(
         color: isDark ? AppColors.glassBorderDark : AppColors.glassBorderLight,
       ),
-      boxShadow: AppColors.shadowSm,
+      boxShadow: AppColors.shadowMd,
     );
   }
 
-  /// Primary gradient card with large radius and shadow.
   static BoxDecoration gradientCard() {
     return BoxDecoration(
       gradient: AppColors.primaryGradient,
@@ -28,38 +25,46 @@ class AppDecorations {
     );
   }
 
-  /// Themed surface card — solid surface color with subtle border.
   static BoxDecoration surfaceCard(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return BoxDecoration(
       color: scheme.surface,
       borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-      border: Border.all(
-        color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
-      ),
+      border: Border.all(color: scheme.outlineVariant),
       boxShadow: AppColors.shadowSm,
     );
   }
 
-  /// Main background gradient for screens.
   static BoxDecoration mainGradient(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+
     return BoxDecoration(
       gradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
         colors: isDark
             ? [
-                AppColors.primary.withValues(alpha: 0.15),
-                Theme.of(context).scaffoldBackgroundColor,
+                AppColors.pageTintDark,
+                scheme.surface,
+                scheme.surface,
               ]
             : [
-                AppColors.primary.withValues(alpha: 0.08),
-                Theme.of(context).scaffoldBackgroundColor,
+                AppColors.pageTintLight,
+                scheme.surface,
+                scheme.surface,
               ],
-        stops: const [0.0, 0.4],
+        stops: const [0, 0.34, 1],
       ),
+    );
+  }
+
+  static BoxDecoration mutedPanel(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return BoxDecoration(
+      color: scheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+      border: Border.all(color: scheme.outlineVariant),
     );
   }
 }

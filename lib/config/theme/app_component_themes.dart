@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:flutter/material.dart';
 
-/// Component-level theme configurations extracted from [AppTheme]
-/// to keep each file ≤ 120 lines.
 class AppComponentThemes {
   AppComponentThemes._();
 
@@ -13,37 +11,34 @@ class AppComponentThemes {
     Color hintColor,
     Color fillColor,
   ) {
-    final borderColor = isDark
-        ? AppColors.textSecondaryDark.withValues(alpha: 0.3)
-        : AppColors.textSecondaryLight.withValues(alpha: 0.2);
+    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
     final primary = isDark ? AppColors.primaryLight : AppColors.primary;
 
     return InputDecorationTheme(
       filled: true,
       fillColor: fillColor,
+      isDense: true,
       contentPadding: const EdgeInsets.symmetric(
         vertical: AppDimens.md,
         horizontal: AppDimens.md,
       ),
       border: _outlineBorder(borderColor),
       enabledBorder: _outlineBorder(borderColor),
-      focusedBorder: _outlineBorder(primary, width: 2),
+      focusedBorder: _outlineBorder(primary, width: 1.5),
       errorBorder: _outlineBorder(AppColors.error),
+      focusedErrorBorder: _outlineBorder(AppColors.error, width: 1.5),
       hintStyle: AppTypography.bodyMedium.copyWith(color: hintColor),
-      labelStyle: AppTypography.bodyMedium.copyWith(color: hintColor),
+      labelStyle: AppTypography.bodySmall.copyWith(color: hintColor),
     );
   }
 
   static CardThemeData card(Color surface) {
     return CardThemeData(
       color: surface,
-      elevation: AppDimens.elevationSm,
+      elevation: 0,
+      margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-      ),
-      margin: const EdgeInsets.symmetric(
-        vertical: AppDimens.xs,
-        horizontal: AppDimens.md,
       ),
     );
   }
@@ -56,13 +51,17 @@ class AppComponentThemes {
   ) {
     return ChipThemeData(
       backgroundColor: surface,
-      selectedColor: primary.withValues(alpha: 0.15),
+      selectedColor: primary.withValues(alpha: 0.12),
       labelStyle: AppTypography.label.copyWith(color: textColor),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppDimens.radiusFull),
       ),
       side: BorderSide(
         color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDimens.sm,
+        vertical: AppDimens.xs4,
       ),
     );
   }
@@ -76,7 +75,7 @@ class AppComponentThemes {
         vertical: AppDimens.xs,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
       ),
     );
   }
@@ -86,12 +85,12 @@ class AppComponentThemes {
       labelColor: selected,
       unselectedLabelColor: unselected,
       indicatorColor: selected,
+      indicatorSize: TabBarIndicatorSize.label,
       labelStyle: AppTypography.label,
       unselectedLabelStyle: AppTypography.bodyMedium,
+      dividerColor: Colors.transparent,
     );
   }
-
-  // ── Helpers ──
 
   static OutlineInputBorder _outlineBorder(Color color, {double width = 1}) {
     return OutlineInputBorder(

@@ -3,87 +3,80 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // ── Primary Gradient (Deep Indigo → Violet) ──
-  static const Color primary = Color(0xFF4F46E5);
-  static const Color primaryDark = Color(0xFF4338CA);
-  static const Color primaryLight = Color(0xFF818CF8);
+  static const Color primary = Color(0xFF0F4C81);
+  static const Color primaryDark = Color(0xFF0A365C);
+  static const Color primaryLight = Color(0xFF3C729E);
 
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+    colors: [Color(0xFF0F4C81), Color(0xFF195E97)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // ── Secondary / Accents ──
-  static const Color secondary = Color(0xFF06B6D4);
-  static const Color secondaryDark = Color(0xFF0891B2);
-  static const Color accent = Color(0xFF14B8A6);
+  static const Color secondary = Color(0xFF1D7A85);
+  static const Color secondaryDark = Color(0xFF155A62);
+  static const Color accent = Color(0xFFC6922C);
 
-  // ── Light Surfaces ──
-  static const Color backgroundLight = Color(0xFFF8FAFC);
-  static const Color surfaceLight = Colors.white;
-  static const Color textPrimaryLight = Color(0xFF0F172A);
-  static const Color textSecondaryLight = Color(0xFF64748B);
+  static const Color backgroundLight = Color(0xFFF4F6F8);
+  static const Color surfaceLight = Color(0xFFFFFFFF);
+  static const Color surfaceLightElevated = Color(0xFFF9FBFC);
+  static const Color textPrimaryLight = Color(0xFF16202A);
+  static const Color textSecondaryLight = Color(0xFF5D6B78);
+  static const Color mutedLight = Color(0xFF8D99A6);
+  static const Color borderLight = Color(0xFFD7DEE5);
 
-  // ── Dark Surfaces ──
-  static const Color backgroundDark = Color(0xFF0F172A);
-  static const Color surfaceDark = Color(0xFF1E293B);
-  static const Color surfaceDarkElevated = Color(0xFF283548);
-  static const Color textPrimaryDark = Color(0xFFF1F5F9);
-  static const Color textSecondaryDark = Color(0xFF94A3B8);
+  static const Color backgroundDark = Color(0xFF0F1820);
+  static const Color surfaceDark = Color(0xFF16222D);
+  static const Color surfaceDarkElevated = Color(0xFF1E2C39);
+  static const Color textPrimaryDark = Color(0xFFF2F5F8);
+  static const Color textSecondaryDark = Color(0xFFB0BCC8);
+  static const Color mutedDark = Color(0xFF8292A0);
+  static const Color borderDark = Color(0xFF273747);
 
-  // ── Semantic ──
-  static const Color success = Color(0xFF10B981);
-  static const Color error = Color(0xFFEF4444);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color info = Color(0xFF3B82F6);
+  static const Color success = Color(0xFF198754);
+  static const Color error = Color(0xFFBB3D3D);
+  static const Color warning = Color(0xFFC0841A);
+  static const Color info = Color(0xFF2F6EA6);
 
-  // ── Glassmorphism ──
-  static const Color glassLight = Color(0xCCFFFFFF);
-  static const Color glassDark = Color(0x801E293B);
-  static const Color glassBorderLight = Color(0x33FFFFFF);
-  static const Color glassBorderDark = Color(0x1AFFFFFF);
+  static const Color glassLight = Color(0xF2FFFFFF);
+  static const Color glassDark = Color(0xCC16222D);
+  static const Color glassBorderLight = Color(0x52FFFFFF);
+  static const Color glassBorderDark = Color(0x1FFFFFFF);
 
-  // ── Shimmer ──
-  static const Color shimmerBaseLight = Color(0xFFE2E8F0);
-  static const Color shimmerHighlightLight = Color(0xFFF1F5F9);
-  static const Color shimmerBaseDark = Color(0xFF334155);
-  static const Color shimmerHighlightDark = Color(0xFF475569);
+  static const Color shimmerBaseLight = Color(0xFFE3E8ED);
+  static const Color shimmerHighlightLight = Color(0xFFF6F8FA);
+  static const Color shimmerBaseDark = Color(0xFF2A3845);
+  static const Color shimmerHighlightDark = Color(0xFF364858);
 
-  // ── Divider ──
-  static const Color dividerLight = Color(0xFFE2E8F0);
-  static const Color dividerDark = Color(0xFF334155);
+  static const Color dividerLight = borderLight;
+  static const Color dividerDark = borderDark;
 
-  // ── Shadows ──
+  static const Color pageTintLight = Color(0xFFEAF1F6);
+  static const Color pageTintDark = Color(0xFF12212B);
+
   static const List<BoxShadow> shadowSm = [
-    BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2),
+    BoxShadow(
+      color: Color(0x0C112030),
+      offset: Offset(0, 2),
+      blurRadius: 8,
+    ),
   ];
+
   static const List<BoxShadow> shadowMd = [
     BoxShadow(
-      color: Color(0x1A000000),
-      offset: Offset(0, 4),
-      blurRadius: 6,
-      spreadRadius: -1,
-    ),
-    BoxShadow(
-      color: Color(0x10000000),
-      offset: Offset(0, 2),
-      blurRadius: 4,
+      color: Color(0x12112030),
+      offset: Offset(0, 10),
+      blurRadius: 24,
       spreadRadius: -1,
     ),
   ];
+
   static const List<BoxShadow> shadowLg = [
     BoxShadow(
-      color: Color(0x1A000000),
-      offset: Offset(0, 10),
-      blurRadius: 15,
-      spreadRadius: -3,
-    ),
-    BoxShadow(
-      color: Color(0x10000000),
-      offset: Offset(0, 4),
-      blurRadius: 6,
-      spreadRadius: -2,
+      color: Color(0x1A112030),
+      offset: Offset(0, 18),
+      blurRadius: 42,
+      spreadRadius: -8,
     ),
   ];
 }
