@@ -27,7 +27,11 @@ class WalletContent extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.only(top: AppDimens.md),
+            padding: const EdgeInsets.only(
+              top: AppDimens.md,
+              right: AppDimens.md,
+              left: AppDimens.md,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -52,13 +56,15 @@ class WalletContent extends StatelessWidget {
                     unawaited(getIt<NavigationService>().push('/transfer'));
                   },
                   onPaymentRequestsTap: () {
-                    unawaited(getIt<NavigationService>().push('/payment-requests'));
+                    unawaited(
+                        getIt<NavigationService>().push('/payment-requests'));
                   },
                   onContactsTap: () {
                     unawaited(getIt<NavigationService>().push('/contacts'));
                   },
                   onNotificationsTap: () {
-                    unawaited(getIt<NavigationService>().push('/notification-settings'));
+                    unawaited(getIt<NavigationService>()
+                        .push('/notification-settings'));
                   },
                 ),
                 const SizedBox(height: AppDimens.sectionGap),
@@ -66,9 +72,10 @@ class WalletContent extends StatelessWidget {
                   title: 'Recent activity',
                   subtitle: 'Track completed and pending money movement.',
                   trailing: TextButton(
-                    onPressed: data.filterType != null || data.filterStatus != null
-                        ? () => context.read<WalletCubit>().clearFilters()
-                        : null,
+                    onPressed:
+                        data.filterType != null || data.filterStatus != null
+                            ? () => context.read<WalletCubit>().clearFilters()
+                            : null,
                     child: const Text('Clear filters'),
                   ),
                 ),
