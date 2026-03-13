@@ -21,46 +21,48 @@ class QuickActionsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return AppCard(
-      padding: const EdgeInsets.all(AppDimens.md),
-      child: Row(
-        children: [
-          Expanded(
-            child: _QuickActionItem(
-              icon: Icons.arrow_upward_rounded,
-              label: 'Send',
-              tone: scheme.primary,
-              onTap: onSendTap,
+    return RepaintBoundary(
+      child: AppCard(
+        padding: const EdgeInsets.all(AppDimens.md),
+        child: Row(
+          children: [
+            Expanded(
+              child: _QuickActionItem(
+                icon: Icons.arrow_upward_rounded,
+                label: 'Send',
+                tone: scheme.primary,
+                onTap: onSendTap,
+              ),
             ),
-          ),
-          const SizedBox(width: AppDimens.sm),
-          Expanded(
-            child: _QuickActionItem(
-              icon: Icons.request_quote_rounded,
-              label: 'Request',
-              tone: scheme.secondary,
-              onTap: onPaymentRequestsTap,
+            const SizedBox(width: AppDimens.sm),
+            Expanded(
+              child: _QuickActionItem(
+                icon: Icons.request_quote_rounded,
+                label: 'Request',
+                tone: scheme.secondary,
+                onTap: onPaymentRequestsTap,
+              ),
             ),
-          ),
-          const SizedBox(width: AppDimens.sm),
-          Expanded(
-            child: _QuickActionItem(
-              icon: Icons.people_alt_outlined,
-              label: 'Contacts',
-              tone: scheme.primary,
-              onTap: onContactsTap,
+            const SizedBox(width: AppDimens.sm),
+            Expanded(
+              child: _QuickActionItem(
+                icon: Icons.people_alt_outlined,
+                label: 'Contacts',
+                tone: scheme.primary,
+                onTap: onContactsTap,
+              ),
             ),
-          ),
-          const SizedBox(width: AppDimens.sm),
-          Expanded(
-            child: _QuickActionItem(
-              icon: Icons.notifications_outlined,
-              label: 'Alerts',
-              tone: scheme.tertiary,
-              onTap: onNotificationsTap,
+            const SizedBox(width: AppDimens.sm),
+            Expanded(
+              child: _QuickActionItem(
+                icon: Icons.notifications_outlined,
+                label: 'Alerts',
+                tone: scheme.tertiary,
+                onTap: onNotificationsTap,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

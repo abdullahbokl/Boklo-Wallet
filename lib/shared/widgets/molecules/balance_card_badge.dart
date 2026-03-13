@@ -44,37 +44,36 @@ class BalanceCardBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (_displayId == null) return const SizedBox.shrink();
-
-    return InkWell(
-      onTap: () {
-        if (_copyValue != null) {
-          unawaited(Clipboard.setData(ClipboardData(text: _copyValue!)));
-          getIt<SnackbarService>().showInfo('Copied to clipboard');
-        }
-      },
+    return Material(
+      // Use 'color' here instead of a Container decoration to avoid extra layers
+      color: Colors.white.withValues(alpha: 0.2),
       borderRadius: BorderRadius.circular(AppDimens.radiusSm),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppDimens.sm,
-          vertical: AppDimens.xs4,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(AppDimens.radiusSm),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _displayId!,
-              style: AppTypography.bodyMedium.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+      // clipBehavior is important for the ripple to follow the border radius
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: _copyValue == null ? null : () async {
+          await Clipboard.setData(ClipboardData(text: _copyValue!));
+          getIt<SnackbarService>().showInfo('Copied to clipboard');
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDimens.sm,
+            vertical: AppDimens.xs4,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _displayId ?? '',
+                style: AppTypography.bodyMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(width: AppDimens.xs4),
-            const Icon(Icons.copy_rounded, size: 14, color: Colors.white),
-          ],
+              const SizedBox(width: AppDimens.xs4),
+              const Icon(Icons.copy_rounded, size: 14, color: Colors.white),
+            ],
+          ),
         ),
       ),
     );

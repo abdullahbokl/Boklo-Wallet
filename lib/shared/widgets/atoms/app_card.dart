@@ -24,8 +24,7 @@ class AppCard extends StatelessWidget {
         ? AppDecorations.glassCard(context)
         : AppDecorations.surfaceCard(context);
 
-    final card = AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
+    final card = Container(
       margin: margin,
       padding: padding ?? const EdgeInsets.all(AppDimens.md),
       decoration: decoration,

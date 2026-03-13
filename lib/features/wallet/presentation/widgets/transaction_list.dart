@@ -17,6 +17,9 @@ class TransactionList extends StatelessWidget {
     this.onLoadMore,
   });
 
+  static final DateFormat _transactionDateFormatter =
+      DateFormat.yMMMd().add_jm();
+
   final List<domain.TransactionEntity> transactions;
   final bool isLoading;
   final bool hasMore;
@@ -71,12 +74,14 @@ class TransactionList extends StatelessWidget {
             uiStatus = TransactionStatus.failed;
         }
 
-        return TransactionTile(
-          title: isCredit ? 'Received Money' : 'Sent Money',
-          amount: tx.amount.toStringAsFixed(2),
-          date: DateFormat.yMMMd().add_jm().format(tx.timestamp),
-          status: uiStatus,
-          isCredit: isCredit,
+        return RepaintBoundary(
+          child: TransactionTile(
+            title: isCredit ? 'Received Money' : 'Sent Money',
+            amount: tx.amount.toStringAsFixed(2),
+            date: _transactionDateFormatter.format(tx.timestamp),
+            status: uiStatus,
+            isCredit: isCredit,
+          ),
         );
       },
     );
@@ -96,18 +101,20 @@ class _LoadMoreButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppDimens.md),
-      child: Center(
-        child: isLoading
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : TextButton.icon(
-                onPressed: onPressed,
-                icon: const Icon(Icons.expand_more_rounded),
-                label: const Text('Load More'),
-              ),
+      child: RepaintBoundary(
+        child: Center(
+          child: isLoading
+              ? const SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : TextButton.icon(
+                  onPressed: onPressed,
+                  icon: const Icon(Icons.expand_more_rounded),
+                  label: const Text('Load More'),
+                ),
+        ),
       ),
     );
   }

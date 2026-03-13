@@ -42,12 +42,14 @@ class WalletContent extends StatelessWidget {
                   builder: (context, value, child) {
                     return Transform.scale(scale: value, child: child);
                   },
-                  child: BalanceCard(
-                    balance: data.wallet.balance,
-                    currency: data.wallet.currency,
-                    walletId: data.wallet.id,
-                    username: data.wallet.username,
-                    alias: data.wallet.alias,
+                  child: RepaintBoundary(
+                    child: BalanceCard(
+                      balance: data.wallet.balance,
+                      currency: data.wallet.currency,
+                      walletId: data.wallet.id,
+                      username: data.wallet.username,
+                      alias: data.wallet.alias,
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppDimens.lg),
