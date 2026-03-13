@@ -1,6 +1,6 @@
+import 'package:boklo/core/network/retry_executor.dart';
 import 'package:boklo/features/transfers/data/models/transfer_model.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
-import 'package:boklo/core/network/retry_executor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 
@@ -71,7 +71,7 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
 
     if (query.docs.length > 1) {
       throw Exception(
-          'Data integrity error: Multiple wallets found with alias $alias');
+          'Data integrity error: Multiple wallets found with alias $alias',);
     }
 
     if (query.docs.isNotEmpty) {

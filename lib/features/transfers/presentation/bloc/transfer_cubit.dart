@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:fpdart/fpdart.dart';
+
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/config/app_feature_flags.dart';
@@ -7,10 +7,11 @@ import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
+import 'package:boklo/features/transfers/domain/usecases/observe_transfer_status_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/resolve_recipient_usecase.dart';
-import 'package:boklo/features/transfers/domain/usecases/observe_transfer_status_usecase.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -66,7 +67,7 @@ class TransferCubit extends BaseCubit<TransferState> {
 
       if (resolutionError != null) {
         unawaited(_analyticsService.logTransferFailure(
-            reason: resolutionError!.message));
+            reason: resolutionError!.message,),);
         emitError(resolutionError!);
         return;
       }
@@ -83,7 +84,7 @@ class TransferCubit extends BaseCubit<TransferState> {
         await requestResult.fold(
           (error) async {
             unawaited(
-                _analyticsService.logTransferFailure(reason: error.message));
+                _analyticsService.logTransferFailure(reason: error.message),);
             emitError(error);
           },
           (transfer) async {
@@ -95,7 +96,7 @@ class TransferCubit extends BaseCubit<TransferState> {
             await persistResult.fold(
               (error) async {
                 unawaited(_analyticsService.logTransferFailure(
-                    reason: error.message));
+                    reason: error.message,),);
                 emitError(error);
               },
               (_) async {
@@ -173,7 +174,7 @@ class TransferCubit extends BaseCubit<TransferState> {
             emitSuccess(const TransferState());
           } else {
             // Check for risk enforcement reasons first
-            String reason = 'Transfer failed';
+            var reason = 'Transfer failed';
 
             if (transfer?.riskMode == 'ENFORCE' &&
                 (transfer?.reasons?.isNotEmpty ?? false)) {

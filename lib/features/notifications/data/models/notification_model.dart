@@ -17,6 +17,15 @@ class NotificationModel {
     this.sentAt,
   });
 
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    // Inject ID if missing and provided as separate field in some contexts
+    final map = Map<String, dynamic>.from(json);
+    if (!map.containsKey('id') && map.containsKey('notificationId')) {
+      map['id'] = map['notificationId'];
+    }
+    return _$NotificationModelFromJson(map);
+  }
+
   final String id;
   final String userId;
   final String type;
@@ -29,22 +38,13 @@ class NotificationModel {
   @TimestampConverter()
   final DateTime? sentAt;
 
-  factory NotificationModel.fromJson(Map<String, dynamic> json) {
-    // Inject ID if missing and provided as separate field in some contexts
-    final map = Map<String, dynamic>.from(json);
-    if (!map.containsKey('id') && map.containsKey('notificationId')) {
-      map['id'] = map['notificationId'];
-    }
-    return _$NotificationModelFromJson(map);
-  }
-
   Map<String, dynamic> toJson() => _$NotificationModelToJson(this);
 
   NotificationEntity toEntity() {
     // Helper to resolve title/body from keys in model
     // In a real app, we'd use localizations, but for now we follow the backend logic
-    String resolvedTitle = payload.titleKey;
-    String resolvedBody = payload.bodyKey;
+    var resolvedTitle = payload.titleKey;
+    var resolvedBody = payload.bodyKey;
 
     if (payload.titleKey == 'transfer_sent_success_title') resolvedTitle = 'Transfer Sent';
     if (payload.titleKey == 'transfer_received_title') resolvedTitle = 'Money Received';
@@ -79,7 +79,7 @@ class NotificationModel {
   }
 
   String _resolveBody(String key, Map<String, dynamic>? data) {
-    String text = key;
+    var text = key;
     if (key == 'transfer_sent_success_body') text = 'You sent {amount} {currency}.';
     if (key == 'transfer_received_body') text = 'You received {amount} {currency}.';
     if (key == 'transfer_failed_body') text = 'Your transfer failed. {reason}';
@@ -102,12 +102,12 @@ class NotificationPayloadModel {
     this.data,
   });
 
+  factory NotificationPayloadModel.fromJson(Map<String, dynamic> json) =>
+      _$NotificationPayloadModelFromJson(json);
+
   final String titleKey;
   final String bodyKey;
   final Map<String, dynamic>? data;
-
-  factory NotificationPayloadModel.fromJson(Map<String, dynamic> json) =>
-      _$NotificationPayloadModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$NotificationPayloadModelToJson(this);
 }

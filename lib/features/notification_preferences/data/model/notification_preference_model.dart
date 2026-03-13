@@ -6,12 +6,12 @@ part 'notification_preference_model.g.dart';
 
 @freezed
 class NotificationPreferenceModel with _$NotificationPreferenceModel {
-  const NotificationPreferenceModel._();
 
   const factory NotificationPreferenceModel({
     @Default(true) bool enableIncoming,
     @Default(true) bool enableOutgoing,
   }) = _NotificationPreferenceModel;
+  const NotificationPreferenceModel._();
 
   factory NotificationPreferenceModel.fromJson(Map<String, dynamic> json) =>
       _$NotificationPreferenceModelFromJson(json);
@@ -24,7 +24,7 @@ class NotificationPreferenceModel with _$NotificationPreferenceModel {
   }
 
   static NotificationPreferenceModel fromEntity(
-      NotificationPreferenceEntity entity) {
+      NotificationPreferenceEntity entity,) {
     return NotificationPreferenceModel(
       enableIncoming: entity.enableIncoming,
       enableOutgoing: entity.enableOutgoing,

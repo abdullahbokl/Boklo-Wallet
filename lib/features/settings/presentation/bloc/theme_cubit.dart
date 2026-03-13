@@ -25,10 +25,8 @@ class ThemeCubit extends Cubit<ThemeMode> {
         switch (stored) {
           case 'light':
             emit(ThemeMode.light);
-            break;
           case 'dark':
             emit(ThemeMode.dark);
-            break;
           default:
             emit(ThemeMode.system);
         }

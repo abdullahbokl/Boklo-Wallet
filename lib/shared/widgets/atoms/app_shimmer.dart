@@ -49,8 +49,6 @@ class _AppShimmerState extends State<AppShimmer>
         return ShaderMask(
           shaderCallback: (bounds) {
             return LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
               colors: [base, highlight, base],
               stops: [
                 _controller.value - 0.3,

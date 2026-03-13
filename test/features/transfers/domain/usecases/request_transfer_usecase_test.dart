@@ -1,4 +1,3 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
@@ -6,6 +5,7 @@ import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecas
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockTransferValidator extends Mock implements TransferValidator {}
@@ -23,7 +23,6 @@ void main() {
         id: 'fallback',
         balance: 0,
         currency: 'SAR',
-        alias: null,
       ),
     );
   });
@@ -38,14 +37,12 @@ void main() {
     id: '1',
     balance: 100,
     currency: 'SAR',
-    alias: null,
   );
 
   const tToWallet = WalletEntity(
     id: '2',
     balance: 50,
     currency: 'SAR',
-    alias: null,
   );
 
   test(
@@ -61,13 +58,13 @@ void main() {
           fromWallet: any(named: 'fromWallet'),
           toWallet: any(named: 'toWallet'),
           amount: any(named: 'amount'),
-        )).thenReturn(right(null));
+        ),).thenReturn(right(null));
 
     // Act
     final result = await useCase.call(
       fromWalletId: '1',
       toWalletId: '2',
-      amount: 10.0,
+      amount: 10,
     );
 
     // Assert
@@ -95,13 +92,13 @@ void main() {
           fromWallet: any(named: 'fromWallet'),
           toWallet: any(named: 'toWallet'),
           amount: any(named: 'amount'),
-        )).thenReturn(left(tError));
+        ),).thenReturn(left(tError));
 
     // Act
     final result = await useCase.call(
       fromWalletId: '1',
       toWalletId: '2',
-      amount: 1000.0,
+      amount: 1000,
     );
 
     // Assert

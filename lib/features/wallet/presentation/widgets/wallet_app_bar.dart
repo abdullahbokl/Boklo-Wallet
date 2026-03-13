@@ -31,7 +31,6 @@ class WalletAppBar extends StatelessWidget implements PreferredSizeWidget {
             );
 
             return AppAvatar(
-              size: AppDimens.avatarMd,
               name: user?.displayName ?? user?.email,
               onTap: () => getIt<NavigationService>().push('/profile'),
             );

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
@@ -8,8 +10,6 @@ import 'package:boklo/features/auth/presentation/widgets/password_field.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:boklo/config/theme/app_dimens.dart';
-import 'package:boklo/config/theme/app_typography.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});

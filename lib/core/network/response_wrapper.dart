@@ -4,9 +4,6 @@ part 'response_wrapper.g.dart';
 
 @JsonSerializable(genericArgumentFactories: true)
 class ResponseWrapper<T> {
-  final bool success;
-  final String? message;
-  final T? data;
 
   const ResponseWrapper({
     this.success = false,
@@ -18,4 +15,7 @@ class ResponseWrapper<T> {
     Map<String, dynamic> json,
     T Function(Object? json) fromJsonT,
   ) => _$ResponseWrapperFromJson(json, fromJsonT);
+  final bool success;
+  final String? message;
+  final T? data;
 }

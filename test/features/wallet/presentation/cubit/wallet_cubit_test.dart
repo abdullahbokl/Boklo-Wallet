@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:boklo/core/base/base_state.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
@@ -12,6 +11,7 @@ import 'package:boklo/features/wallet/domain/usecases/watch_wallet_usecase.dart'
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockWatchWalletUseCase extends Mock implements WatchWalletUseCase {}
@@ -32,10 +32,10 @@ void main() {
   late MockLoadMoreTransactionsUseCase mockLoadMoreTransactionsUseCase;
   late MockProvisionWalletUseCase mockProvisionWalletUseCase;
 
-  final tWallet = WalletEntity(
+  const tWallet = WalletEntity(
     id: 'w1',
     currency: 'USD',
-    balance: 100.0,
+    balance: 100,
     ownerName: 'Test User',
     alias: 'tester',
   );
@@ -43,9 +43,8 @@ void main() {
   final tTransactions = [
     TransactionEntity(
       id: 't1',
-      amount: 50.0,
+      amount: 50,
       type: TransactionType.credit,
-      status: TransactionStatus.completed,
       timestamp: DateTime.now(),
     ),
   ];

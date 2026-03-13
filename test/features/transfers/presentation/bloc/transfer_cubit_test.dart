@@ -1,16 +1,14 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/config/app_feature_flags.dart';
 import 'package:boklo/core/services/analytics_service.dart';
-
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
-import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
 import 'package:boklo/features/transfers/domain/usecases/observe_transfer_status_usecase.dart';
+import 'package:boklo/features/transfers/domain/usecases/request_transfer_usecase.dart';
+import 'package:boklo/features/transfers/domain/usecases/resolve_recipient_usecase.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
-
-import 'package:boklo/features/transfers/domain/usecases/resolve_recipient_usecase.dart';
 
 class MockCreateTransferUseCase extends Mock implements CreateTransferUseCase {}
 
@@ -45,7 +43,7 @@ void main() {
     mockFeatureFlags = MockFeatureFlags();
 
     when(() => mockAnalyticsService.logTransferFailure(
-        reason: any(named: 'reason'))).thenAnswer((_) async {});
+        reason: any(named: 'reason'),),).thenAnswer((_) async {});
 
     // Default success for recipient resolution (assumes direct wallet ID by default)
     when(() => mockResolveRecipientUseCase.call(any()))
@@ -93,7 +91,7 @@ void main() {
           .thenAnswer((_) async => right(null));
       when(() => mockAnalyticsService.logTransferInitiated(
           amount: any(named: 'amount'),
-          currency: any(named: 'currency'))).thenAnswer((_) async {});
+          currency: any(named: 'currency'),),).thenAnswer((_) async {});
 
       // Act
       await cubit.createTransfer(
@@ -105,13 +103,13 @@ void main() {
 
       // Assert
       verify(() =>
-              mockCreateTransferUseCase.call(any(that: isA<TransferEntity>())))
+              mockCreateTransferUseCase.call(any(that: isA<TransferEntity>())),)
           .called(1);
       verifyNever(() => mockRequestTransferUseCase.call(
             fromWalletId: any(named: 'fromWalletId'),
             toWalletId: any(named: 'toWalletId'),
             amount: any(named: 'amount'),
-          ));
+          ),);
     });
 
     test(
@@ -135,14 +133,14 @@ void main() {
             fromWalletId: any(named: 'fromWalletId'),
             toWalletId: any(named: 'toWalletId'),
             amount: any(named: 'amount'),
-          )).thenAnswer((_) async => right(tTransfer));
+          ),).thenAnswer((_) async => right(tTransfer));
 
       when(() => mockCreateTransferUseCase.call(any()))
           .thenAnswer((_) async => right(null));
 
       when(() => mockAnalyticsService.logTransferInitiated(
           amount: any(named: 'amount'),
-          currency: any(named: 'currency'))).thenAnswer((_) async {});
+          currency: any(named: 'currency'),),).thenAnswer((_) async {});
 
       // Mock Observation Stream
       when(() => mockObserveTransferStatusUseCase.call(any())).thenAnswer(
@@ -155,7 +153,7 @@ void main() {
             currency: tCurrency,
             status: TransferStatus.pending,
             createdAt: DateTime.now(),
-          )),
+          ),),
           right(TransferEntity(
             id: 'new_id',
             fromWalletId: tFromId,
@@ -164,7 +162,7 @@ void main() {
             currency: tCurrency,
             status: TransferStatus.completed,
             createdAt: DateTime.now(),
-          )),
+          ),),
         ]),
       );
 
@@ -181,7 +179,7 @@ void main() {
             fromWalletId: tFromId,
             toWalletId: tToId,
             amount: tAmount,
-          )).called(1);
+          ),).called(1);
 
       verify(() => mockCreateTransferUseCase.call(tTransfer)).called(1);
 

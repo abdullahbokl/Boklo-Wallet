@@ -52,21 +52,21 @@ class RegisterPage extends StatelessWidget {
                 constraints: const BoxConstraints(
                   maxWidth: AppDimens.maxFormWidth,
                 ),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const LoginHeader(
+                    LoginHeader(
                       title: 'Create your Boklo account',
                       subtitle:
                           'Open a secure wallet and start sending or requesting money.',
                     ),
-                    const SizedBox(height: AppDimens.xl),
+                    SizedBox(height: AppDimens.xl),
                     AppCard(
-                      padding: const EdgeInsets.all(AppDimens.xl),
-                      child: const RegisterForm(),
+                      padding: EdgeInsets.all(AppDimens.xl),
+                      child: RegisterForm(),
                     ),
-                    const SizedBox(height: AppDimens.lg),
-                    const _RegisterFooter(),
+                    SizedBox(height: AppDimens.lg),
+                    _RegisterFooter(),
                   ],
                 ),
               ),

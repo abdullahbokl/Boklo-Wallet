@@ -1,9 +1,9 @@
+import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart'
     as domain;
-import 'package:boklo/shared/widgets/molecules/transaction_tile.dart';
 import 'package:boklo/shared/widgets/atoms/status_chip.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
-import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/shared/widgets/molecules/transaction_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -61,22 +61,19 @@ class TransactionList extends StatelessWidget {
         final isCredit = tx.type == domain.TransactionType.credit;
 
         // Map Domain Status to UI Status
-        TransactionStatus uiStatus = TransactionStatus.pending;
+        var uiStatus = TransactionStatus.pending;
         switch (tx.status) {
           case domain.TransactionStatus.pending:
             uiStatus = TransactionStatus.pending;
-            break;
           case domain.TransactionStatus.completed:
             uiStatus = TransactionStatus.completed;
-            break;
           case domain.TransactionStatus.failed:
             uiStatus = TransactionStatus.failed;
-            break;
         }
 
         return TransactionTile(
           title: isCredit ? 'Received Money' : 'Sent Money',
-          amount: '${tx.amount.toStringAsFixed(2)}',
+          amount: tx.amount.toStringAsFixed(2),
           date: DateFormat.yMMMd().add_jm().format(tx.timestamp),
           status: uiStatus,
           isCredit: isCredit,

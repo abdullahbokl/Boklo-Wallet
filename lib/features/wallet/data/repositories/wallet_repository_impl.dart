@@ -1,19 +1,25 @@
 import 'dart:async';
-import 'package:fpdart/fpdart.dart';
+
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/data/datasources/wallet_local_data_source.dart';
 import 'package:boklo/features/wallet/data/datasources/wallet_remote_data_source.dart';
 import 'package:boklo/features/wallet/data/models/transaction_model.dart';
+import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_page.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/repositories/wallet_repository.dart';
-import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: WalletRepository)
 class WalletRepositoryImpl implements WalletRepository {
+
+  WalletRepositoryImpl(
+    this._remoteDataSource,
+    this._localDataSource,
+  );
   final WalletRemoteDataSource _remoteDataSource;
   final WalletLocalDataSource _localDataSource;
 
@@ -21,11 +27,6 @@ class WalletRepositoryImpl implements WalletRepository {
   /// free of Firestore-specific types.
   DocumentSnapshot? _lastDocument;
   bool _hasMore = true;
-
-  WalletRepositoryImpl(
-    this._remoteDataSource,
-    this._localDataSource,
-  );
 
   @override
   Future<Either<Failure, WalletEntity>> getWallet() async {

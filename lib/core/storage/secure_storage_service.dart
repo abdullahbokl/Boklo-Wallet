@@ -3,9 +3,9 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class SecureStorageService {
-  final FlutterSecureStorage _storage;
 
   SecureStorageService(this._storage);
+  final FlutterSecureStorage _storage;
 
   Future<String?> getToken() async {
     return _storage.read(key: 'auth_token');

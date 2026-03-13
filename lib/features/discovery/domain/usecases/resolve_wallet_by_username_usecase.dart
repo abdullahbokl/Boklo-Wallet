@@ -1,6 +1,6 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/discovery/domain/repositories/discovery_repository.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable

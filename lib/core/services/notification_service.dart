@@ -10,11 +10,17 @@ import 'package:injectable/injectable.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  log("Handling a background message: ${message.messageId}");
+  log('Handling a background message: ${message.messageId}');
 }
 
 @lazySingleton
 class NotificationService {
+
+  NotificationService(
+    this._navigationService,
+    this._tokenManager,
+    this._localNotifications,
+  );
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final NavigationService _navigationService;
   final FcmTokenManager _tokenManager;
@@ -22,15 +28,9 @@ class NotificationService {
 
   String? pendingRoute;
 
-  NotificationService(
-    this._navigationService,
-    this._tokenManager,
-    this._localNotifications,
-  );
-
   Future<void> initialize() async {
     await _localNotifications.initialize(
-        onNotificationTap: _handleNotificationTap);
+        onNotificationTap: _handleNotificationTap,);
     await _requestPermissions();
     await _checkInitialMessage();
     _registerForegroundHandler();
@@ -40,9 +40,9 @@ class NotificationService {
 
   Future<void> _requestPermissions() async {
     final settings = await _messaging.requestPermission(
-        alert: true, badge: true, sound: true, provisional: false);
+        );
     await _messaging.setForegroundNotificationPresentationOptions(
-        alert: false, badge: true, sound: false);
+        badge: true,);
     log('User granted permission: ${settings.authorizationStatus}');
   }
 

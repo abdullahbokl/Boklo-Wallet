@@ -1,14 +1,14 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/core/usecases/usecase.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 class RegisterParams {
+  RegisterParams({required this.email, required this.password});
   final String email;
   final String password;
-  RegisterParams({required this.email, required this.password});
 }
 
 @injectable

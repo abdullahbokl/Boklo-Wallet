@@ -69,7 +69,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
           handleError: (error, stack, sink) {
             sink.addError(UnknownFailure('Wallet stream error: $error'));
           },
-        ));
+        ),);
   }
 
   @override

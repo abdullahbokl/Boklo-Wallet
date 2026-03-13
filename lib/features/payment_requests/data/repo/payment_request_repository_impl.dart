@@ -1,17 +1,18 @@
 import 'dart:async';
-import 'package:fpdart/fpdart.dart';
+
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/payment_requests/data/datasources/payment_request_remote_data_source.dart';
+import 'package:boklo/features/payment_requests/data/model/payment_request_model.dart';
 import 'package:boklo/features/payment_requests/domain/entity/payment_request_entity.dart';
 import 'package:boklo/features/payment_requests/domain/repo/payment_request_repository.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-import 'package:boklo/features/payment_requests/data/model/payment_request_model.dart';
 
 @LazySingleton(as: PaymentRequestRepository)
 class PaymentRequestRepositoryImpl implements PaymentRequestRepository {
-  final PaymentRequestRemoteDataSource _remoteDataSource;
 
   PaymentRequestRepositoryImpl(this._remoteDataSource);
+  final PaymentRequestRemoteDataSource _remoteDataSource;
 
   @override
   Future<Either<Failure, String>> createRequest({
@@ -41,7 +42,7 @@ class PaymentRequestRepositoryImpl implements PaymentRequestRepository {
             handleData: (data, sink) {
               try {
                 print(
-                    '[REPO DEBUG] watchIncomingRequests received ${data.length} items');
+                    '[REPO DEBUG] watchIncomingRequests received ${data.length} items',);
                 sink.add(Right(data.map((e) => e.toEntity()).toList()));
               } catch (e) {
                 print('[REPO ERROR] watchIncomingRequests transform error: $e');
@@ -64,7 +65,7 @@ class PaymentRequestRepositoryImpl implements PaymentRequestRepository {
             handleData: (data, sink) {
               try {
                 print(
-                    '[REPO DEBUG] watchOutgoingRequests received ${data.length} items');
+                    '[REPO DEBUG] watchOutgoingRequests received ${data.length} items',);
                 sink.add(Right(data.map((e) => e.toEntity()).toList()));
               } catch (e) {
                 print('[REPO ERROR] watchOutgoingRequests transform error: $e');

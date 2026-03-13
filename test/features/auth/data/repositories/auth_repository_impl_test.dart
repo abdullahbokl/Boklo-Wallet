@@ -1,14 +1,13 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:boklo/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:boklo/features/auth/data/models/user_model.dart';
 import 'package:boklo/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
-
-import 'package:boklo/features/auth/data/datasources/user_remote_data_source.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 
@@ -233,7 +232,7 @@ void main() {
     test('should return Success<null> when no user exists', () async {
       // Arrange
       when(() => mockRemoteDataSource.getCurrentUser())
-          .thenAnswer((_) => Future<UserModel?>.value(null));
+          .thenAnswer((_) => Future<UserModel?>.value());
 
       // Act
       final result = await authRepository.getCurrentUser();

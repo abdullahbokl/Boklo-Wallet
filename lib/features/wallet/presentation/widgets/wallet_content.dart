@@ -57,14 +57,14 @@ class WalletContent extends StatelessWidget {
                   },
                   onPaymentRequestsTap: () {
                     unawaited(
-                        getIt<NavigationService>().push('/payment-requests'));
+                        getIt<NavigationService>().push('/payment-requests'),);
                   },
                   onContactsTap: () {
                     unawaited(getIt<NavigationService>().push('/contacts'));
                   },
                   onNotificationsTap: () {
                     unawaited(getIt<NavigationService>()
-                        .push('/notification-settings'));
+                        .push('/notification-settings'),);
                   },
                 ),
                 const SizedBox(height: AppDimens.sectionGap),
@@ -90,8 +90,8 @@ class WalletContent extends StatelessWidget {
           transactions: data.transactions,
           hasMore: data.hasMore,
           isLoadingMore: data.isLoadingMore,
-          onLoadMore: () {
-            context.read<WalletCubit>().loadMoreTransactions();
+          onLoadMore: () async {
+            await context.read<WalletCubit>().loadMoreTransactions();
           },
         ),
         const SliverPadding(

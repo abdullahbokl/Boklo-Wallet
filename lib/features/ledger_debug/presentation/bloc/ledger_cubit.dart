@@ -1,18 +1,19 @@
 import 'dart:async';
+
 import 'package:boklo/features/ledger_debug/domain/repositories/ledger_repository.dart';
 import 'package:boklo/features/ledger_debug/presentation/bloc/ledger_state.dart';
+import 'package:boklo/features/wallet/domain/repositories/wallet_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:boklo/features/wallet/domain/repositories/wallet_repository.dart';
 
 @injectable
 class LedgerCubit extends Cubit<LedgerState> {
-  final LedgerRepository _repository;
-  final WalletRepository _walletRepository;
-  StreamSubscription<dynamic>? _subscription;
 
   LedgerCubit(this._repository, this._walletRepository)
       : super(const LedgerState.initial());
+  final LedgerRepository _repository;
+  final WalletRepository _walletRepository;
+  StreamSubscription<dynamic>? _subscription;
 
   Future<void> startWatching() async {
     emit(const LedgerState.loading());
@@ -55,7 +56,7 @@ class LedgerCubit extends Cubit<LedgerState> {
                     totalCredits: totalCredits,
                     totalDebits: totalDebits,
                     netDelta: netDelta,
-                  ));
+                  ),);
                 }
               },
             );

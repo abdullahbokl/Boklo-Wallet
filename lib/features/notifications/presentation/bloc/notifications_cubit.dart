@@ -26,7 +26,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
           (notifications) => emit(NotificationsLoaded(notifications)),
         );
       },
-      onError: (error) {
+      onError: (Object error) {
         emit(NotificationsError(error.toString()));
       },
     );

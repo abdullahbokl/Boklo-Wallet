@@ -1,6 +1,6 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
+import 'package:fpdart/fpdart.dart';
 
 abstract class ContactRepository {
   Stream<Either<Failure, List<ContactEntity>>> watchContacts();

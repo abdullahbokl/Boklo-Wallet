@@ -1,7 +1,7 @@
+import 'package:boklo/config/theme/app_colors.dart';
+import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
-import '../../../../config/theme/app_colors.dart';
-import '../../../../config/theme/app_dimens.dart';
-import '../../../../config/theme/app_typography.dart';
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({

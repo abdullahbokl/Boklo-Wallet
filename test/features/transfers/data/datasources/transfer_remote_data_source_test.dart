@@ -1,3 +1,7 @@
+// ignore_for_file: subtype_of_sealed_class
+// Reason: Tests create mock classes that extend Firebase sealed classes
+// for unit-testing purposes only; acceptable to ignore in test code.
+
 import 'package:boklo/features/transfers/data/datasources/transfer_remote_data_source.dart';
 import 'package:boklo/features/transfers/data/models/transfer_model.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
@@ -18,7 +22,7 @@ class MockTransaction extends Mock implements Transaction {
 
   @override
   Transaction set<T>(DocumentReference<T> documentReference, T data,
-      [SetOptions? options]) {
+      [SetOptions? options,]) {
     lastSetRef = documentReference;
     lastSetData = data as Map<String, dynamic>;
     return this;
@@ -26,10 +30,10 @@ class MockTransaction extends Mock implements Transaction {
 }
 
 class FakeDocumentSnapshot<T> extends Fake implements DocumentSnapshot<T> {
-  final bool _exists;
-  final T? _data;
 
   FakeDocumentSnapshot(this._exists, [this._data]);
+  final bool _exists;
+  final T? _data;
 
   @override
   bool get exists => _exists;
@@ -44,7 +48,7 @@ class MockFirebaseFirestore extends Mock implements FirebaseFirestore {
   @override
   Future<T> runTransaction<T>(TransactionHandler<T> updateFunction,
       {Duration timeout = const Duration(seconds: 30),
-      int maxAttempts = 5}) async {
+      int maxAttempts = 5,}) async {
     return updateFunction(transactionToUse ?? MockTransaction());
   }
 
@@ -142,7 +146,7 @@ void main() {
           (e) => e.toString(),
           'message',
           contains('already exists'),
-        )),
+        ),),
       );
 
       verify(() => mockTransaction.get(mockTransferDoc)).called(1);

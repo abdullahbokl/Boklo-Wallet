@@ -3,19 +3,19 @@ import 'dart:async';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/auth/presentation/pages/login_page.dart';
-import 'package:boklo/features/auth/presentation/pages/register_page.dart';
 import 'package:boklo/features/auth/presentation/pages/profile_setup_page.dart';
+import 'package:boklo/features/auth/presentation/pages/register_page.dart';
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
+import 'package:boklo/features/contacts/presentation/page/contact_list_page.dart';
 import 'package:boklo/features/ledger_debug/presentation/pages/ledger_debug_page.dart';
+import 'package:boklo/features/notification_preferences/presentation/page/notification_settings_page.dart';
+import 'package:boklo/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:boklo/features/payment_requests/presentation/pages/create_payment_request_page.dart';
+import 'package:boklo/features/payment_requests/presentation/pages/payment_request_list_page.dart';
+import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/pages/wallet_page.dart';
-import 'package:boklo/features/payment_requests/presentation/pages/payment_request_list_page.dart';
-import 'package:boklo/features/payment_requests/presentation/pages/create_payment_request_page.dart';
-import 'package:boklo/features/contacts/presentation/page/contact_list_page.dart';
-import 'package:boklo/features/notification_preferences/presentation/page/notification_settings_page.dart';
-import 'package:boklo/features/notifications/presentation/pages/notifications_page.dart';
-import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
@@ -90,7 +90,7 @@ class AppRouter {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           return ContactListPage(
-              isPickMode: (extra?['pickMode'] as bool?) ?? false);
+              isPickMode: (extra?['pickMode'] as bool?) ?? false,);
         },
       ),
       GoRoute(

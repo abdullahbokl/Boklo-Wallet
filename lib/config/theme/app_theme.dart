@@ -50,18 +50,15 @@ class AppTheme {
   static const _lightScheme = ColorScheme.light(
     primary: AppColors.primary,
     secondary: AppColors.secondary,
-    surface: AppColors.surfaceLight,
     surfaceContainerLow: AppColors.surfaceLightElevated,
     surfaceContainerHighest: Color(0xFFF0F4F7),
     error: AppColors.error,
-    onPrimary: Colors.white,
     onSecondary: Colors.white,
     onSurface: AppColors.textPrimaryLight,
     onSurfaceVariant: AppColors.textSecondaryLight,
     outline: AppColors.borderLight,
     outlineVariant: AppColors.dividerLight,
     primaryContainer: Color(0xFFD8E7F2),
-    onError: Colors.white,
   );
 
   static const _darkScheme = ColorScheme.dark(

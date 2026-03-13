@@ -5,13 +5,6 @@ part 'wallet_model.g.dart';
 
 @JsonSerializable()
 class WalletModel {
-  final String id;
-  final double balance;
-  final String currency;
-  final String? username;
-  final String? ownerName;
-  final String? alias;
-  final String? email;
 
   const WalletModel({
     required this.id,
@@ -26,8 +19,6 @@ class WalletModel {
   factory WalletModel.fromJson(Map<String, dynamic> json) =>
       _$WalletModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$WalletModelToJson(this);
-
   factory WalletModel.fromEntity(WalletEntity entity) {
     return WalletModel(
       id: entity.id,
@@ -39,6 +30,15 @@ class WalletModel {
       email: entity.email,
     );
   }
+  final String id;
+  final double balance;
+  final String currency;
+  final String? username;
+  final String? ownerName;
+  final String? alias;
+  final String? email;
+
+  Map<String, dynamic> toJson() => _$WalletModelToJson(this);
 
   WalletEntity toEntity() {
     return WalletEntity(

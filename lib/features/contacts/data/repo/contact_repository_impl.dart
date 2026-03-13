@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:fpdart/fpdart.dart';
+
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/contacts/data/model/contact_model.dart';
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
@@ -7,21 +7,22 @@ import 'package:boklo/features/contacts/domain/repo/contact_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: ContactRepository)
 class ContactRepositoryImpl implements ContactRepository {
+
+  ContactRepositoryImpl(this._firestore, this._auth, this._functions);
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
   final FirebaseFunctions _functions;
-
-  ContactRepositoryImpl(this._firestore, this._auth, this._functions);
 
   @override
   Stream<Either<Failure, List<ContactEntity>>> watchContacts() {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
-      return Stream.value(Left(UnknownFailure('User not logged in')));
+      return Stream.value(const Left(UnknownFailure('User not logged in')));
     }
 
     return _firestore
@@ -45,7 +46,7 @@ class ContactRepositoryImpl implements ContactRepository {
           handleError: (error, stack, sink) {
             sink.add(Left(UnknownFailure(error.toString())));
           },
-        ));
+        ),);
   }
 
   @override
@@ -55,7 +56,7 @@ class ContactRepositoryImpl implements ContactRepository {
   }) async {
     try {
       if (email == null && username == null) {
-        return Left(UnknownFailure('Must provide email or username'));
+        return const Left(UnknownFailure('Must provide email or username'));
       }
 
       final callable = _functions.httpsCallable('addContact');
@@ -81,7 +82,7 @@ class ContactRepositoryImpl implements ContactRepository {
     try {
       final uid = _auth.currentUser?.uid;
       if (uid == null) {
-        return Left(UnknownFailure('User not logged in'));
+        return const Left(UnknownFailure('User not logged in'));
       }
       await _firestore
           .collection('users')

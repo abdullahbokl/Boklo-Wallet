@@ -27,8 +27,8 @@ class EmulatorConfig {
     final host = await _resolveHost();
     _resolvedHost = host;
 
-    bool isPhysicalAndroid = false;
-    bool isGenymotion = false;
+    var isPhysicalAndroid = false;
+    var isGenymotion = false;
     if (!kIsWeb && Platform.isAndroid) {
       final deviceInfo = DeviceInfoPlugin();
       final androidInfo = await deviceInfo.androidInfo;

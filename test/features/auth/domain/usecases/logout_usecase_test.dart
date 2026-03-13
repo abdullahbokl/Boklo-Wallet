@@ -1,9 +1,9 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/core/usecases/usecase.dart';
 import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:boklo/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}

@@ -13,17 +13,17 @@ class LocalNotificationService {
   Future<void> initialize({
     required void Function(String?) onNotificationTap,
   }) async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
+    const initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const DarwinInitializationSettings initializationSettingsDarwin =
+    const initializationSettingsDarwin =
         DarwinInitializationSettings(
       requestSoundPermission: false,
       requestBadgePermission: false,
       requestAlertPermission: false,
     );
 
-    final InitializationSettings initializationSettings =
+    const initializationSettings =
         InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsDarwin,
@@ -41,7 +41,7 @@ class LocalNotificationService {
   }
 
   Future<void> _createNotificationChannel() async {
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    const channel = AndroidNotificationChannel(
       'high_importance_channel',
       'High Importance Notifications',
       description: 'This channel is used for important notifications.',
@@ -55,8 +55,8 @@ class LocalNotificationService {
   }
 
   void show(RemoteMessage message) {
-    RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
+    final notification = message.notification;
+    final android = message.notification?.android;
 
     if (notification != null) {
       log('Showing Local Notification: ${notification.title}');

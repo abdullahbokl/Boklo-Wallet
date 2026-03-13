@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
+
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/error/failures.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
@@ -11,6 +11,7 @@ import 'package:boklo/features/wallet/domain/usecases/load_more_transactions_use
 import 'package:boklo/features/wallet/domain/usecases/provision_wallet_usecase.dart';
 import 'package:boklo/features/wallet/domain/usecases/watch_wallet_usecase.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -76,32 +77,26 @@ class WalletCubit extends BaseCubit<WalletState> {
         emitError(const UnknownFailure(
           'Wallet setup is taking longer than expected. '
           'Please try logging out and back in.',
-        ));
+        ),);
       }
     });
 
     // 3. Initial Transaction Fetch
     final txResult = await _getTransactionsUseCase();
     txResult.fold(
-      (error) => emitError(error),
-      (transactions) {
-        _updateTransactions(transactions);
-      },
+      emitError,
+      _updateTransactions,
     );
 
     // 4. Watch Transactions in parallel
-    if (_txSubscription == null) {
-      _txSubscription = _getTransactionsUseCase.watch().listen((result) {
+    _txSubscription ??= _getTransactionsUseCase.watch().listen((result) {
         result.fold(
           (error) {
             // Silently log or handle stream errors
           },
-          (transactions) {
-            _updateTransactions(transactions);
-          },
+          _updateTransactions,
         );
       });
-    }
   }
 
   Future<void> loadMoreTransactions() async {
@@ -128,9 +123,9 @@ class WalletCubit extends BaseCubit<WalletState> {
 
   void _updateTransactions(List<TransactionEntity> incoming) {
     // Merge new transactions with existing ones, de-duplicating by ID
-    final Map<String, TransactionEntity> txMap = {
-      for (var tx in _lastTransactions) tx.id: tx,
-      for (var tx in incoming) tx.id: tx,
+    final txMap = <String, TransactionEntity>{
+      for (final tx in _lastTransactions) tx.id: tx,
+      for (final tx in incoming) tx.id: tx,
     };
 
     // Sort by timestamp descending
@@ -227,8 +222,6 @@ class WalletCubit extends BaseCubit<WalletState> {
       WalletState(
         wallet: _currentWallet!,
         transactions: _lastTransactions,
-        filterType: null,
-        filterStatus: null,
         hasMore: _hasMore,
         isLoadingMore: _isLoadingMore,
       ),
@@ -236,7 +229,7 @@ class WalletCubit extends BaseCubit<WalletState> {
   }
 
   List<TransactionEntity> _applyFilters(List<TransactionEntity> transactions,
-      TransactionType? type, TransactionStatus? status) {
+      TransactionType? type, TransactionStatus? status,) {
     return transactions.where((tx) {
       if (type != null && tx.type != type) return false;
       if (status != null && tx.status != status) return false;

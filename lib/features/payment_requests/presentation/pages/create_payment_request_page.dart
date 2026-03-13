@@ -65,7 +65,7 @@ class _CreatePaymentRequestPageState extends State<CreatePaymentRequestPage> {
                   payerIdController: _payerIdController,
                   amountController: _amountController,
                   noteController: _noteController,
-                  isCreating: state.data?.isCreating == true,
+                  isCreating: state.data?.isCreating ?? false,
                 ),
               );
             },

@@ -1,6 +1,6 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
+import 'package:fpdart/fpdart.dart';
 
 /// Interface for authentication repository.
 abstract class AuthRepository {

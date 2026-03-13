@@ -11,8 +11,7 @@ typedef ResponsiveWidgetBuilder =
 
 class ResponsiveBuilder extends StatelessWidget {
   const ResponsiveBuilder({
-    super.key,
-    required this.mobile,
+    required this.mobile, super.key,
     this.tablet,
     this.desktop,
   });

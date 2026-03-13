@@ -18,16 +18,12 @@ class PaymentRequestStatusChip extends StatelessWidget {
     switch (status) {
       case PaymentRequestStatus.pending:
         color = AppColors.warning;
-        break;
       case PaymentRequestStatus.accepted:
         color = AppColors.success;
-        break;
       case PaymentRequestStatus.declined:
         color = AppColors.error;
-        break;
       case PaymentRequestStatus.invalid:
         color = AppColors.textSecondaryLight;
-        break;
     }
 
     return Container(

@@ -19,9 +19,7 @@ class PaymentRequestEntity with _$PaymentRequestEntity {
     required String payerId,
     required double amount,
     required String currency,
-    String? note,
-    required PaymentRequestStatus status,
-    required DateTime createdAt,
+    required PaymentRequestStatus status, required DateTime createdAt, String? note,
     DateTime? acceptedAt,
     DateTime? declinedAt,
   }) = _PaymentRequestEntity;

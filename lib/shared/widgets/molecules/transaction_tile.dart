@@ -28,7 +28,7 @@ class TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final successColor = const Color(0xFF10B981);
+    const successColor = Color(0xFF10B981);
     final errorColor = scheme.error;
 
     return Material(

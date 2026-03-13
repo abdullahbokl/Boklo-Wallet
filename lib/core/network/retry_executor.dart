@@ -27,7 +27,7 @@ class RetryExecutor {
   }) async {
     final retryCheck = shouldRetry ?? _isTransientError;
 
-    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         return await action();
       } on Exception catch (e) {

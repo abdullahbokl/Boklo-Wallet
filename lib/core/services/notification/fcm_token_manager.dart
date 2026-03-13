@@ -7,11 +7,11 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class FcmTokenManager {
+
+  FcmTokenManager(this._messaging, this._auth, this._firestore);
   final FirebaseMessaging _messaging;
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
-
-  FcmTokenManager(this._messaging, this._auth, this._firestore);
 
   Future<void> syncToken() async {
     // Get current token

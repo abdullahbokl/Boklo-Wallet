@@ -1,8 +1,8 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/discovery/data/datasources/discovery_remote_data_source.dart';
 import 'package:boklo/features/discovery/domain/entities/user_public_profile.dart';
 import 'package:boklo/features/discovery/domain/repositories/discovery_repository.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: DiscoveryRepository)
@@ -47,7 +47,7 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
 
   @override
   Future<Either<Failure, UserPublicProfile>> resolveWalletByUsername(
-      String username) async {
+      String username,) async {
     try {
       final model = await _dataSource.resolveWalletByUsername(username);
       return Right(model);

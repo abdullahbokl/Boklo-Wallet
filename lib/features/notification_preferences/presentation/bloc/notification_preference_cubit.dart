@@ -1,28 +1,29 @@
 import 'dart:async';
+
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/error/failures.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/features/notification_preferences/domain/entity/notification_preference_entity.dart';
 import 'package:boklo/features/notification_preferences/domain/repo/notification_preference_repository.dart';
 import 'package:boklo/features/notification_preferences/presentation/bloc/notification_preference_state.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class NotificationPreferenceCubit
     extends BaseCubit<NotificationPreferenceState> {
-  final NotificationPreferenceRepository _repository;
-  StreamSubscription<Either<Failure, NotificationPreferenceEntity>>? _sub;
 
   NotificationPreferenceCubit(this._repository)
       : super(const BaseState.initial());
+  final NotificationPreferenceRepository _repository;
+  StreamSubscription<Either<Failure, NotificationPreferenceEntity>>? _sub;
 
   void init() {
     emitLoading();
     _sub?.cancel();
     _sub = _repository.watchPreferences().listen((result) {
       result.fold(
-        (error) => emitError(error),
+        emitError,
         (data) {
           final current = state.data ?? const NotificationPreferenceState();
           emitSuccess(current.copyWith(preferences: data));
@@ -40,7 +41,7 @@ class NotificationPreferenceCubit
     emitSuccess(current.copyWith(
       preferences: newPrefs,
       isUpdating: true,
-    ));
+    ),);
 
     final result = await _repository.updatePreferences(newPrefs);
 
@@ -51,13 +52,13 @@ class NotificationPreferenceCubit
         emitSuccess(current.copyWith(
           preferences: previousPrefs,
           isUpdating: false,
-        ));
+        ),);
       },
       (_) {
         // Success: Just turn off loading, stream maintains state
         emitSuccess(current.copyWith(
             preferences: newPrefs, // Ensure it sticks
-            isUpdating: false));
+            isUpdating: false,),);
       },
     );
   }
@@ -71,7 +72,7 @@ class NotificationPreferenceCubit
     emitSuccess(current.copyWith(
       preferences: newPrefs,
       isUpdating: true,
-    ));
+    ),);
 
     final result = await _repository.updatePreferences(newPrefs);
 
@@ -81,7 +82,7 @@ class NotificationPreferenceCubit
         emitSuccess(current.copyWith(
           preferences: previousPrefs,
           isUpdating: false,
-        ));
+        ),);
       },
       (_) {
         emitSuccess(current.copyWith(preferences: newPrefs, isUpdating: false));

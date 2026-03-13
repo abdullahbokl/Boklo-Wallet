@@ -1,3 +1,7 @@
+// ignore_for_file: invalid_annotation_target // Freezed + json_serializable use annotations
+// for generated code and Firestore timestamp JsonKey helpers; the annotation
+// target lint is not applicable here and is safe to ignore.
+
 import 'package:boklo/features/payment_requests/domain/entity/payment_request_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,15 +18,13 @@ class PaymentRequestModel with _$PaymentRequestModel {
     required String payerId,
     required double amount,
     required String currency,
-    String? note,
-    required String status, // String from Firestore, mapped to Enum in toEntity
-    @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
-    required DateTime createdAt,
+    required String status, // String from Firestore, mapped to Enum in toEntity, @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
+    required DateTime createdAt, String? note,
     @JsonKey(
-        fromJson: _timestampNullableFromJson, toJson: _timestampNullableToJson)
+        fromJson: _timestampNullableFromJson, toJson: _timestampNullableToJson,)
     DateTime? acceptedAt,
     @JsonKey(
-        fromJson: _timestampNullableFromJson, toJson: _timestampNullableToJson)
+        fromJson: _timestampNullableFromJson, toJson: _timestampNullableToJson,)
     DateTime? declinedAt,
   }) = _PaymentRequestModel;
 
@@ -30,7 +32,7 @@ class PaymentRequestModel with _$PaymentRequestModel {
       _$PaymentRequestModelFromJson(json);
 
   factory PaymentRequestModel.fromSnapshot(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = doc.data()! as Map<String, dynamic>;
     data['id'] = doc.id;
     return PaymentRequestModel.fromJson(data);
   }
@@ -71,7 +73,7 @@ extension PaymentRequestModelX on PaymentRequestModel {
       note: note,
       status: PaymentRequestStatus.values.firstWhere(
           (e) => e.name.toUpperCase() == status.toUpperCase(),
-          orElse: () => PaymentRequestStatus.invalid),
+          orElse: () => PaymentRequestStatus.invalid,),
       createdAt: createdAt,
       acceptedAt: acceptedAt,
       declinedAt: declinedAt,

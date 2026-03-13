@@ -4,6 +4,7 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
+import 'package:boklo/shared/widgets/molecules/balance_card.dart' show BalanceCard;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

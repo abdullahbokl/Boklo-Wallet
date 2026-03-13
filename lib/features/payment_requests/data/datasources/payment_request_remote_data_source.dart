@@ -15,12 +15,12 @@ abstract class PaymentRequestRemoteDataSource {
 @LazySingleton(as: PaymentRequestRemoteDataSource)
 class PaymentRequestRemoteDataSourceImpl
     implements PaymentRequestRemoteDataSource {
+
+  PaymentRequestRemoteDataSourceImpl(
+      this._firestore, this._functions, this._auth,);
   final FirebaseFirestore _firestore;
   final FirebaseFunctions _functions;
   final FirebaseAuth _auth;
-
-  PaymentRequestRemoteDataSourceImpl(
-      this._firestore, this._functions, this._auth);
 
   @override
   Future<String> createRequest(Map<String, dynamic> data) async {
@@ -55,12 +55,12 @@ class PaymentRequestRemoteDataSourceImpl
         .map((snapshot) {
       // Debug log
       print(
-          '[DEBUG] watchIncomingRequests: ${snapshot.docs.length} docs for payerId=$uid');
-      for (var doc in snapshot.docs) {
+          '[DEBUG] watchIncomingRequests: ${snapshot.docs.length} docs for payerId=$uid',);
+      for (final doc in snapshot.docs) {
         print('[DEBUG] Incoming doc: ${doc.id} - ${doc.data()}');
       }
       return snapshot.docs
-          .map((doc) => PaymentRequestModel.fromSnapshot(doc))
+          .map(PaymentRequestModel.fromSnapshot)
           .toList();
     }).handleError((Object error) {
       print('[ERROR] watchIncomingRequests error: $error');
@@ -85,12 +85,12 @@ class PaymentRequestRemoteDataSourceImpl
         .map((snapshot) {
       // Debug log
       print(
-          '[DEBUG] watchOutgoingRequests: ${snapshot.docs.length} docs for requesterId=$uid');
-      for (var doc in snapshot.docs) {
+          '[DEBUG] watchOutgoingRequests: ${snapshot.docs.length} docs for requesterId=$uid',);
+      for (final doc in snapshot.docs) {
         print('[DEBUG] Outgoing doc: ${doc.id} - ${doc.data()}');
       }
       return snapshot.docs
-          .map((doc) => PaymentRequestModel.fromSnapshot(doc))
+          .map(PaymentRequestModel.fromSnapshot)
           .toList();
     }).handleError((Object error) {
       print('[ERROR] watchOutgoingRequests error: $error');
@@ -100,12 +100,12 @@ class PaymentRequestRemoteDataSourceImpl
   @override
   Future<void> acceptRequest(String requestId) async {
     final callable = _functions.httpsCallable('acceptPaymentRequest');
-    await callable.call({'requestId': requestId});
+    await callable.call<Map<String, dynamic>>({'requestId': requestId});
   }
 
   @override
   Future<void> declineRequest(String requestId) async {
     final callable = _functions.httpsCallable('declinePaymentRequest');
-    await callable.call({'requestId': requestId});
+    await callable.call<Map<String, dynamic>>({'requestId': requestId});
   }
 }

@@ -1,5 +1,5 @@
-import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
+import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_cubit.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_state.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddContactSheet extends StatefulWidget {
-  const AddContactSheet({super.key, required this.cubit});
+  const AddContactSheet({required this.cubit, super.key});
   final ContactCubit cubit;
 
   static Future<void> show(BuildContext context, ContactCubit cubit) {
@@ -84,7 +84,7 @@ class _AddContactSheetState extends State<AddContactSheet> {
                   const SizedBox(height: AppDimens.xl),
                   AppButton(
                     text: 'Add Contact',
-                    isLoading: state.data?.isAdding == true,
+                    isLoading: state.data?.isAdding ?? false,
                     onPressed: () {
                       if (_controller.text.isNotEmpty) {
                         widget.cubit.addContact(_controller.text);

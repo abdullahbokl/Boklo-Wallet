@@ -1,6 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:boklo/core/base/base_state.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
@@ -11,6 +10,7 @@ import 'package:boklo/features/wallet/domain/usecases/watch_wallet_usecase.dart'
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockWatchWalletUseCase extends Mock implements WatchWalletUseCase {}
@@ -50,7 +50,7 @@ void main() {
 
   const tWallet = WalletEntity(
     id: '1',
-    balance: 1000.0,
+    balance: 1000,
     currency: 'SAR',
     username: 'testuser',
     ownerName: 'Test User',
@@ -59,9 +59,9 @@ void main() {
   final tTransactions = [
     TransactionEntity(
       id: '1',
-      amount: 100.0,
+      amount: 100,
       type: TransactionType.credit,
-      timestamp: DateTime(2023, 1, 1),
+      timestamp: DateTime(2023),
     ),
   ];
 
@@ -86,7 +86,7 @@ void main() {
       expect: () => [
         const BaseState<WalletState>.loading(),
         const BaseState<WalletState>.success(
-          WalletState(wallet: tWallet, transactions: []),
+          WalletState(wallet: tWallet),
         ),
         BaseState<WalletState>.success(
           WalletState(wallet: tWallet, transactions: tTransactions),
@@ -106,7 +106,7 @@ void main() {
         when(() => mockWatchWalletUseCase.call())
             .thenAnswer((_) => Stream.value(left(tError)));
         when(() => mockGetTransactionsUseCase.watch())
-            .thenAnswer((_) => Stream.empty());
+            .thenAnswer((_) => const Stream.empty());
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
@@ -125,9 +125,9 @@ void main() {
       build: () {
         // Wallet stream never emits, simulating missing wallet
         when(() => mockWatchWalletUseCase.call())
-            .thenAnswer((_) => Stream.empty());
+            .thenAnswer((_) => const Stream.empty());
         when(() => mockGetTransactionsUseCase.watch())
-            .thenAnswer((_) => Stream.empty());
+            .thenAnswer((_) => const Stream.empty());
         when(() => mockProvisionWalletUseCase.call())
             .thenAnswer((_) async => right(null));
         return cubit;
@@ -162,7 +162,7 @@ void main() {
             return Stream.value(right(tWallet));
         });
         when(() => mockGetTransactionsUseCase.watch())
-            .thenAnswer((_) => Stream.empty());
+            .thenAnswer((_) => const Stream.empty());
         when(() => mockProvisionWalletUseCase.call())
             .thenAnswer((_) async => right(null));
         return cubit;
@@ -172,7 +172,7 @@ void main() {
       expect: () => [
         const BaseState<WalletState>.loading(),
         const BaseState<WalletState>.success(
-          WalletState(wallet: tWallet, transactions: []),
+          WalletState(wallet: tWallet),
         ),
       ],
       verify: (_) {

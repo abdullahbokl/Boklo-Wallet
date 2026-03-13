@@ -1,4 +1,3 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/data/datasources/transfer_remote_data_source.dart';
 import 'package:boklo/features/transfers/data/repositories/transfer_repository_impl.dart';
@@ -6,6 +5,7 @@ import 'package:boklo/features/transfers/domain/validators/transfer_validator.da
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockTransferRemoteDataSource extends Mock

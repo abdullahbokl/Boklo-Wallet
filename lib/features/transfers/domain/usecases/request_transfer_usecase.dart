@@ -1,8 +1,8 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,9 +27,9 @@ class RequestTransferUseCase {
     final toWalletResult = await _repository.getWallet(toWalletId);
 
     return fromWalletResult.fold(
-      (failure) => left(failure),
+      left,
       (fromWallet) => toWalletResult.fold(
-        (failure) => left(failure),
+        left,
         (toWallet) {
           // 1. Validate
           final validationResult = _validator.validate(
@@ -39,7 +39,7 @@ class RequestTransferUseCase {
           );
 
           return validationResult.fold(
-            (failure) => left(failure),
+            left,
             (_) {
               // 2. Create Pending Entity
               final transfer = TransferEntity(

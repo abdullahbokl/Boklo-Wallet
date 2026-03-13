@@ -2,14 +2,6 @@ import 'package:boklo/features/ledger_debug/domain/entities/ledger_entry_entity.
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LedgerEntryModel {
-  final String id;
-  final String transactionId;
-  final String walletId;
-  final double amount;
-  final String currency;
-  final String direction;
-  final DateTime occurredAt;
-  final String? description;
 
   const LedgerEntryModel({
     required this.id,
@@ -45,6 +37,14 @@ class LedgerEntryModel {
       description: json['description'] as String?,
     );
   }
+  final String id;
+  final String transactionId;
+  final String walletId;
+  final double amount;
+  final String currency;
+  final String direction;
+  final DateTime occurredAt;
+  final String? description;
 
   LedgerEntryEntity toEntity() {
     return LedgerEntryEntity(

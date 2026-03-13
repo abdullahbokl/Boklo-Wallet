@@ -43,7 +43,7 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
           getIt<NavigationService>().pop();
           getIt<SnackbarService>().showSuccess('Request Sent');
         }
-      }));
+      }),);
     }
   }
 

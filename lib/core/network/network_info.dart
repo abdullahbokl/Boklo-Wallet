@@ -7,9 +7,9 @@ abstract class NetworkInfo {
 
 @LazySingleton(as: NetworkInfo)
 class NetworkInfoImpl implements NetworkInfo {
-  final InternetConnection _connectionChecker;
 
   NetworkInfoImpl(this._connectionChecker);
+  final InternetConnection _connectionChecker;
 
   @override
   Future<bool> get isConnected => _connectionChecker.hasInternetAccess;

@@ -45,13 +45,13 @@ class ApiClient {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return NetworkFailure('Connection timed out');
+        return const NetworkFailure('Connection timed out');
       case DioExceptionType.badResponse:
         return NetworkFailure('Bad response: ${e.response?.statusCode}');
       case DioExceptionType.unknown:
-        return UnknownFailure('Unknown error');
+        return const UnknownFailure('Unknown error');
       default:
-        return NetworkFailure('Network error');
+        return const NetworkFailure('Network error');
     }
   }
 }

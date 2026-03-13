@@ -6,13 +6,6 @@ part 'transaction_model.g.dart';
 
 @JsonSerializable()
 class TransactionModel {
-  final String id;
-  final double amount;
-  final TransactionType type;
-  @TimestampConverter()
-  final DateTime timestamp;
-
-  final TransactionStatus status;
 
   const TransactionModel({
     required this.id,
@@ -25,8 +18,6 @@ class TransactionModel {
   factory TransactionModel.fromJson(Map<String, dynamic> json) =>
       _$TransactionModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$TransactionModelToJson(this);
-
   factory TransactionModel.fromEntity(TransactionEntity entity) {
     return TransactionModel(
       id: entity.id,
@@ -36,6 +27,15 @@ class TransactionModel {
       status: entity.status,
     );
   }
+  final String id;
+  final double amount;
+  final TransactionType type;
+  @TimestampConverter()
+  final DateTime timestamp;
+
+  final TransactionStatus status;
+
+  Map<String, dynamic> toJson() => _$TransactionModelToJson(this);
 
   TransactionEntity toEntity() {
     return TransactionEntity(

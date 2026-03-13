@@ -4,10 +4,10 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class AuthInterceptor extends Interceptor {
-  // ignore: unused_field
-  final SecureStorageService _storageService;
 
   AuthInterceptor(this._storageService);
+  // ignore: unused_field
+  final SecureStorageService _storageService;
 
   @override
   Future<void> onRequest(

@@ -1,24 +1,27 @@
 import 'dart:async';
+
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
 import 'package:boklo/features/contacts/domain/repo/contact_repository.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_state.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class ContactCubit extends BaseCubit<ContactState> {
-  final ContactRepository _repository;
-  StreamSubscription? _sub;
 
   ContactCubit(this._repository) : super(const BaseState.initial());
+  final ContactRepository _repository;
+  StreamSubscription<Either<Failure, List<ContactEntity>>>? _sub;
 
   void init() {
     emitLoading();
     _sub?.cancel();
     _sub = _repository.watchContacts().listen((result) {
       result.fold(
-        (error) => emitError(error),
+        emitError,
         (data) {
           final current = state.data ?? const ContactState();
           emitSuccess(current.copyWith(contacts: data));
@@ -35,7 +38,7 @@ class ContactCubit extends BaseCubit<ContactState> {
     emitSuccess(current.copyWith(isAdding: true));
 
     final trimmed = identifier.trim();
-    final bool isEmail = trimmed.contains('@') && !trimmed.startsWith('@');
+    final isEmail = trimmed.contains('@') && !trimmed.startsWith('@');
 
     final result = isEmail
         ? await _repository.addContact(email: trimmed)
@@ -54,7 +57,7 @@ class ContactCubit extends BaseCubit<ContactState> {
         emitSuccess(current.copyWith(
           isAdding: false,
           contacts: updatedList,
-        ));
+        ),);
       },
     );
   }

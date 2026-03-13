@@ -1,3 +1,4 @@
+import 'package:boklo/l10n/generated/app_localizations.dart' show AppLocalizations;
 import 'package:flutter/material.dart';
 
 /// A theme-aware text widget that enforces typographic consistency.

@@ -48,21 +48,21 @@ class LoginPage extends StatelessWidget {
                 constraints: const BoxConstraints(
                   maxWidth: AppDimens.maxFormWidth,
                 ),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const LoginHeader(
+                    LoginHeader(
                       title: 'Sign in to Boklo',
                       subtitle:
                           'Secure access to your wallet, transfers, and requests.',
                     ),
-                    const SizedBox(height: AppDimens.xl),
+                    SizedBox(height: AppDimens.xl),
                     AppCard(
-                      padding: const EdgeInsets.all(AppDimens.xl),
-                      child: const LoginForm(),
+                      padding: EdgeInsets.all(AppDimens.xl),
+                      child: LoginForm(),
                     ),
-                    const SizedBox(height: AppDimens.lg),
-                    const _LoginFooter(),
+                    SizedBox(height: AppDimens.lg),
+                    _LoginFooter(),
                   ],
                 ),
               ),

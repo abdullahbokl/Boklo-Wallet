@@ -60,5 +60,5 @@ class AppTypography {
       fontWeight: FontWeight.w500,
       letterSpacing: 0.5,
     ),
-  ).apply(fontFamily: fontFamily);
+  ).apply();
 }

@@ -37,18 +37,18 @@ class ProfileSetupPage extends StatelessWidget {
                 constraints: const BoxConstraints(
                   maxWidth: AppDimens.maxFormWidth,
                 ),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const LoginHeader(
+                    LoginHeader(
                       title: 'Set up your profile',
                       subtitle:
                           'Choose a username others can use to find and pay you.',
                     ),
-                    const SizedBox(height: AppDimens.xl),
+                    SizedBox(height: AppDimens.xl),
                     AppCard(
-                      padding: const EdgeInsets.all(AppDimens.xl),
-                      child: const ProfileSetupForm(),
+                      padding: EdgeInsets.all(AppDimens.xl),
+                      child: ProfileSetupForm(),
                     ),
                   ],
                 ),

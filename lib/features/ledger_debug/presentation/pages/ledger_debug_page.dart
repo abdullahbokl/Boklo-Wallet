@@ -36,7 +36,7 @@ class LedgerDebugPage extends StatelessWidget {
                 return Column(
                   children: [
                     _buildSummaryCard(
-                        context, totalCredits, totalDebits, netDelta),
+                        context, totalCredits, totalDebits, netDelta,),
                     Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.all(AppDimens.md),
@@ -63,7 +63,7 @@ class LedgerDebugPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.receipt_long_rounded,
-              size: 64, color: scheme.onSurfaceVariant),
+              size: 64, color: scheme.onSurfaceVariant,),
           const SizedBox(height: AppDimens.md),
           Text('No transactions yet', style: AppTypography.title),
         ],
@@ -72,7 +72,7 @@ class LedgerDebugPage extends StatelessWidget {
   }
 
   Widget _buildSummaryCard(
-      BuildContext context, double credits, double debits, double delta) {
+      BuildContext context, double credits, double debits, double delta,) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(AppDimens.md),
@@ -80,9 +80,9 @@ class LedgerDebugPage extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-              child: _statItem(context, 'Credits', credits, AppColors.success)),
+              child: _statItem(context, 'Credits', credits, AppColors.success),),
           Expanded(
-              child: _statItem(context, 'Debits', debits, AppColors.error)),
+              child: _statItem(context, 'Debits', debits, AppColors.error),),
           Expanded(
               child: _statItem(
                   context,
@@ -90,20 +90,20 @@ class LedgerDebugPage extends StatelessWidget {
                   delta,
                   delta == 0
                       ? scheme.onSurface
-                      : (delta > 0 ? AppColors.success : AppColors.error))),
+                      : (delta > 0 ? AppColors.success : AppColors.error),),),
         ],
       ),
     );
   }
 
   Widget _statItem(
-      BuildContext context, String label, double value, Color color) {
+      BuildContext context, String label, double value, Color color,) {
     final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         Text(label,
             style:
-                AppTypography.caption.copyWith(color: scheme.onSurfaceVariant)),
+                AppTypography.caption.copyWith(color: scheme.onSurfaceVariant),),
         const SizedBox(height: 4),
         Text(
           value.toStringAsFixed(2),

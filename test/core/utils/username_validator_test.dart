@@ -13,13 +13,13 @@ void main() {
       expect(UsernameValidator.validate(null), 'Username is required');
       expect(UsernameValidator.validate(''), 'Username is required');
       expect(UsernameValidator.validate('ab'),
-          'Username must be at least 3 characters');
+          'Username must be at least 3 characters',);
       expect(UsernameValidator.validate('a' * 21),
-          'Username must be at most 20 characters');
+          'Username must be at most 20 characters',);
       expect(UsernameValidator.validate('user-name'),
-          'Only letters, numbers, and underscores allowed');
+          'Only letters, numbers, and underscores allowed',);
       expect(UsernameValidator.validate('user name'),
-          'Only letters, numbers, and underscores allowed');
+          'Only letters, numbers, and underscores allowed',);
     });
   });
 }

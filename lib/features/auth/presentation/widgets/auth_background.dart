@@ -53,7 +53,7 @@ class AuthBackground extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppDimens.pageHorizontalPadding,
                 ),
-                child: child!,
+                child: child,
               ),
             ),
         ],

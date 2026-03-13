@@ -1,21 +1,21 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class ResolveRecipientUseCase {
-  final ResolveWalletByEmailUseCase _emailUseCase;
-  final ResolveWalletByUsernameUseCase _usernameUseCase;
 
   const ResolveRecipientUseCase(this._emailUseCase, this._usernameUseCase);
+  final ResolveWalletByEmailUseCase _emailUseCase;
+  final ResolveWalletByUsernameUseCase _usernameUseCase;
 
   Future<Either<Failure, String>> call(String recipient) async {
     if (recipient.contains('@')) {
       return _emailUseCase(recipient);
     } else if (recipient.length < 28 &&
-        !recipient.contains(RegExp(r'[^a-zA-Z0-9_.]'))) {
+        !recipient.contains(RegExp('[^a-zA-Z0-9_.]'))) {
       final resolution = await _usernameUseCase(recipient);
 
       return resolution.fold(
@@ -34,7 +34,7 @@ class ResolveRecipientUseCase {
 
           return right(recipient);
         },
-        (id) => right(id),
+        right,
       );
     }
 
