@@ -6,11 +6,28 @@ import 'package:flutter/material.dart';
 class AppComponentThemes {
   AppComponentThemes._();
 
+  // 1. CACHE CONSTANT SHAPES
+  // Moving these to static const variables prevents Flutter from re-allocating
+  // memory for borders and radii every time the theme is built.
+  static const _cardShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(AppDimens.radiusLg)),
+  );
+
+  static const _chipShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(AppDimens.radiusFull)),
+  );
+
+  static const _listTileShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(AppDimens.radiusLg)),
+  );
+
+  static const _inputRadius = BorderRadius.all(Radius.circular(AppDimens.radiusMd));
+
   static InputDecorationTheme input(
-    bool isDark,
-    Color hintColor,
-    Color fillColor,
-  ) {
+      bool isDark,
+      Color hintColor,
+      Color fillColor,
+      ) {
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
     final primary = isDark ? AppColors.primaryLight : AppColors.primary;
 
@@ -22,6 +39,7 @@ class AppComponentThemes {
         vertical: AppDimens.md,
         horizontal: AppDimens.md,
       ),
+      // 2. USE CACHED HELPER
       border: _outlineBorder(borderColor),
       enabledBorder: _outlineBorder(borderColor),
       focusedBorder: _outlineBorder(primary, width: 1.5),
@@ -37,25 +55,21 @@ class AppComponentThemes {
       color: surface,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-      ),
+      shape: _cardShape, // Reused cached shape
     );
   }
 
   static ChipThemeData chip(
-    bool isDark,
-    Color textColor,
-    Color surface,
-    Color primary,
-  ) {
+      bool isDark,
+      Color textColor,
+      Color surface,
+      Color primary,
+      ) {
     return ChipThemeData(
       backgroundColor: surface,
       selectedColor: primary.withValues(alpha: 0.12),
       labelStyle: AppTypography.label.copyWith(color: textColor),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimens.radiusFull),
-      ),
+      shape: _chipShape, // Reused cached shape
       side: BorderSide(
         color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
       ),
@@ -74,9 +88,7 @@ class AppComponentThemes {
         horizontal: AppDimens.md,
         vertical: AppDimens.xs,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimens.radiusLg),
-      ),
+      shape: _listTileShape, // Reused cached shape
     );
   }
 
@@ -92,9 +104,12 @@ class AppComponentThemes {
     );
   }
 
-  static OutlineInputBorder _outlineBorder(Color color, {double width = 1}) {
+  // 3. OPTIMIZED BORDER HELPER
+  // Uses the cached _inputRadius instead of generating a new BorderRadius
+  // on every single OutlineInputBorder creation.
+  static OutlineInputBorder _outlineBorder(Color color, {double width = 1.0}) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+      borderRadius: _inputRadius,
       borderSide: BorderSide(color: color, width: width),
     );
   }

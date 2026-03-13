@@ -10,6 +10,7 @@ import 'package:boklo/features/contacts/presentation/widgets/contact_item.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
 import 'package:boklo/shared/widgets/molecules/app_section_header.dart';
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -57,7 +58,7 @@ class _ContactListBody extends StatelessWidget {
         final contacts = state.data?.contacts ?? [];
 
         if (state.isLoading && contacts.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return const AppLoadingIndicator();
         }
 
         if (contacts.isEmpty) {

@@ -11,14 +11,13 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class ContactCubit extends BaseCubit<ContactState> {
-
   ContactCubit(this._repository) : super(const BaseState.initial());
   final ContactRepository _repository;
   StreamSubscription<Either<Failure, List<ContactEntity>>>? _sub;
 
   void init() {
     emitLoading();
-    _sub?.cancel();
+    unawaited(_sub?.cancel());
     _sub = _repository.watchContacts().listen((result) {
       result.fold(
         emitError,
@@ -33,7 +32,7 @@ class ContactCubit extends BaseCubit<ContactState> {
   /// Add a contact by email or username
   /// Detects format: if contains @ and not starting with @ → email
   /// Otherwise → username
-  Future<void> addContact(String identifier) async {
+  Future<bool> addContact(String identifier) async {
     final current = state.data ?? const ContactState();
     emitSuccess(current.copyWith(isAdding: true));
 
@@ -44,20 +43,24 @@ class ContactCubit extends BaseCubit<ContactState> {
         ? await _repository.addContact(email: trimmed)
         : await _repository.addContact(username: trimmed.replaceFirst('@', ''));
 
-    result.fold(
+    return result.fold(
       (error) {
         emitError(error);
         emitSuccess(current.copyWith(isAdding: false));
+        return false;
       },
       (contact) {
         // Optimistic Update: Add to list immediately
         final updatedList = List<ContactEntity>.from(current.contacts)
           ..insert(0, contact); // Add to top
 
-        emitSuccess(current.copyWith(
-          isAdding: false,
-          contacts: updatedList,
-        ),);
+        emitSuccess(
+          current.copyWith(
+            isAdding: false,
+            contacts: updatedList,
+          ),
+        );
+        return true;
       },
     );
   }
@@ -87,7 +90,7 @@ class ContactCubit extends BaseCubit<ContactState> {
 
   @override
   Future<void> close() {
-    _sub?.cancel();
+    unawaited(_sub?.cancel());
     return super.close();
   }
 }

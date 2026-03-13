@@ -7,6 +7,7 @@ import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/ledger_debug/presentation/bloc/ledger_cubit.dart';
 import 'package:boklo/features/ledger_debug/presentation/bloc/ledger_state.dart';
 import 'package:boklo/features/ledger_debug/presentation/widgets/ledger_entry_tile.dart';
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,8 +29,8 @@ class LedgerDebugPage extends StatelessWidget {
         body: BlocBuilder<LedgerCubit, LedgerState>(
           builder: (context, state) {
             return state.when(
-              initial: () => const Center(child: CircularProgressIndicator()),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              initial: () => const AppLoadingIndicator(),
+              loading: () => const AppLoadingIndicator(),
               error: (message) => Center(child: Text('Error: $message')),
               empty: () => _buildEmpty(context),
               success: (entries, totalCredits, totalDebits, netDelta) {
@@ -113,4 +114,3 @@ class LedgerDebugPage extends StatelessWidget {
     );
   }
 }
-

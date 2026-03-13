@@ -7,6 +7,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+// --- DART 3 EXTENSION: Cleaner abstraction than loose helper functions ---
+extension on ThemeMode {
+  IconData get icon => switch (this) {
+        ThemeMode.system => Icons.brightness_auto_rounded,
+        ThemeMode.light => Icons.light_mode_rounded,
+        ThemeMode.dark => Icons.dark_mode_rounded,
+      };
+
+  String get label => switch (this) {
+        ThemeMode.system => 'System',
+        ThemeMode.light => 'Light',
+        ThemeMode.dark => 'Dark',
+      };
+
+  Color color(ColorScheme scheme) => switch (this) {
+        ThemeMode.system => scheme.secondary,
+        ThemeMode.light => AppColors.accent,
+        ThemeMode.dark => scheme.primary,
+      };
+}
+
 class AccountDetailsCard extends StatelessWidget {
   const AccountDetailsCard({super.key});
 
@@ -54,6 +75,7 @@ class _ThemeModeSection extends StatelessWidget {
     return BlocBuilder<ThemeCubit, ThemeMode>(
       builder: (context, themeMode) {
         final scheme = Theme.of(context).colorScheme;
+        final activeColor = themeMode.color(scheme);
 
         return Padding(
           padding: const EdgeInsets.all(AppDimens.lg),
@@ -62,17 +84,15 @@ class _ThemeModeSection extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppDimens.sm),
+                  // FLATTENED: DecoratedBox + Padding instead of Container
+                  DecoratedBox(
                     decoration: BoxDecoration(
-                      color: _themeModeColor(context, themeMode).withValues(
-                        alpha: 0.14,
-                      ),
+                      color: activeColor.withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(AppDimens.radiusMd),
                     ),
-                    child: Icon(
-                      _themeModeIcon(themeMode),
-                      color: _themeModeColor(context, themeMode),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppDimens.sm),
+                      child: Icon(themeMode.icon, color: activeColor),
                     ),
                   ),
                   const SizedBox(width: AppDimens.md),
@@ -94,43 +114,46 @@ class _ThemeModeSection extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppDimens.md),
-              Container(
-                padding: const EdgeInsets.all(AppDimens.xs4),
+              // FLATTENED: DecoratedBox + Padding
+              DecoratedBox(
                 decoration: BoxDecoration(
                   color: scheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(AppDimens.radiusLg),
                   border: Border.all(color: scheme.outlineVariant),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _ThemeModeSegment(
-                        mode: ThemeMode.dark,
-                        isSelected: themeMode == ThemeMode.dark,
-                        onTap: () => context
-                            .read<ThemeCubit>()
-                            .setThemeMode(ThemeMode.dark),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppDimens.xs4),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _ThemeModeSegment(
+                          mode: ThemeMode.dark,
+                          isSelected: themeMode == ThemeMode.dark,
+                          onTap: () => context
+                              .read<ThemeCubit>()
+                              .setThemeMode(ThemeMode.dark),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _ThemeModeSegment(
-                        mode: ThemeMode.system,
-                        isSelected: themeMode == ThemeMode.system,
-                        onTap: () => context
-                            .read<ThemeCubit>()
-                            .setThemeMode(ThemeMode.system),
+                      Expanded(
+                        child: _ThemeModeSegment(
+                          mode: ThemeMode.system,
+                          isSelected: themeMode == ThemeMode.system,
+                          onTap: () => context
+                              .read<ThemeCubit>()
+                              .setThemeMode(ThemeMode.system),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _ThemeModeSegment(
-                        mode: ThemeMode.light,
-                        isSelected: themeMode == ThemeMode.light,
-                        onTap: () => context
-                            .read<ThemeCubit>()
-                            .setThemeMode(ThemeMode.light),
+                      Expanded(
+                        child: _ThemeModeSegment(
+                          mode: ThemeMode.light,
+                          isSelected: themeMode == ThemeMode.light,
+                          onTap: () => context
+                              .read<ThemeCubit>()
+                              .setThemeMode(ThemeMode.light),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -155,7 +178,7 @@ class _ThemeModeSegment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final accentColor = _themeModeColor(context, mode);
+    final accentColor = mode.color(scheme);
 
     return Material(
       color: Colors.transparent,
@@ -176,18 +199,25 @@ class _ThemeModeSegment extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 34,
-                height: 34,
+              // FLATTENED: DecoratedBox + SizedBox
+              DecoratedBox(
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(_themeModeIcon(mode), color: accentColor),
+                child: SizedBox(
+                  width: 34,
+                  height: 34,
+                  child: Icon(
+                    mode.icon,
+                    color: accentColor,
+                    size: 18,
+                  ), // Explicit size helps layout
+                ),
               ),
               const SizedBox(height: AppDimens.xs),
               Text(
-                _themeModeLabel(mode),
+                mode.label,
                 style: AppTypography.bodySmall.copyWith(
                   color: isSelected ? accentColor : scheme.onSurface,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
@@ -214,32 +244,6 @@ class _ThemeModeSegment extends StatelessWidget {
   }
 }
 
-IconData _themeModeIcon(ThemeMode themeMode) {
-  return switch (themeMode) {
-    ThemeMode.system => Icons.brightness_auto_rounded,
-    ThemeMode.light => Icons.light_mode_rounded,
-    ThemeMode.dark => Icons.dark_mode_rounded,
-  };
-}
-
-String _themeModeLabel(ThemeMode themeMode) {
-  return switch (themeMode) {
-    ThemeMode.system => 'System',
-    ThemeMode.light => 'Light',
-    ThemeMode.dark => 'Dark',
-  };
-}
-
-Color _themeModeColor(BuildContext context, ThemeMode themeMode) {
-  final scheme = Theme.of(context).colorScheme;
-
-  return switch (themeMode) {
-    ThemeMode.system => scheme.secondary,
-    ThemeMode.light => AppColors.accent,
-    ThemeMode.dark => scheme.primary,
-  };
-}
-
 class _SettingTile extends StatelessWidget {
   const _SettingTile({
     required this.icon,
@@ -257,41 +261,48 @@ class _SettingTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimens.lg),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppDimens.sm),
-              decoration: BoxDecoration(
-                color: scheme.primaryContainer.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+    return Material(
+      color: Colors.transparent,
+      // Ensures ripples paint cleanly inside the custom card
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimens.lg),
+          child: Row(
+            children: [
+              // FLATTENED: DecoratedBox + Padding
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: scheme.primaryContainer.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppDimens.sm),
+                  child: Icon(icon, color: scheme.primary),
+                ),
               ),
-              child: Icon(icon, color: scheme.primary),
-            ),
-            const SizedBox(width: AppDimens.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: AppTypography.subtitle),
-                  const SizedBox(height: AppDimens.xs4),
-                  Text(
-                    subtitle,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: scheme.onSurfaceVariant,
+              const SizedBox(width: AppDimens.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: AppTypography.subtitle),
+                    const SizedBox(height: AppDimens.xs4),
+                    Text(
+                      subtitle,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: scheme.onSurfaceVariant,
-            ),
-          ],
+              Icon(
+                Icons.chevron_right_rounded,
+                color: scheme.onSurfaceVariant,
+              ),
+            ],
+          ),
         ),
       ),
     );

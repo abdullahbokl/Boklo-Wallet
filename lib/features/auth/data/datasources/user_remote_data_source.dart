@@ -53,7 +53,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       log('🚀 Calling setUserProfile function');
       log('   - Mode: ${isEmulator ? "EMULATOR" : "PRODUCTION"}');
       if (isEmulator) {
-        log('   - Host: ${EmulatorConfig.resolvedHost}:5001');
+        log('   - Host: ${EmulatorConfig.resolvedHost}:${EmulatorConfig.functionsPort}');
       }
       log('   - Params: username=$username, name=$name');
 

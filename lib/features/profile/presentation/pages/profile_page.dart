@@ -6,6 +6,7 @@ import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/profile/presentation/widgets/account_details_card.dart';
 import 'package:boklo/features/profile/presentation/widgets/profile_header.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
 import 'package:boklo/shared/widgets/molecules/wallet_error_view.dart';
 import 'package:flutter/material.dart';
@@ -21,8 +22,8 @@ class ProfilePage extends StatelessWidget {
       child: BlocBuilder<AuthCubit, BaseState<User?>>(
         builder: (context, state) {
           return state.when(
-            initial: () => const Center(child: CircularProgressIndicator()),
-            loading: () => const Center(child: CircularProgressIndicator()),
+            initial: () => const AppLoadingIndicator(),
+            loading: () => const AppLoadingIndicator(),
             error: (failure) => WalletErrorView(
               title: failure.message,
               onRetry: () => context.read<AuthCubit>().checkAuthStatus(),

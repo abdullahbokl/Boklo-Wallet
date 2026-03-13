@@ -1,5 +1,6 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:flutter/material.dart';
 
 class PaymentRequestActionButton extends StatelessWidget {
@@ -40,13 +41,11 @@ class PaymentRequestActionButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (isLoading)
-                SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: color,
-                  ),
+                AppLoadingIndicator(
+                  center: false,
+                  size: 16,
+                  strokeWidth: 2,
+                  color: color,
                 )
               else ...[
                 Icon(icon, size: 16, color: color),

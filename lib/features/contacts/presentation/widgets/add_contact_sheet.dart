@@ -48,11 +48,9 @@ class _AddContactSheetState extends State<AddContactSheet> {
         padding: const EdgeInsets.all(AppDimens.lg),
         child: BlocProvider.value(
           value: widget.cubit,
-          child: BlocConsumer<ContactCubit, BaseState<ContactState>>(
-            listener: (context, state) {
-              if (state.data?.isAdding == false) Navigator.pop(context);
-            },
+          child: BlocBuilder<ContactCubit, BaseState<ContactState>>(
             builder: (context, state) {
+              final isAdding = state.data?.isAdding ?? false;
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -84,12 +82,18 @@ class _AddContactSheetState extends State<AddContactSheet> {
                   const SizedBox(height: AppDimens.xl),
                   AppButton(
                     text: 'Add Contact',
-                    isLoading: state.data?.isAdding ?? false,
-                    onPressed: () {
-                      if (_controller.text.isNotEmpty) {
-                        widget.cubit.addContact(_controller.text);
-                      }
-                    },
+                    isLoading: isAdding,
+                    onPressed: isAdding
+                        ? null
+                        : () async {
+                            if (_controller.text.isEmpty) return;
+                            final navigator = Navigator.of(context);
+                            final added = await widget.cubit.addContact(
+                              _controller.text,
+                            );
+                            if (!mounted) return;
+                            if (added) navigator.pop();
+                          },
                   ),
                   const SizedBox(height: AppDimens.lg),
                 ],

@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart'
     as domain;
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/atoms/status_chip.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/transaction_tile.dart';
@@ -30,7 +31,7 @@ class TransactionList extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const SliverToBoxAdapter(
-        child: Center(child: CircularProgressIndicator()),
+        child: AppLoadingIndicator(),
       );
     }
 
@@ -104,10 +105,9 @@ class _LoadMoreButton extends StatelessWidget {
       child: RepaintBoundary(
         child: Center(
           child: isLoading
-              ? const SizedBox(
-                  height: 24,
-                  width: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+              ? const AppLoadingIndicator(
+                  center: false,
+                  strokeWidth: 2,
                 )
               : TextButton.icon(
                   onPressed: onPressed,

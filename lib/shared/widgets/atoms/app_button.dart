@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:flutter/material.dart';
 
 enum AppButtonVariant { primary, secondary, tonal, destructive }
@@ -116,13 +117,11 @@ class _ButtonContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (button.isLoading) {
-      return SizedBox(
-        height: 18,
-        width: 18,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: color,
-        ),
+      return AppLoadingIndicator(
+        center: false,
+        size: 18,
+        strokeWidth: 2,
+        color: color,
       );
     }
 

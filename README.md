@@ -145,7 +145,7 @@ This mode runs the app against local Firebase Emulators. It is safe, fast, and d
 
 1.  **Start Emulators**:
     ```bash
-    firebase emulators:start
+    ./scripts/start_emulators.sh
     ```
 2.  **Run App (Debug)**:
     ```bash
@@ -153,6 +153,7 @@ This mode runs the app against local Firebase Emulators. It is safe, fast, and d
     ```
 
     - _Note: The app will automatically connect to emulators (`10.0.2.2` for Android, `localhost` for iOS/Web)._
+    - _If you customize ports in `firebase.json`, pass matching Dart defines (`FIRESTORE_EMULATOR_PORT`, `FUNCTIONS_EMULATOR_PORT`, `AUTH_EMULATOR_PORT`, `STORAGE_EMULATOR_PORT`)._
 
 ### 2. Production Mode (Real Backend)
 
@@ -224,5 +225,5 @@ functions/
 ## 🆘 Troubleshooting
 
 - **"Notification not working"**: Ensure the correct `google-services.json` is used and your device SHA-1 is registered in Firebase Console. Check `AndroidManifest.xml` for the default channel ID.
-- **"Emulator connection refused"**: If running on a physical Android device, you must start the app with `--dart-define=EMULATOR_HOST=YOUR_PC_IP`.
+- **"Emulator connection refused"**: Start emulators with `./scripts/start_emulators.sh`. If running on a physical Android device, start the app with `--dart-define=EMULATOR_HOST=YOUR_PC_IP`.
 - **"App Check Token Error"**: Verify you are using the correct Debug Token from the logs in the Firebase Console.

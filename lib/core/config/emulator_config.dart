@@ -9,10 +9,28 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 class EmulatorConfig {
-  static const int _authPort = 9098;
-  static const int _firestorePort = 8086;
-  static const int _functionsPort = 5001;
-  static const int _storagePort = 9200;
+  static const int _defaultAuthPort = 9098;
+  static const int _defaultFirestorePort = 8086;
+  static const int _defaultFunctionsPort = 5001;
+  static const int _defaultStoragePort = 9200;
+
+  // Keep app ports configurable to avoid future firebase.json drift.
+  static final int _authPort = _readPortFromEnv(
+    'AUTH_EMULATOR_PORT',
+    _defaultAuthPort,
+  );
+  static final int _firestorePort = _readPortFromEnv(
+    'FIRESTORE_EMULATOR_PORT',
+    _defaultFirestorePort,
+  );
+  static final int _functionsPort = _readPortFromEnv(
+    'FUNCTIONS_EMULATOR_PORT',
+    _defaultFunctionsPort,
+  );
+  static final int _storagePort = _readPortFromEnv(
+    'STORAGE_EMULATOR_PORT',
+    _defaultStoragePort,
+  );
 
   static const String _androidEmulatorHost = '10.0.2.2';
   static const String _localhost = 'localhost';
@@ -22,6 +40,7 @@ class EmulatorConfig {
 
   static String? _resolvedHost;
   static String? get resolvedHost => _resolvedHost;
+  static int get functionsPort => _functionsPort;
 
   static Future<void> configure() async {
     final host = await _resolveHost();
@@ -91,6 +110,19 @@ class EmulatorConfig {
   }
 
   static const String _genymotionHost = '10.0.3.2';
+
+  static int _readPortFromEnv(String key, int fallback) {
+    final raw = String.fromEnvironment(key);
+    if (raw.isEmpty) {
+      return fallback;
+    }
+    final parsed = int.tryParse(raw);
+    if (parsed == null || parsed <= 0 || parsed > 65535) {
+      log('⚠️ Invalid $key="$raw"; falling back to $fallback');
+      return fallback;
+    }
+    return parsed;
+  }
 
   static Future<String?> _resolveHost() async {
     // 1. If host is explicitly provided via env (e.g. for physical device testing), use it.

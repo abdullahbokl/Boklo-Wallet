@@ -11,6 +11,7 @@ import 'package:boklo/features/transfers/presentation/widgets/transfer_form_cont
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/wallet_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -85,7 +86,7 @@ class _TransferFormState extends State<TransferForm> {
               onSubmit: () => _onSubmit(wallet.id, wallet.currency),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const AppLoadingIndicator(),
           orElse: () => WalletErrorView(
             onRetry: () => unawaited(context.read<WalletCubit>().loadWallet()),
           ),

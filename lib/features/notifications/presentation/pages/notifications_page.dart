@@ -2,6 +2,7 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/notifications/presentation/bloc/notifications_cubit.dart';
 import 'package:boklo/features/notifications/presentation/widgets/notification_tile.dart';
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
 import 'package:boklo/shared/widgets/molecules/wallet_error_view.dart';
@@ -30,7 +31,7 @@ class NotificationsView extends StatelessWidget {
       child: BlocBuilder<NotificationsCubit, NotificationsState>(
         builder: (context, state) {
           if (state is NotificationsLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const AppLoadingIndicator();
           }
 
           if (state is NotificationsError) {

@@ -36,7 +36,7 @@ App shows network errors or timeouts when connecting to `10.0.2.2:xxxx`.
 ### Checklist
 
 1.  **Is Emulator Running?**:
-    - Run `firebase emulators:start`.
+    - Run `./scripts/start_emulators.sh`.
     - Wait for "All emulators ready".
 2.  **Physical Device?**:
     - Physical Android devices cannot reach `10.0.2.2`.
@@ -48,6 +48,11 @@ App shows network errors or timeouts when connecting to `10.0.2.2:xxxx`.
     - Check `emulator_config.dart`.
     - Defaults: Auth(9098), Firestore(8086), Functions(5001), Storage(9200).
     - Ensure `firebase.json` matches these ports.
+    - If you changed ports in `firebase.json`, pass matching app values with `--dart-define`.
+
+4.  **Firestore Port Already Taken?**:
+    - `./scripts/start_emulators.sh` automatically clears stale Firebase emulator Java processes using configured emulator ports.
+    - If the port is owned by a non-Firebase process, the script fails with the owning PID/command so you can resolve it once.
 
 ---
 
