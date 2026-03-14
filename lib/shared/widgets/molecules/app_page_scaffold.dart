@@ -1,4 +1,4 @@
-import 'package:boklo/config/theme/app_decorations.dart';
+import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/shared/responsive/responsive_constraint.dart';
 import 'package:flutter/material.dart';
@@ -29,31 +29,30 @@ class AppPageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: AppDecorations.mainGradient(context),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        extendBodyBehindAppBar: extendBodyBehindAppBar,
-        appBar: title == null && actions == null && bottom == null
-            ? null
-            : AppBar(
-                title: title == null ? null : Text(title!),
-                centerTitle: centerTitle,
-                actions: actions,
-                bottom: bottom,
-              ),
-        floatingActionButton: floatingActionButton,
-        body: SafeArea(
-          top: !extendBodyBehindAppBar,
-          child: ResponsiveConstraint(
-            maxWidth: maxWidth ?? AppDimens.maxContentWidth,
-            child: Padding(
-              padding: padding ??
-                  const EdgeInsets.symmetric(
-                    horizontal: AppDimens.pageHorizontalPadding,
-                  ),
-              child: child,
+    return Scaffold(
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? AppColors.pageTintDark
+          : AppColors.pageTintLight,
+      extendBodyBehindAppBar: extendBodyBehindAppBar,
+      appBar: title == null && actions == null && bottom == null
+          ? null
+          : AppBar(
+              title: title == null ? null : Text(title!),
+              centerTitle: centerTitle,
+              actions: actions,
+              bottom: bottom,
             ),
+      floatingActionButton: floatingActionButton,
+      body: SafeArea(
+        top: !extendBodyBehindAppBar,
+        child: ResponsiveConstraint(
+          maxWidth: maxWidth ?? AppDimens.maxContentWidth,
+          child: Padding(
+            padding: padding ??
+                const EdgeInsets.symmetric(
+                  horizontal: AppDimens.pageHorizontalPadding,
+                ),
+            child: child,
           ),
         ),
       ),

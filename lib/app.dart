@@ -1,5 +1,4 @@
 import 'package:boklo/config/routes/app_router.dart';
-import 'package:boklo/config/theme/app_decorations.dart';
 import 'package:boklo/config/theme/app_theme.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
@@ -34,10 +33,7 @@ class MyApp extends StatelessWidget {
             themeMode: themeMode,
             routerConfig: appRouter.router,
             builder: (context, child) {
-              return DecoratedBox(
-                decoration: AppDecorations.mainGradient(context),
-                child: child ?? const SizedBox.shrink(),
-              );
+              return child ?? const SizedBox.shrink();
             },
           );
         },

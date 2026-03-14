@@ -21,11 +21,9 @@ class AuthBackground extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            scheme.primaryContainer.withValues(alpha: 0.55),
-            scheme.surface,
+            scheme.primaryContainer,
             scheme.surface,
           ],
-          stops: const [0, 0.3, 1],
         ),
       ),
       child: Stack(
