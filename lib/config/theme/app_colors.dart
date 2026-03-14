@@ -57,16 +57,16 @@ class AppColors {
   static const List<BoxShadow> shadowSm = [
     BoxShadow(
       color: Color(0x0C112030),
-      offset: Offset(0, 2),
-      blurRadius: 8,
+      offset: Offset(0, 1),
+      blurRadius: 2,
     ),
   ];
 
   static const List<BoxShadow> shadowMd = [
     BoxShadow(
       color: Color(0x12112030),
-      offset: Offset(0, 10),
-      blurRadius: 24,
+      offset: Offset(0, 4),
+      blurRadius: 8,
       spreadRadius: -1,
     ),
   ];
@@ -74,9 +74,9 @@ class AppColors {
   static const List<BoxShadow> shadowLg = [
     BoxShadow(
       color: Color(0x1A112030),
-      offset: Offset(0, 18),
-      blurRadius: 42,
-      spreadRadius: -8,
+      offset: Offset(0, 8),
+      blurRadius: 16,
+      spreadRadius: -4,
     ),
   ];
 }

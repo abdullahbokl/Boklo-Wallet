@@ -53,20 +53,25 @@ class AppAvatar extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: CircleAvatar(
-        radius: size / 2,
-        backgroundColor: Colors.transparent,
-        backgroundImage: photoUrl != null ? NetworkImage(photoUrl!) : null,
-        child: photoUrl == null
-            ? Text(
+      clipBehavior: Clip.antiAlias,
+      child: photoUrl != null
+          ? ClipOval(
+              child: Image.network(
+                photoUrl!,
+                fit: BoxFit.cover,
+                width: size,
+                height: size,
+              ),
+            )
+          : Center(
+              child: Text(
                 _initials,
                 style: AppTypography.label.copyWith(
                   color: scheme.primary,
                   fontSize: size * 0.32,
                 ),
-              )
-            : null,
-      ),
+              ),
+            ),
     );
 
     if (onTap == null) {
