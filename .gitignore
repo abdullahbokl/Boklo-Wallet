@@ -69,10 +69,10 @@ ios/Pods/
 ios/Podfile.lock
 ios/.symlinks/
 ios/.generated/
-linux/Flutter/ephemeral/
-windows/Flutter/ephemeral/
-macos/Flutter/ephemeral/
-web/Flutter/ephemeral/
+linux/
+macos/
+web/
+windows/
 
 # ---------------------------------------------------------------------------
 # Environment and config overrides
@@ -81,7 +81,7 @@ web/Flutter/ephemeral/
 .env.*
 !.env.example
 .fvm/flutter_sdk/
-.agent/
+.agents/
 
 # ---------------------------------------------------------------------------
 # Performance outputs and temporary data
