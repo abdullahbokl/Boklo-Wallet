@@ -1,124 +1,104 @@
-# Miscellaneous
+# ---------------------------------------------------------------------------
+# IDE / user-specific
+# ---------------------------------------------------------------------------
 *.class
 *.log
 *.pyc
 *.swp
 .DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
-
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Lock files (Project specific preference)
-pubspec.lock
-
-# Generated Plugin Registrants
-**/generated_plugin_registrant.*
-**/generated_plugins.cmake
-**/GeneratedPluginRegistrant.swift
-
-# Generated code (build_runner)
-*.g.dart
-*.freezed.dart
-*.config.dart
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-
-
-# Environment variables
-.env
-.env.*
-!.env.example
-
-# FVM
-.fvm/flutter_sdk
-
-# OS-specific
-.DS_Store
-.DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
 Thumbs.db
-
-# Agent and IDE
-.agent/
 .idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
 
-# Local setup guides and debug scripts
-test_*.sh
-IOS_PUSH_SETUP.md
-NOTIFICATIONS_SETUP_GUIDE.md
-NOTIFICATION_VERIFICATION.md
-database-debug.log
-firestore-debug.log
-.flutter-plugins-dependencies
-
-
-# Local logs
-*.log
-database-debug.log
-firestore-debug.log
-
-# Flutter/Dart build and tool files
+# ---------------------------------------------------------------------------
+# Flutter / Dart / build artifacts
+# ---------------------------------------------------------------------------
+.dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 .metadata
-.dart_tool/
+.flutter_build/
 build/
+coverage/
+.dart_tool/**
+.flutter-plugins*/**
+.pub/
+.pub-cache/
+.packages
+**/doc/api/
+**/ios/Flutter/.last_build_id
+**/generated_plugin_registrant.*
+**/generated_plugins.cmake
+**/GeneratedPluginRegistrant.swift
+*.g.dart
+*.freezed.dart
+*.config.dart
+app.*.symbols
+app.*.map.json
 
-# Web specific
-.project
+# ---------------------------------------------------------------------------
+# Firebase / emulator / runtime state
+# ---------------------------------------------------------------------------
+firebase-debug.log
+firebase-debug.*.log
+database-debug.log
+firestore-debug.log
+storage-debug.log
+*.local
+functions/.firebase/
+functions/node_modules/
+functions/.runtimeconfig.json
 
-# Project specific root files and scripts
-ARCHITECTURE.md
-SOURCE_OF_TRUTH.md
-devtools_options.yaml
-scripts/
+# ---------------------------------------------------------------------------
+# Platform caches and dependencies
+# ---------------------------------------------------------------------------
+android/.gradle/
+android/local.properties
+android/captures/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Release.xcconfig
+ios/Pods/
+ios/Podfile.lock
+ios/.symlinks/
+ios/.generated/
+linux/Flutter/ephemeral/
+windows/Flutter/ephemeral/
+macos/Flutter/ephemeral/
+web/Flutter/ephemeral/
 
-# Unused platforms
-linux/
-macos/
-windows/
-web/
+# ---------------------------------------------------------------------------
+# Environment and config overrides
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+.fvm/flutter_sdk/
+.agent/
 
-# Generated App Icons
-android/app/src/main/res/mipmap-*/launcher_icon.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/
+# ---------------------------------------------------------------------------
+# Performance outputs and temporary data
+# ---------------------------------------------------------------------------
+build/perf_results/
+perf_results/
+performance_summary.json
+self_tests.log
 
-.agents
+# ---------------------------------------------------------------------------
+# Keep these tracked (remove previous ignores that hid them)
+# ---------------------------------------------------------------------------
+# ARCHITECTURE.md
+# SOURCE_OF_TRUTH.md
+# scripts/
+# devtools_options.yaml
+# docs/
+# storage.rules
+# firestore.rules
+# firebase.json
