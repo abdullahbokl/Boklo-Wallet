@@ -75,13 +75,18 @@ class TransactionList extends StatelessWidget {
             uiStatus = TransactionStatus.failed;
         }
 
-        return RepaintBoundary(
-          child: TransactionTile(
-            title: isCredit ? 'Received Money' : 'Sent Money',
-            amount: tx.amount.toStringAsFixed(2),
-            date: _transactionDateFormatter.format(tx.timestamp),
-            status: uiStatus,
-            isCredit: isCredit,
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: index < transactions.length - 1 ? AppDimens.sm : 0,
+          ),
+          child: RepaintBoundary(
+            child: TransactionTile(
+              title: isCredit ? 'Received Money' : 'Sent Money',
+              amount: tx.amount.toStringAsFixed(2),
+              date: _transactionDateFormatter.format(tx.timestamp),
+              status: uiStatus,
+              isCredit: isCredit,
+            ),
           ),
         );
       },
