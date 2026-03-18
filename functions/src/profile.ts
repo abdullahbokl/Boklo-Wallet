@@ -10,6 +10,11 @@ interface SetUserProfileData {
   name?: string;
 }
 
+const accountDeletionCollections = {
+  userSubcollections: ["tokens", "contacts", "preferences"],
+  walletSubcollections: ["transactions", "ledger"],
+} as const;
+
 // Explicit region for consistency between emulator and production
 export const setUserProfile = onCall<SetUserProfileData>(
   { region: "us-central1" },
@@ -183,3 +188,175 @@ export const setUserProfile = onCall<SetUserProfileData>(
     return { success: true, username: usernameLower };
   });
 });
+
+export const deleteAccount = onCall(
+  { region: "us-central1" },
+  async (request) => {
+    if (!request.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "The function must be called while authenticated."
+      );
+    }
+
+    const uid = request.auth.uid;
+    const walletRef = db.collection("wallets").doc(uid);
+    const userRef = db.collection("users").doc(uid);
+
+    const [walletDoc, userDoc] = await Promise.all([
+      walletRef.get(),
+      userRef.get(),
+    ]);
+
+    const balance = Number(walletDoc.data()?.balance ?? 0);
+    if (balance != 0) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "You can only delete your account when your wallet balance is zero."
+      );
+    }
+
+    const hasTransferHistory = await _queryExists([
+      db.collection("transfers")
+        .where("fromWalletId", "==", uid)
+        .limit(1),
+      db.collection("transfers")
+        .where("toWalletId", "==", uid)
+        .limit(1),
+    ]);
+
+    if (hasTransferHistory) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Your account cannot be deleted because transfer history exists."
+      );
+    }
+
+    const hasPaymentRequestHistory = await _queryExists([
+      db.collection("payment_requests")
+        .where("requesterId", "==", uid)
+        .limit(1),
+      db.collection("payment_requests")
+        .where("payerId", "==", uid)
+        .limit(1),
+    ]);
+
+    if (hasPaymentRequestHistory) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Your account cannot be deleted because payment request history exists."
+      );
+    }
+
+    const email = (
+      (userDoc.data()?.email as string | undefined) ??
+      (request.auth.token.email as string | undefined) ??
+      ""
+    )
+      .toLowerCase();
+    const username = (
+      (userDoc.data()?.username as string | undefined) ??
+      ""
+    ).toLowerCase();
+
+    try {
+      await Promise.all([
+        _deleteSubcollections(userRef, accountDeletionCollections.userSubcollections),
+        _deleteSubcollections(walletRef, accountDeletionCollections.walletSubcollections),
+        _deleteNotificationsForUser(uid),
+      ]);
+
+      const cleanupWrites: Array<Promise<unknown>> = [
+        userRef.delete().catch((error: unknown) => _ignoreMissingDoc(error)),
+        walletRef.delete().catch((error: unknown) => _ignoreMissingDoc(error)),
+      ];
+
+      if (email !== "") {
+        cleanupWrites.push(
+          db.collection("wallet_identifiers")
+            .doc(`email:${email}`)
+            .delete()
+            .catch((error: unknown) => _ignoreMissingDoc(error))
+        );
+      }
+
+      if (username !== "") {
+        cleanupWrites.push(
+          db.collection("usernames")
+            .doc(username)
+            .delete()
+            .catch((error: unknown) => _ignoreMissingDoc(error))
+        );
+        cleanupWrites.push(
+          db.collection("wallet_identifiers")
+            .doc(`username:${username}`)
+            .delete()
+            .catch((error: unknown) => _ignoreMissingDoc(error))
+        );
+      }
+
+      await Promise.all(cleanupWrites);
+      await admin.auth().deleteUser(uid);
+
+      return { success: true };
+    } catch (error) {
+      console.error("deleteAccount failed", {
+        uid,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw new functions.https.HttpsError(
+        "internal",
+        "Failed to delete account. Please try again."
+      );
+    }
+  }
+);
+
+async function _queryExists(
+  queries: Array<FirebaseFirestore.Query<FirebaseFirestore.DocumentData>>
+) {
+  const snapshots = await Promise.all(queries.map((query) => query.get()));
+  return snapshots.some((snapshot) => !snapshot.empty);
+}
+
+async function _deleteSubcollections(
+  docRef: admin.firestore.DocumentReference,
+  subcollections: readonly string[]
+) {
+  await Promise.all(
+    subcollections.map(async (subcollection) => {
+      const snapshot = await docRef.collection(subcollection).get();
+      await _deleteDocs(snapshot.docs.map((doc) => doc.ref));
+    })
+  );
+}
+
+async function _deleteNotificationsForUser(uid: string) {
+  const snapshot = await db.collection("notifications")
+    .where("userId", "==", uid)
+    .get();
+  await _deleteDocs(snapshot.docs.map((doc) => doc.ref));
+}
+
+async function _deleteDocs(refs: admin.firestore.DocumentReference[]) {
+  if (refs.length === 0) {
+    return;
+  }
+
+  const chunkSize = 400;
+  for (let index = 0; index < refs.length; index += chunkSize) {
+    const batch = db.batch();
+    for (const ref of refs.slice(index, index + chunkSize)) {
+      batch.delete(ref);
+    }
+    await batch.commit();
+  }
+}
+
+function _ignoreMissingDoc(error: unknown) {
+  const code = (error as { code?: number | string }).code;
+  if (code === 5 || code === "not-found") {
+    return;
+  }
+  throw error;
+}

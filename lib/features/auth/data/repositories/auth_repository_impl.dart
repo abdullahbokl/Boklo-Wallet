@@ -67,6 +67,21 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> deleteAccount(String password) async {
+    try {
+      await remoteDataSource.reauthenticate(password);
+      await userRemoteDataSource.deleteAccount();
+      return const Right(null);
+    } on Failure catch (e) {
+      return Left(e);
+    } on FirebaseAuthException catch (e) {
+      return Left(_mapFirebaseError(e));
+    } on Object catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, User?>> getCurrentUser() async {
     try {
       final userModel = await remoteDataSource.getCurrentUser();
@@ -89,6 +104,13 @@ class AuthRepositoryImpl implements AuthRepository {
   Failure _mapFirebaseError(FirebaseAuthException e) {
     if (e.code == 'network-request-failed') {
       return NetworkFailure(e.message ?? 'Network error');
+    }
+    if (e.code == 'wrong-password' ||
+        e.code == 'invalid-credential' ||
+        e.code == 'requires-recent-login') {
+      return const ValidationFailure(
+        'Please re-enter your password to confirm account deletion.',
+      );
     }
     return ServerFailure(e.message ?? 'Authentication failed');
   }

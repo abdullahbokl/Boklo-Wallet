@@ -6,6 +6,7 @@ import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/core/services/notification_service.dart';
 import 'package:boklo/core/usecases/usecase.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
+import 'package:boklo/features/auth/domain/usecases/delete_account_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/login_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/logout_usecase.dart';
@@ -18,6 +19,7 @@ class AuthCubit extends BaseCubit<User?> {
   AuthCubit(
     this._loginUseCase,
     this._logoutUseCase,
+    this._deleteAccountUseCase,
     this._getCurrentUserUseCase,
     this._registerUseCase,
     this._setUserProfileUseCase,
@@ -27,6 +29,7 @@ class AuthCubit extends BaseCubit<User?> {
 
   final LoginUseCase _loginUseCase;
   final LogoutUseCase _logoutUseCase;
+  final DeleteAccountUseCase _deleteAccountUseCase;
   final GetCurrentUserUseCase _getCurrentUserUseCase;
   final RegisterUseCase _registerUseCase;
   final SetUserProfileUseCase _setUserProfileUseCase;
@@ -61,6 +64,22 @@ class AuthCubit extends BaseCubit<User?> {
     result.fold(
       emitError,
       (_) => emitSuccess(null),
+    );
+  }
+
+  Future<void> deleteAccount(String password) async {
+    emitLoading();
+    final result = await _deleteAccountUseCase(
+      DeleteAccountParams(password: password),
+    );
+
+    await result.fold(
+      (failure) async => emitError(failure),
+      (_) async {
+        await _notificationService.deleteToken();
+        await _logoutUseCase(NoParams());
+        emitSuccess(null);
+      },
     );
   }
 

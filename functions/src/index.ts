@@ -31,7 +31,7 @@ export { reconcileWallets, triggerReconciliationNow } from "./reconciliation";
 export { streamTransferToBigQuery, streamLedgerToBigQuery } from "./bigquery";
 export { onAdminJobCreated } from "./admin";
 export { onUserCreated } from "./users";
-export { setUserProfile } from "./profile";
+export { setUserProfile, deleteAccount } from "./profile";
 export { provisionWallet } from "./wallet";
 export { migrateWalletIdentifiers } from "./migration";
 
@@ -42,4 +42,3 @@ export { migrateWalletIdentifiers } from "./migration";
 // `maxInstances` option in the function's options, e.g.
 // `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
 setGlobalOptions({ maxInstances: 10 });
-

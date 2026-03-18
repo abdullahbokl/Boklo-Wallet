@@ -111,7 +111,7 @@ void main() {
     });
 
     test(
-        'should return Failure with ServerFailure when login fails with FirebaseAuthException',
+        'should return Failure with ValidationFailure when login fails with invalid credentials',
         () async {
       // Arrange
       final tException = FirebaseAuthException(
@@ -128,8 +128,11 @@ void main() {
       expect(result, isA<Left<Failure, User>>());
       result.fold(
         (error) {
-          expect(error, isA<ServerFailure>());
-          expect((error as ServerFailure).message, 'Invalid password');
+          expect(error, isA<ValidationFailure>());
+          expect(
+            (error as ValidationFailure).message,
+            'Please re-enter your password to confirm account deletion.',
+          );
         },
         (user) => fail('Expected Failure but got Success'),
       );
@@ -205,6 +208,42 @@ void main() {
       // Assert
       expect(result, isA<Left<Failure, void>>());
       verify(() => mockRemoteDataSource.logout()).called(1);
+    });
+  });
+
+  group('deleteAccount', () {
+    test('should reauthenticate then delete account when request succeeds',
+        () async {
+      when(() => mockRemoteDataSource.reauthenticate(any()))
+          .thenAnswer((_) async {});
+      when(() => mockUserRemoteDataSource.deleteAccount())
+          .thenAnswer((_) async {});
+
+      final result = await authRepository.deleteAccount(tPassword);
+
+      expect(result, isA<Right<Failure, void>>());
+      verify(() => mockRemoteDataSource.reauthenticate(tPassword)).called(1);
+      verify(() => mockUserRemoteDataSource.deleteAccount()).called(1);
+    });
+
+    test('should return ValidationFailure when reauthentication fails',
+        () async {
+      final exception = FirebaseAuthException(
+        code: 'wrong-password',
+        message: 'Wrong password',
+      );
+      when(() => mockRemoteDataSource.reauthenticate(any()))
+          .thenThrow(exception);
+
+      final result = await authRepository.deleteAccount(tPassword);
+
+      expect(result, isA<Left<Failure, void>>());
+      result.fold(
+        (error) => expect(error, isA<ValidationFailure>()),
+        (_) => fail('Expected failure'),
+      );
+      verify(() => mockRemoteDataSource.reauthenticate(tPassword)).called(1);
+      verifyNever(() => mockUserRemoteDataSource.deleteAccount());
     });
   });
 

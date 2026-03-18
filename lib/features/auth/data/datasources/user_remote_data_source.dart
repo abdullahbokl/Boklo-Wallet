@@ -9,6 +9,7 @@ import 'package:injectable/injectable.dart';
 abstract class UserRemoteDataSource {
   Future<UserModel?> getUser(String uid);
   Future<void> setUserProfile({required String username, String? name});
+  Future<void> deleteAccount();
 }
 
 @LazySingleton(as: UserRemoteDataSource)
@@ -95,6 +96,25 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     } catch (e) {
       log('❌ setUserProfile Unexpected Error: $e');
       throw UnknownFailure('Profile update failed: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    try {
+      final callable = _functions.httpsCallable('deleteAccount');
+      await callable.call<Map<String, dynamic>>();
+    } on FirebaseFunctionsException catch (e) {
+      if (e.code == 'failed-precondition') {
+        throw ValidationFailure(e.message ?? 'Account deletion is not allowed.');
+      } else if (e.code == 'unauthenticated') {
+        throw const ServerFailure('Your session expired. Please sign in again.');
+      } else if (e.code == 'unavailable') {
+        throw const NetworkFailure('Unable to reach account deletion service');
+      }
+      throw UnknownFailure(e.message ?? 'Failed to delete account');
+    } catch (e) {
+      throw UnknownFailure('Failed to delete account: $e');
     }
   }
 }

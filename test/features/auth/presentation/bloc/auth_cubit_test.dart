@@ -5,6 +5,7 @@ import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/core/services/notification_service.dart';
 import 'package:boklo/core/usecases/usecase.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
+import 'package:boklo/features/auth/domain/usecases/delete_account_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/login_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/logout_usecase.dart';
@@ -23,6 +24,8 @@ class MockLoginUseCase extends Mock implements LoginUseCase {}
 
 class MockLogoutUseCase extends Mock implements LogoutUseCase {}
 
+class MockDeleteAccountUseCase extends Mock implements DeleteAccountUseCase {}
+
 class MockGetCurrentUserUseCase extends Mock implements GetCurrentUserUseCase {}
 
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
@@ -37,10 +40,13 @@ class FakeRegisterParams extends Fake implements RegisterParams {}
 
 class FakeSetUserProfileParams extends Fake implements SetUserProfileParams {}
 
+class FakeDeleteAccountParams extends Fake implements DeleteAccountParams {}
+
 void main() {
   late AuthCubit cubit;
   late MockLoginUseCase mockLoginUseCase;
   late MockLogoutUseCase mockLogoutUseCase;
+  late MockDeleteAccountUseCase mockDeleteAccountUseCase;
   late MockGetCurrentUserUseCase mockGetCurrentUserUseCase;
   late MockRegisterUseCase mockRegisterUseCase;
   late MockSetUserProfileUseCase mockSetUserProfileUseCase;
@@ -52,11 +58,13 @@ void main() {
     registerFallbackValue(FakeNoParams());
     registerFallbackValue(FakeRegisterParams());
     registerFallbackValue(FakeSetUserProfileParams());
+    registerFallbackValue(FakeDeleteAccountParams());
   });
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
     mockLogoutUseCase = MockLogoutUseCase();
+    mockDeleteAccountUseCase = MockDeleteAccountUseCase();
     mockGetCurrentUserUseCase = MockGetCurrentUserUseCase();
     mockRegisterUseCase = MockRegisterUseCase();
     mockSetUserProfileUseCase = MockSetUserProfileUseCase();
@@ -71,6 +79,7 @@ void main() {
     cubit = AuthCubit(
       mockLoginUseCase,
       mockLogoutUseCase,
+      mockDeleteAccountUseCase,
       mockGetCurrentUserUseCase,
       mockRegisterUseCase,
       mockSetUserProfileUseCase,
@@ -154,6 +163,45 @@ void main() {
       ],
       verify: (_) {
         verify(() => mockLogoutUseCase.call(any())).called(1);
+      },
+    );
+
+    blocTest<AuthCubit, BaseState<User?>>(
+      'emits [loading, success(null)] when account deletion succeeds',
+      build: () {
+        when(() => mockDeleteAccountUseCase.call(any()))
+            .thenAnswer((_) async => right(null));
+        when(() => mockLogoutUseCase.call(any()))
+            .thenAnswer((_) async => right(null));
+        return cubit;
+      },
+      act: (cubit) => cubit.deleteAccount(tPassword),
+      expect: () => const [
+        BaseState<User?>.loading(),
+        BaseState<User?>.success(null),
+      ],
+      verify: (_) {
+        verify(() => mockDeleteAccountUseCase.call(any())).called(1);
+        verify(() => mockNotificationService.deleteToken()).called(1);
+        verify(() => mockLogoutUseCase.call(any())).called(1);
+      },
+    );
+
+    blocTest<AuthCubit, BaseState<User?>>(
+      'emits [loading, error] when account deletion fails',
+      build: () {
+        when(() => mockDeleteAccountUseCase.call(any()))
+            .thenAnswer((_) async => left(tError));
+        return cubit;
+      },
+      act: (cubit) => cubit.deleteAccount(tPassword),
+      expect: () => const [
+        BaseState<User?>.loading(),
+        BaseState<User?>.error(tError),
+      ],
+      verify: (_) {
+        verify(() => mockDeleteAccountUseCase.call(any())).called(1);
+        verifyNever(() => mockLogoutUseCase.call(any()));
       },
     );
 

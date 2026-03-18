@@ -6,6 +6,7 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
   Future<UserModel> register(String email, String password);
   Future<void> logout();
+  Future<void> reauthenticate(String password);
   Future<UserModel?> getCurrentUser();
 }
 
@@ -44,6 +45,23 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout() async {
     await _firebaseAuth.signOut();
+  }
+
+  @override
+  Future<void> reauthenticate(String password) async {
+    final user = _firebaseAuth.currentUser;
+    final email = user?.email;
+
+    if (user == null || email == null || email.isEmpty) {
+      throw Exception('Unable to re-authenticate the current user.');
+    }
+
+    final credential = firebase_auth.EmailAuthProvider.credential(
+      email: email,
+      password: password,
+    );
+
+    await user.reauthenticateWithCredential(credential);
   }
 
   @override
