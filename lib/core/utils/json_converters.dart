@@ -17,5 +17,5 @@ class TimestampConverter implements JsonConverter<DateTime, Object> {
   }
 
   @override
-  Object toJson(DateTime object) => Timestamp.fromDate(object);
+  Object toJson(DateTime object) => object.millisecondsSinceEpoch;
 }

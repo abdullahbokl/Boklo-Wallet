@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/data/datasources/wallet_local_data_source.dart';
@@ -56,7 +57,12 @@ class WalletRepositoryImpl implements WalletRepository {
       _lastDocument = result.lastDocument;
       _hasMore = result.hasMore;
 
-      await _localDataSource.cacheTransactions(result.transactions);
+      try {
+        await _localDataSource.cacheTransactions(result.transactions);
+      } catch (e) {
+        log('⚠️ Failed to cache transactions: $e');
+      }
+
       return Right(
         result.transactions.map((e) => e.toEntity()).toList(),
       );

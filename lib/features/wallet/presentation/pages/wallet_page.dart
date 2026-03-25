@@ -34,17 +34,19 @@ class WalletPage extends StatelessWidget {
         builder: (context, state) {
           return Scaffold(
             appBar: const WalletAppBar(),
-            body: state.when(
-              initial: WalletSkeleton.new,
-              loading: WalletSkeleton.new,
-              error: (error) => Padding(
-                padding: const EdgeInsets.all(20),
-                child: WalletErrorView(
-                  title: error.message,
-                  onRetry: () => context.read<WalletCubit>().loadWallet(),
+            body: SafeArea(
+              child: state.when(
+                initial: WalletSkeleton.new,
+                loading: WalletSkeleton.new,
+                error: (error) => Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: WalletErrorView(
+                    title: error.message,
+                    onRetry: () => context.read<WalletCubit>().loadWallet(),
+                  ),
                 ),
+                success: (data) => WalletContent(data: data),
               ),
-              success: (data) => WalletContent(data: data),
             ),
           );
         },

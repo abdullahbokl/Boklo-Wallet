@@ -84,7 +84,15 @@ class WalletCubit extends BaseCubit<WalletState> {
     // 3. Initial Transaction Fetch
     final txResult = await _getTransactionsUseCase();
     txResult.fold(
-      emitError,
+      (error) {
+        log('⚠️ WalletCubit: Initial transaction fetch failed: $error');
+        // Only emit blocking error if we haven't received the wallet yet.
+        // If we have the wallet, we'll keep showing the dashboard (WalletPage
+        // will stay in Success state once _currentWallet is non-null).
+        if (_currentWallet == null) {
+          emitError(error);
+        }
+      },
       _updateTransactions,
     );
 
