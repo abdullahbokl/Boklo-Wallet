@@ -51,7 +51,7 @@ Logic for users requesting money from each other.
 | Function Name                 | Trigger                                         | Description                                                                                                                                                     |
 | :---------------------------- | :---------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`onPaymentRequestCreated`** | `firestore.create` <br> `payment_requests/{id}` | - Validates new payment requests (e.g., checks for self-requests or invalid amounts) and emits the creation event.                                              |
-| **`acceptPaymentRequest`**    | `https.onCall`                                  | **Callable (Client Triggered).** <br> - Allows a user to accept a request. <br> - **Action:** Verifies balance and creates a `transfer` to fulfill the request. |
+| **`acceptPaymentRequest`**    | `https.onCall`                                  | **Callable (Client Triggered).** <br> - Allows a user to accept a request. <br> - **Action:** Creates a `pending` `transfer` (balance is enforced by `onTransferCreated`) atomically with marking the request ACCEPTED. |
 | **`declinePaymentRequest`**   | `https.onCall`                                  | **Callable (Client Triggered).** <br> - Allows a user to decline a payment request. Updates status to `DECLINED`.                                               |
 
 ---

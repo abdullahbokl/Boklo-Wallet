@@ -37,7 +37,7 @@ The architecture relies on a strict pipeline to decouple services:
 - **Firestore:** Stores state (Wallets, Transactions).
 - **Eventarc:** Routes state changes to consumers without knowing what the consumers do.
 - **Cloud Functions:**
-  - `onTransactionCreated`: Validates and executes transfers.
+  - `onTransferCreated`: Validates and executes transfers (transactional idempotency re-check, currency-integrity assertion, minor-unit guard).
   - `onTransactionCompleted`: Sends notifications, updates analytics.
 - **Ledger:** An append-only collection that records every financial movement.
 - **Notifications:** Decoupled from the transaction logic. A separate function listens for `completed` events to send push notifications.

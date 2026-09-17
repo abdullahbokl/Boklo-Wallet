@@ -38,7 +38,7 @@ Boklo is built on advanced FinTech engineering principles to ensure zero data lo
 
 ### 🛡️ Security & Scalability
 - **Firestore Security Rules**: Backend-authoritative writes — clients cannot create transaction/ledger records or mutate balances. Owner-scoped access to their own data; read-exposure of public profile fields is documented in docs/MODERNIZATION_PLAN.md (§G).
-- **Firebase App Check**: _Not yet implemented_ — tracked in docs/MODERNIZATION_PLAN.md (§L Phase 8). Until then, callable endpoints enforce auth/claims server-side.
+- **Firebase App Check**: Active in-app — Play Integrity (Android) / App Attest (iOS) in release builds, debug provider in dev. Console-side enforcement is toggled per product.
 - **Custom Indexes**: Optimized composite indexes to support performant ledger queries and filtering.
 - **Real-time Notifications**: Integrated FCM for backend-triggered push alerts.
 
@@ -94,7 +94,7 @@ Boklo includes a built-in **Ledger Debugger** to visualize the immutable transac
 - **Message Bus**: Eventarc (CloudEvents)
 - **Authentication**: Firebase Auth
 - **Observability**: Cloud Logging
-- **Security**: App Check (Play Integrity / App Attest) — _planned, not yet wired_; callable endpoints enforce auth today
+- **Security**: App Check (Play Integrity / App Attest); privileged callables require the `admin` custom claim
 
 ---
 

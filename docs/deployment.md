@@ -35,7 +35,8 @@ firebase deploy --only functions
 ```
 
 > **Note:** If you added new environment variables, update them using:
-> `firebase functions:config:set some.key="value"`
+> Legacy `functions:config:set` is disabled (`disallowLegacyRuntimeConfig`).
+> Use environment configuration or `params` in `firebase-functions` v2.
 
 ### 2. Deploy Security Rules
 

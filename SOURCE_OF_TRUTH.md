@@ -201,6 +201,9 @@ Input → WalletResolver → Wallet Document
 
 ## 🔟 App Check Rules
 
+> Status: Active in-app (Play Integrity / App Attest; debug provider in dev).
+> Console-side enforcement per product is an operations decision.
+
 - Disabled or Debug Provider in DEV
 - Must not block emulator traffic
 - Enabled only in production

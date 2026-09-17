@@ -36,7 +36,7 @@ lib/
 │       ├── domain/
 │       └── presentation/
 ├── l10n/               # Localization ARB files
-└── main_common.dart    # Entry point
+└── main_dev.dart / main_prod.dart    # Flavor entry points
 ```
 
 ## 3. Core Modules
