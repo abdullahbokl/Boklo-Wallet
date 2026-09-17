@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
+import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +41,7 @@ class TransferBalanceDisplay extends StatelessWidget {
               const SizedBox(width: AppDimens.xs),
               Expanded(
                 child: Text(
-                  wallet.balance.toStringAsFixed(2),
+                  wallet.balance.moneyLabel(wallet.currency),
                   style: AppTypography.amount.copyWith(
                     color: scheme.onSurface,
                   ),

@@ -92,6 +92,7 @@ class WalletContent extends StatelessWidget {
           ),
           TransactionList(
             transactions: data.transactions,
+            currency: data.wallet.currency,
             hasMore: data.hasMore,
             isLoadingMore: data.isLoadingMore,
             onLoadMore: () async {

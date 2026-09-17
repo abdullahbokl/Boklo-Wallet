@@ -6,6 +6,7 @@ import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
 import 'package:boklo/features/payment_requests/domain/repo/payment_request_repository.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
+import 'package:boklo/features/wallet/domain/usecases/get_wallet_usecase.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -14,11 +15,13 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
     this._repository,
     this._resolveWalletByEmailUseCase,
     this._resolveWalletByUsernameUseCase,
+    this._getWalletUseCase,
   ) : super(const BaseState.initial());
 
   final PaymentRequestRepository _repository;
   final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
   final ResolveWalletByUsernameUseCase _resolveWalletByUsernameUseCase;
+  final GetWalletUseCase _getWalletUseCase;
   StreamSubscription<dynamic>? _incomingSub;
   StreamSubscription<dynamic>? _outgoingSub;
 
@@ -68,7 +71,6 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
   Future<void> createRequest({
     required String payerId,
     required double amount,
-    required String currency,
     String? note,
   }) async {
     final currentState = state.data ?? const PaymentRequestState();
@@ -98,7 +100,19 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
       targetPayerId = resolution.fold((l) => '', (r) => r);
     }
 
-    // 2. Create Request
+    // 2. Resolve the requester's wallet currency. Requests are denominated
+    // in the requester's currency so acceptance (payer -> requester) never
+    // crosses currencies.
+    final walletResult = await _getWalletUseCase();
+    final walletError = walletResult.fold((l) => l, (r) => null);
+    if (walletError != null) {
+      emitError(walletError);
+      emitSuccess(currentState.copyWith(isCreating: false));
+      return;
+    }
+    final currency = walletResult.fold((_) => '', (w) => w.currency);
+
+    // 3. Create Request
     final result = await _repository.createRequest(
       payerId: targetPayerId,
       amount: amount,

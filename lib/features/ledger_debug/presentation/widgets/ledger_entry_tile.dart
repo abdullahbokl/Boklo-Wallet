@@ -6,6 +6,7 @@ import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/ledger_debug/domain/entities/ledger_entry_entity.dart';
+import 'package:boklo/shared/utils/money.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -107,7 +108,7 @@ class LedgerEntryTile extends StatelessWidget {
                 ],
               ),
               Text(
-                '$prefix ${entry.amount.toStringAsFixed(2)} ${entry.currency}',
+                '$prefix ${entry.amount.moneyLabel(entry.currency)}',
                 style: AppTypography.title.copyWith(
                   color: color,
                   fontWeight: FontWeight.w700,

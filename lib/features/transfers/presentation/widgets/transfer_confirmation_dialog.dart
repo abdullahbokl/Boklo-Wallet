@@ -1,5 +1,6 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:boklo/shared/widgets/molecules/summary_item.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,7 @@ class TransferConfirmationDialog extends StatelessWidget {
             const SizedBox(height: AppDimens.xl),
             SummaryItem(
               label: 'Amount',
-              value: '$amount $currency',
+              value: amount.moneyLabel(currency),
               isPrimary: true,
             ),
             const Divider(height: AppDimens.xl),

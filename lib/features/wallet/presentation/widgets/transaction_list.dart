@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart'
     as domain;
+import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/atoms/status_chip.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
@@ -11,6 +12,7 @@ import 'package:intl/intl.dart';
 class TransactionList extends StatelessWidget {
   const TransactionList({
     required this.transactions,
+    required this.currency,
     super.key,
     this.isLoading = false,
     this.hasMore = false,
@@ -22,6 +24,7 @@ class TransactionList extends StatelessWidget {
       .add_jm();
 
   final List<domain.TransactionEntity> transactions;
+  final String currency;
   final bool isLoading;
   final bool hasMore;
   final bool isLoadingMore;
@@ -82,7 +85,7 @@ class TransactionList extends StatelessWidget {
           child: RepaintBoundary(
             child: TransactionTile(
               title: isCredit ? 'Received Money' : 'Sent Money',
-              amount: tx.amount.toStringAsFixed(2),
+              amount: tx.amount.moneyLabel(currency),
               date: _transactionDateFormatter.format(tx.timestamp),
               status: uiStatus,
               isCredit: isCredit,

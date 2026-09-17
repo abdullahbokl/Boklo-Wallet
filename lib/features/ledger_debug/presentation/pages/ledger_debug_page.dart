@@ -7,6 +7,7 @@ import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/ledger_debug/presentation/bloc/ledger_cubit.dart';
 import 'package:boklo/features/ledger_debug/presentation/bloc/ledger_state.dart';
 import 'package:boklo/features/ledger_debug/presentation/widgets/ledger_entry_tile.dart';
+import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,6 +35,7 @@ class LedgerDebugPage extends StatelessWidget {
               error: (message) => Center(child: Text('Error: $message')),
               empty: () => _buildEmpty(context),
               success: (entries, totalCredits, totalDebits, netDelta) {
+                final currency = entries.isEmpty ? '' : entries.first.currency;
                 return Column(
                   children: [
                     _buildSummaryCard(
@@ -41,6 +43,7 @@ class LedgerDebugPage extends StatelessWidget {
                       totalCredits,
                       totalDebits,
                       netDelta,
+                      currency,
                     ),
                     Expanded(
                       child: ListView.builder(
@@ -84,6 +87,7 @@ class LedgerDebugPage extends StatelessWidget {
     double credits,
     double debits,
     double delta,
+    String currency,
   ) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
@@ -92,10 +96,22 @@ class LedgerDebugPage extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: _statItem(context, 'Credits', credits, AppColors.success),
+            child: _statItem(
+              context,
+              'Credits',
+              credits,
+              AppColors.success,
+              currency,
+            ),
           ),
           Expanded(
-            child: _statItem(context, 'Debits', debits, AppColors.error),
+            child: _statItem(
+              context,
+              'Debits',
+              debits,
+              AppColors.error,
+              currency,
+            ),
           ),
           Expanded(
             child: _statItem(
@@ -105,6 +121,7 @@ class LedgerDebugPage extends StatelessWidget {
               delta == 0
                   ? scheme.onSurface
                   : (delta > 0 ? AppColors.success : AppColors.error),
+              currency,
             ),
           ),
         ],
@@ -117,6 +134,7 @@ class LedgerDebugPage extends StatelessWidget {
     String label,
     double value,
     Color color,
+    String currency,
   ) {
     final scheme = Theme.of(context).colorScheme;
     return Column(
@@ -127,7 +145,7 @@ class LedgerDebugPage extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          value.toStringAsFixed(2),
+          value.moneyLabel(currency),
           style: AppTypography.title.copyWith(color: color),
         ),
       ],

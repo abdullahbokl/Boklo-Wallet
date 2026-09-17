@@ -40,7 +40,6 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
             .createRequest(
               payerId: widget.payerIdController.text,
               amount: double.parse(widget.amountController.text),
-              currency: 'USD',
               note: widget.noteController.text,
             )
             .then((_) {

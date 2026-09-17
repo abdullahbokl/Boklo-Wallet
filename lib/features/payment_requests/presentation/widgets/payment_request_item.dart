@@ -4,6 +4,7 @@ import 'package:boklo/features/payment_requests/domain/entity/payment_request_en
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
 import 'package:boklo/features/payment_requests/presentation/widgets/payment_request_action_button.dart';
 import 'package:boklo/features/payment_requests/presentation/widgets/payment_request_status_chip.dart';
+import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,7 +40,7 @@ class PaymentRequestItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${request.amount} ${request.currency}',
+                        request.amount.moneyLabel(request.currency),
                         style: AppTypography.amountSmall.copyWith(
                           color: scheme.onSurface,
                         ),

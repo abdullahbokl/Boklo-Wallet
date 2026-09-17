@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_decorations.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_shimmer.dart';
 import 'package:boklo/shared/widgets/molecules/balance_card_badge.dart';
 import 'package:flutter/material.dart';
@@ -81,7 +82,7 @@ class BalanceCard extends StatelessWidget {
                   const SizedBox(width: AppDimens.xs),
                   Expanded(
                     child: Text(
-                      balance.toStringAsFixed(2),
+                      balance.moneyLabel(currency),
                       style: AppTypography.amount.copyWith(
                         color: Colors.white,
                       ),
