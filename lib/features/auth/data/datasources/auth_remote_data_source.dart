@@ -4,6 +4,9 @@ import 'package:injectable/injectable.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
+  Future<void> sendPasswordResetEmail(String email);
+  Future<void> sendEmailVerification();
+  Future<bool> reloadEmailVerificationStatus();
   Future<UserModel> register(String email, String password);
   Future<void> logout();
   Future<void> reauthenticate(String password);
@@ -62,6 +65,33 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
 
     await user.reauthenticateWithCredential(credential);
+  }
+
+  @override
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
+
+  @override
+  Future<void> sendEmailVerification() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+    if (!user.emailVerified) {
+      await user.sendEmailVerification();
+    }
+  }
+
+  @override
+  Future<bool> reloadEmailVerificationStatus() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+    await user.reload();
+    return _firebaseAuth.currentUser?.emailVerified ?? false;
   }
 
   @override

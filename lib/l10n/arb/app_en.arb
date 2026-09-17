@@ -120,5 +120,15 @@
   },
   "ledger": "Ledger",
   "noEntriesYet": "No entries yet",
-  "transferAlertsSubtitle": "Decide which money movement events should notify you."
+  "transferAlertsSubtitle": "Decide which money movement events should notify you.",
+  "forgotPassword": "Forgot password?",
+  "forgotPasswordTitle": "Reset your password",
+  "forgotPasswordSend": "Send reset link",
+  "passwordResetSent": "If the account exists, a reset link has been sent.",
+  "verifyEmailTitle": "Verify your email",
+  "verifyEmailBody": "We sent a verification link to your email address. Verify to secure your account.",
+  "verifyEmailResend": "Resend email",
+  "verifyEmailRefresh": "I've verified",
+  "emailVerifiedBannerDismiss": "Dismiss",
+  "signedOutSuccessfully": "Signed out successfully."
 }

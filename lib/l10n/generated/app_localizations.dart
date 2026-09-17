@@ -741,6 +741,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Decide which money movement events should notify you.'**
   String get transferAlertsSubtitle;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get forgotPasswordSend;
+
+  /// No description provided for @passwordResetSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If the account exists, a reset link has been sent.'**
+  String get passwordResetSent;
+
+  /// No description provided for @verifyEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email'**
+  String get verifyEmailTitle;
+
+  /// No description provided for @verifyEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a verification link to your email address. Verify to secure your account.'**
+  String get verifyEmailBody;
+
+  /// No description provided for @verifyEmailResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend email'**
+  String get verifyEmailResend;
+
+  /// No description provided for @verifyEmailRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve verified'**
+  String get verifyEmailRefresh;
+
+  /// No description provided for @emailVerifiedBannerDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get emailVerifiedBannerDismiss;
+
+  /// No description provided for @signedOutSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out successfully.'**
+  String get signedOutSuccessfully;
 }
 
 class _AppLocalizationsDelegate

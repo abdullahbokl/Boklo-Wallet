@@ -10,5 +10,6 @@ abstract class User with _$User {
     required String email,
     String? displayName,
     String? username,
+    @Default(false) bool emailVerified,
   }) = _User;
 }

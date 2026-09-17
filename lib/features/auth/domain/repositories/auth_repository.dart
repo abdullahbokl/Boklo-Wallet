@@ -8,6 +8,9 @@ abstract class AuthRepository {
   Future<Either<Failure, User>> register(String email, String password);
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, void>> deleteAccount(String password);
+  Future<Either<Failure, void>> sendPasswordResetEmail(String email);
+  Future<Either<Failure, void>> sendEmailVerification();
+  Future<Either<Failure, bool>> reloadEmailVerificationStatus();
   Future<Either<Failure, void>> setUserProfile({
     required String username,
     String? name,

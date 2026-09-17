@@ -6,6 +6,7 @@ import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/email_field.dart';
+import 'package:boklo/features/auth/presentation/widgets/forgot_password_dialog.dart';
 import 'package:boklo/features/auth/presentation/widgets/password_field.dart';
 import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
@@ -62,6 +63,13 @@ class _LoginFormState extends State<LoginForm> {
                 enabled: !isLoading,
               ),
               const SizedBox(height: AppDimens.md),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => showForgotPasswordDialog(context),
+                  child: Text(context.l10n.forgotPassword),
+                ),
+              ),
               PasswordField(
                 controller: _passwordController,
                 onSubmitted: isLoading ? null : (_) => _onLogin(),

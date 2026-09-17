@@ -24,7 +24,11 @@ class AuthRepositoryImpl implements AuthRepository {
       // Fetch full profile from Firestore
       final profile = await userRemoteDataSource.getUser(userModel.id);
       if (profile != null) {
-        return Right(profile.toEntity());
+        return Right(
+          profile.toEntity().copyWith(
+            emailVerified: userModel.emailVerified,
+          ),
+        );
       }
       return Right(userModel.toEntity());
     } on Failure catch (e) {
@@ -100,6 +104,43 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> sendPasswordResetEmail(String email) async {
+    try {
+      await remoteDataSource.sendPasswordResetEmail(email);
+      return const Right(null);
+    } on FirebaseAuthException catch (e) {
+      // Respond uniformly to avoid account enumeration.
+      if (e.code == 'invalid-email') {
+        return const Left(ValidationFailure('Enter a valid email address'));
+      }
+      return const Right(null);
+    } on Object catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendEmailVerification() async {
+    try {
+      await remoteDataSource.sendEmailVerification();
+      return const Right(null);
+    } on FirebaseAuthException catch (e) {
+      return Left(_mapFirebaseError(e));
+    } on Object catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> reloadEmailVerificationStatus() async {
+    try {
+      return Right(await remoteDataSource.reloadEmailVerificationStatus());
+    } on Object catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, User?>> getCurrentUser() async {
     try {
       final userModel = await remoteDataSource.getCurrentUser();
@@ -107,7 +148,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final profile = await userRemoteDataSource.getUser(userModel.id);
       if (profile != null) {
-        return Right(profile.toEntity());
+        return Right(
+          profile.toEntity().copyWith(
+            emailVerified: userModel.emailVerified,
+          ),
+        );
       }
       return Right(userModel.toEntity());
     } on Failure catch (e) {

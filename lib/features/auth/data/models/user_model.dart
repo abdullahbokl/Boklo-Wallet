@@ -9,6 +9,7 @@ class UserModel {
     this.username,
     this.createdAt,
     this.isActive = true,
+    this.emailVerified = false,
   });
 
   factory UserModel.fromFirebaseUser(firebase_auth.User firebaseUser) {
@@ -17,6 +18,7 @@ class UserModel {
       email: firebaseUser.email ?? '',
       displayName: firebaseUser.displayName,
       createdAt: firebaseUser.metadata.creationTime,
+      emailVerified: firebaseUser.emailVerified,
     );
   }
 
@@ -42,6 +44,7 @@ class UserModel {
   final String? username;
   final DateTime? createdAt;
   final bool isActive;
+  final bool emailVerified;
 
   Map<String, dynamic> toJson() {
     return {

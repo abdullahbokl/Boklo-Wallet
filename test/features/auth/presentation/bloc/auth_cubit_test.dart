@@ -5,6 +5,7 @@ import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/core/services/notification_service.dart';
 import 'package:boklo/core/usecases/usecase.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
+import 'package:boklo/features/auth/domain/repositories/auth_repository.dart';
 import 'package:boklo/features/auth/domain/usecases/delete_account_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:boklo/features/auth/domain/usecases/login_usecase.dart';
@@ -19,6 +20,8 @@ import 'package:mocktail/mocktail.dart';
 class MockNotificationService extends Mock implements NotificationService {}
 
 class MockAnalyticsService extends Mock implements AnalyticsService {}
+
+class MockAuthRepository extends Mock implements AuthRepository {}
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
@@ -45,6 +48,7 @@ class FakeDeleteAccountParams extends Fake implements DeleteAccountParams {}
 void main() {
   late AuthCubit cubit;
   late MockLoginUseCase mockLoginUseCase;
+  late MockAuthRepository mockAuthRepository;
   late MockLogoutUseCase mockLogoutUseCase;
   late MockDeleteAccountUseCase mockDeleteAccountUseCase;
   late MockGetCurrentUserUseCase mockGetCurrentUserUseCase;
@@ -63,6 +67,7 @@ void main() {
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
+    mockAuthRepository = MockAuthRepository();
     mockLogoutUseCase = MockLogoutUseCase();
     mockDeleteAccountUseCase = MockDeleteAccountUseCase();
     mockGetCurrentUserUseCase = MockGetCurrentUserUseCase();
@@ -78,6 +83,7 @@ void main() {
     when(() => mockNotificationService.deleteToken()).thenAnswer((_) async {});
 
     cubit = AuthCubit(
+      mockAuthRepository,
       mockLoginUseCase,
       mockLogoutUseCase,
       mockDeleteAccountUseCase,

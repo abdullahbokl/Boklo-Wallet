@@ -345,4 +345,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get transferAlertsSubtitle =>
       'Decide which money movement events should notify you.';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get forgotPasswordTitle => 'Reset your password';
+
+  @override
+  String get forgotPasswordSend => 'Send reset link';
+
+  @override
+  String get passwordResetSent =>
+      'If the account exists, a reset link has been sent.';
+
+  @override
+  String get verifyEmailTitle => 'Verify your email';
+
+  @override
+  String get verifyEmailBody =>
+      'We sent a verification link to your email address. Verify to secure your account.';
+
+  @override
+  String get verifyEmailResend => 'Resend email';
+
+  @override
+  String get verifyEmailRefresh => 'I\'ve verified';
+
+  @override
+  String get emailVerifiedBannerDismiss => 'Dismiss';
+
+  @override
+  String get signedOutSuccessfully => 'Signed out successfully.';
 }
