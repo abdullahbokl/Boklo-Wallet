@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:boklo/features/payment_requests/data/model/payment_request_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -15,9 +17,11 @@ abstract class PaymentRequestRemoteDataSource {
 @LazySingleton(as: PaymentRequestRemoteDataSource)
 class PaymentRequestRemoteDataSourceImpl
     implements PaymentRequestRemoteDataSource {
-
   PaymentRequestRemoteDataSourceImpl(
-      this._firestore, this._functions, this._auth,);
+    this._firestore,
+    this._functions,
+    this._auth,
+  );
   final FirebaseFirestore _firestore;
   final FirebaseFunctions _functions;
   final FirebaseAuth _auth;
@@ -40,9 +44,9 @@ class PaymentRequestRemoteDataSourceImpl
   @override
   Stream<List<PaymentRequestModel>> watchIncomingRequests() {
     final uid = _auth.currentUser?.uid;
-    print('[DEBUG] watchIncomingRequests: uid=$uid');
+    log('[DEBUG] watchIncomingRequests: uid=$uid');
     if (uid == null) {
-      print('[DEBUG] watchIncomingRequests: No user, returning empty');
+      log('[DEBUG] watchIncomingRequests: No user, returning empty');
       return Stream.value([]);
     }
 
@@ -53,26 +57,27 @@ class PaymentRequestRemoteDataSourceImpl
         // .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      // Debug log
-      print(
-          '[DEBUG] watchIncomingRequests: ${snapshot.docs.length} docs for payerId=$uid',);
-      for (final doc in snapshot.docs) {
-        print('[DEBUG] Incoming doc: ${doc.id} - ${doc.data()}');
-      }
-      return snapshot.docs
-          .map(PaymentRequestModel.fromSnapshot)
-          .toList();
-    }).handleError((Object error) {
-      print('[ERROR] watchIncomingRequests error: $error');
-    });
+          // Debug log
+          log(
+            '[DEBUG] watchIncomingRequests: ${snapshot.docs.length} docs  '
+            'for payerId=$uid',
+          );
+          for (final doc in snapshot.docs) {
+            log('[DEBUG] Incoming doc: ${doc.id} - ${doc.data()}');
+          }
+          return snapshot.docs.map(PaymentRequestModel.fromSnapshot).toList();
+        })
+        .handleError((Object error) {
+          log('[ERROR] watchIncomingRequests error: $error');
+        });
   }
 
   @override
   Stream<List<PaymentRequestModel>> watchOutgoingRequests() {
     final uid = _auth.currentUser?.uid;
-    print('[DEBUG] watchOutgoingRequests: uid=$uid');
+    log('[DEBUG] watchOutgoingRequests: uid=$uid');
     if (uid == null) {
-      print('[DEBUG] watchOutgoingRequests: No user, returning empty');
+      log('[DEBUG] watchOutgoingRequests: No user, returning empty');
       return Stream.value([]);
     }
 
@@ -83,18 +88,19 @@ class PaymentRequestRemoteDataSourceImpl
         // .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      // Debug log
-      print(
-          '[DEBUG] watchOutgoingRequests: ${snapshot.docs.length} docs for requesterId=$uid',);
-      for (final doc in snapshot.docs) {
-        print('[DEBUG] Outgoing doc: ${doc.id} - ${doc.data()}');
-      }
-      return snapshot.docs
-          .map(PaymentRequestModel.fromSnapshot)
-          .toList();
-    }).handleError((Object error) {
-      print('[ERROR] watchOutgoingRequests error: $error');
-    });
+          // Debug log
+          log(
+            '[DEBUG] watchOutgoingRequests: ${snapshot.docs.length} '
+            'docs for requesterId=$uid',
+          );
+          for (final doc in snapshot.docs) {
+            log('[DEBUG] Outgoing doc: ${doc.id} - ${doc.data()}');
+          }
+          return snapshot.docs.map(PaymentRequestModel.fromSnapshot).toList();
+        })
+        .handleError((Object error) {
+          log('[ERROR] watchOutgoingRequests error: $error');
+        });
   }
 
   @override

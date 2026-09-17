@@ -18,7 +18,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
 
   void observeNotifications() {
     emit(const NotificationsLoading());
-    _subscription?.cancel();
+    unawaited(_subscription?.cancel());
     _subscription = _repository.observeNotifications().listen(
       (result) {
         result.fold(
@@ -41,8 +41,8 @@ class NotificationsCubit extends Cubit<NotificationsState> {
   }
 
   @override
-  Future<void> close() {
-    _subscription?.cancel();
-    return super.close();
+  Future<void> close() async {
+    await _subscription?.cancel();
+    await super.close();
   }
 }

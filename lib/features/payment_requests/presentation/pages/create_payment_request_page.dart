@@ -52,24 +52,25 @@ class _CreatePaymentRequestPageState extends State<CreatePaymentRequestPage> {
         maxWidth: 500,
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(top: 16, bottom: 32),
-          child: BlocConsumer<PaymentRequestCubit, BaseState<PaymentRequestState>>(
-            listener: (context, state) {
-              state.whenOrNull(
-                error: (e) => getIt<SnackbarService>().showError(e.message),
-              );
-            },
-            builder: (context, state) {
-              return AppCard(
-                padding: const EdgeInsets.all(24),
-                child: CreatePaymentRequestForm(
-                  payerIdController: _payerIdController,
-                  amountController: _amountController,
-                  noteController: _noteController,
-                  isCreating: state.data?.isCreating ?? false,
-                ),
-              );
-            },
-          ),
+          child:
+              BlocConsumer<PaymentRequestCubit, BaseState<PaymentRequestState>>(
+                listener: (context, state) {
+                  state.whenOrNull(
+                    error: (e) => getIt<SnackbarService>().showError(e.message),
+                  );
+                },
+                builder: (context, state) {
+                  return AppCard(
+                    padding: const EdgeInsets.all(24),
+                    child: CreatePaymentRequestForm(
+                      payerIdController: _payerIdController,
+                      amountController: _amountController,
+                      noteController: _noteController,
+                      isCreating: state.data?.isCreating ?? false,
+                    ),
+                  );
+                },
+              ),
         ),
       ),
     );

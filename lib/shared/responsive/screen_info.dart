@@ -2,7 +2,6 @@ import 'package:boklo/shared/responsive/device_type.dart';
 import 'package:flutter/material.dart';
 
 class ScreenInfo {
-
   const ScreenInfo({
     required this.width,
     required this.height,
@@ -20,6 +19,7 @@ class ScreenInfo {
 
   @override
   String toString() {
-    return 'ScreenInfo(width: $width, height: $height, orientation: $orientation, deviceType: $deviceType)';
+    return 'ScreenInfo(width: $width, height: $height, '
+        'orientation: $orientation, deviceType: $deviceType)';
   }
 }

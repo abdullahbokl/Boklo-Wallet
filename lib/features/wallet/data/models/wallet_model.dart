@@ -5,7 +5,6 @@ part 'wallet_model.g.dart';
 
 @JsonSerializable()
 class WalletModel {
-
   const WalletModel({
     required this.id,
     required this.balance,

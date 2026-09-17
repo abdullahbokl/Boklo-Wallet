@@ -18,52 +18,61 @@ void main() {
     getCurrentUserUseCase = GetCurrentUserUseCase(mockAuthRepository);
   });
 
-  const tUser =
-      User(id: '1', email: 'test@example.com', displayName: 'Test User');
+  const tUser = User(
+    id: '1',
+    email: 'test@example.com',
+    displayName: 'Test User',
+  );
 
   test(
-      'should return User when check auth status is successful and user exists',
-      () async {
-    // Arrange
-    when(() => mockAuthRepository.getCurrentUser())
-        .thenAnswer((_) async => right(tUser));
+    'should return User when check auth status is successful and user exists',
+    () async {
+      // Arrange
+      when(
+        () => mockAuthRepository.getCurrentUser(),
+      ).thenAnswer((_) async => right(tUser));
 
-    // Act
-    final result = await getCurrentUserUseCase(NoParams());
+      // Act
+      final result = await getCurrentUserUseCase(NoParams());
 
-    // Assert
-    expect(result, isA<Right<Failure, User?>>());
-    result.fold(
-      (error) => fail('Expected Success but got Failure: $error'),
-      (user) => expect(user, tUser),
-    );
-    verify(() => mockAuthRepository.getCurrentUser()).called(1);
-  });
+      // Assert
+      expect(result, isA<Right<Failure, User?>>());
+      result.fold(
+        (error) => fail('Expected Success but got Failure: $error'),
+        (user) => expect(user, tUser),
+      );
+      verify(() => mockAuthRepository.getCurrentUser()).called(1);
+    },
+  );
 
   test(
-      'should return null when check auth status is successful but no user exists',
-      () async {
-    // Arrange
-    when(() => mockAuthRepository.getCurrentUser())
-        .thenAnswer((_) async => right(null));
+    'should return null when check auth status is successful but no user  '
+    'exists',
+    () async {
+      // Arrange
+      when(
+        () => mockAuthRepository.getCurrentUser(),
+      ).thenAnswer((_) async => right(null));
 
-    // Act
-    final result = await getCurrentUserUseCase(NoParams());
+      // Act
+      final result = await getCurrentUserUseCase(NoParams());
 
-    // Assert
-    expect(result, isA<Right<Failure, User?>>());
-    result.fold(
-      (error) => fail('Expected Success but got Failure: $error'),
-      (user) => expect(user, isNull),
-    );
-    verify(() => mockAuthRepository.getCurrentUser()).called(1);
-  });
+      // Assert
+      expect(result, isA<Right<Failure, User?>>());
+      result.fold(
+        (error) => fail('Expected Success but got Failure: $error'),
+        (user) => expect(user, isNull),
+      );
+      verify(() => mockAuthRepository.getCurrentUser()).called(1);
+    },
+  );
 
   test('should return Failure when check auth status fails', () async {
     // Arrange
     const tError = UnknownFailure('Check auth failed');
-    when(() => mockAuthRepository.getCurrentUser())
-        .thenAnswer((_) async => left(tError));
+    when(
+      () => mockAuthRepository.getCurrentUser(),
+    ).thenAnswer((_) async => left(tError));
 
     // Act
     final result = await getCurrentUserUseCase(NoParams());

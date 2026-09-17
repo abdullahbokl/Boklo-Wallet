@@ -26,15 +26,13 @@ class PerfMetrics {
       );
     }
 
-    final buildDurations = timings
-        .map((t) => t.buildDuration.inMicroseconds / 1000.0)
-        .toList()
-      ..sort();
+    final buildDurations =
+        timings.map((t) => t.buildDuration.inMicroseconds / 1000.0).toList()
+          ..sort();
 
-    final rasterDurations = timings
-        .map((t) => t.rasterDuration.inMicroseconds / 1000.0)
-        .toList()
-      ..sort();
+    final rasterDurations =
+        timings.map((t) => t.rasterDuration.inMicroseconds / 1000.0).toList()
+          ..sort();
 
     return PerfMetrics(
       frameBuildP90Ms: _percentile(buildDurations, 0.90),
@@ -53,12 +51,12 @@ class PerfMetrics {
 
   /// Serializes to a JSON-compatible map.
   Map<String, dynamic> toJson() => {
-        'frame_build_time_p90_ms': round2(frameBuildP90Ms),
-        'frame_build_time_p99_ms': round2(frameBuildP99Ms),
-        'frame_raster_time_p90_ms': round2(frameRasterP90Ms),
-        'frame_raster_time_p99_ms': round2(frameRasterP99Ms),
-        'total_frames': totalFrames,
-      };
+    'frame_build_time_p90_ms': round2(frameBuildP90Ms),
+    'frame_build_time_p99_ms': round2(frameBuildP99Ms),
+    'frame_raster_time_p90_ms': round2(frameRasterP90Ms),
+    'frame_raster_time_p99_ms': round2(frameRasterP99Ms),
+    'total_frames': totalFrames,
+  };
 
   @override
   String toString() =>
@@ -76,8 +74,7 @@ class PerfMetrics {
   }
 
   /// Rounds to 2 decimal places for readable JSON output.
-  static double round2(double v) =>
-      (v * 100).roundToDouble() / 100;
+  static double round2(double v) => (v * 100).roundToDouble() / 100;
 }
 
 /// Delta between cold-start and warm-start metrics.
@@ -98,10 +95,22 @@ class PerfDelta {
     required PerfMetrics warm,
   }) {
     return PerfDelta(
-      buildP90ImprovementPct: _pctDiff(cold.frameBuildP90Ms, warm.frameBuildP90Ms),
-      buildP99ImprovementPct: _pctDiff(cold.frameBuildP99Ms, warm.frameBuildP99Ms),
-      rasterP90ImprovementPct: _pctDiff(cold.frameRasterP90Ms, warm.frameRasterP90Ms),
-      rasterP99ImprovementPct: _pctDiff(cold.frameRasterP99Ms, warm.frameRasterP99Ms),
+      buildP90ImprovementPct: _pctDiff(
+        cold.frameBuildP90Ms,
+        warm.frameBuildP90Ms,
+      ),
+      buildP99ImprovementPct: _pctDiff(
+        cold.frameBuildP99Ms,
+        warm.frameBuildP99Ms,
+      ),
+      rasterP90ImprovementPct: _pctDiff(
+        cold.frameRasterP90Ms,
+        warm.frameRasterP90Ms,
+      ),
+      rasterP99ImprovementPct: _pctDiff(
+        cold.frameRasterP99Ms,
+        warm.frameRasterP99Ms,
+      ),
     );
   }
 
@@ -111,11 +120,11 @@ class PerfDelta {
   final double rasterP99ImprovementPct;
 
   Map<String, dynamic> toJson() => {
-        'build_p90_improvement_pct': _roundPct(buildP90ImprovementPct),
-        'build_p99_improvement_pct': _roundPct(buildP99ImprovementPct),
-        'raster_p90_improvement_pct': _roundPct(rasterP90ImprovementPct),
-        'raster_p99_improvement_pct': _roundPct(rasterP99ImprovementPct),
-      };
+    'build_p90_improvement_pct': _roundPct(buildP90ImprovementPct),
+    'build_p99_improvement_pct': _roundPct(buildP99ImprovementPct),
+    'raster_p90_improvement_pct': _roundPct(rasterP90ImprovementPct),
+    'raster_p99_improvement_pct': _roundPct(rasterP99ImprovementPct),
+  };
 
   /// Percentage difference: positive = improvement, negative = regression.
   static double _pctDiff(double cold, double warm) {
@@ -123,6 +132,5 @@ class PerfDelta {
     return ((cold - warm) / cold) * 100;
   }
 
-  static double _roundPct(double v) =>
-      (v * 10).roundToDouble() / 10;
+  static double _roundPct(double v) => (v * 10).roundToDouble() / 10;
 }

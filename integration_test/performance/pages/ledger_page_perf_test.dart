@@ -11,8 +11,6 @@ void main() {
   const config = PageTestConfig(
     pageName: 'LedgerDebugPage',
     routePath: '/ledger',
-    hasScrollableContent: true,
-    scrollIterations: 5,
     settleTimeout: Duration(seconds: 15),
   );
 

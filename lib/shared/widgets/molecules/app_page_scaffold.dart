@@ -48,7 +48,8 @@ class AppPageScaffold extends StatelessWidget {
         child: ResponsiveConstraint(
           maxWidth: maxWidth ?? AppDimens.maxContentWidth,
           child: Padding(
-            padding: padding ??
+            padding:
+                padding ??
                 const EdgeInsets.symmetric(
                   horizontal: AppDimens.pageHorizontalPadding,
                 ),

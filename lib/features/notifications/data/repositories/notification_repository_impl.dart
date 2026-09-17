@@ -24,7 +24,7 @@ class AppNotificationRepositoryImpl implements AppNotificationRepository {
       try {
         final entities = models.map((m) => m.toEntity()).toList();
         return Right(entities);
-      } catch (e) {
+      } on Object catch (e) {
         return Left(ServerFailure('Failed to parse notifications: $e'));
       }
     });
@@ -35,17 +35,19 @@ class AppNotificationRepositoryImpl implements AppNotificationRepository {
     try {
       await _remoteDataSource.updateNotificationStatus(notificationId, 'READ');
       return const Right(null);
-    } catch (e) {
+    } on Object catch (e) {
       return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, void>> deleteNotification(String notificationId) async {
+  Future<Either<Failure, void>> deleteNotification(
+    String notificationId,
+  ) async {
     try {
       await _remoteDataSource.deleteNotification(notificationId);
       return const Right(null);
-    } catch (e) {
+    } on Object catch (e) {
       return Left(ServerFailure(e.toString()));
     }
   }

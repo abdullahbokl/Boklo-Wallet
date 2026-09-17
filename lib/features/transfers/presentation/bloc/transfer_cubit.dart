@@ -66,8 +66,11 @@ class TransferCubit extends BaseCubit<TransferState> {
       );
 
       if (resolutionError != null) {
-        unawaited(_analyticsService.logTransferFailure(
-            reason: resolutionError!.message,),);
+        unawaited(
+          _analyticsService.logTransferFailure(
+            reason: resolutionError!.message,
+          ),
+        );
         emitError(resolutionError!);
         return;
       }
@@ -84,19 +87,24 @@ class TransferCubit extends BaseCubit<TransferState> {
         await requestResult.fold(
           (error) async {
             unawaited(
-                _analyticsService.logTransferFailure(reason: error.message),);
+              _analyticsService.logTransferFailure(reason: error.message),
+            );
             emitError(error);
           },
           (transfer) async {
             // 2. Persist Transfer
-            // Note: createTransferUseCase calls repo.createTransfer which might re-validate.
+            // Note: createTransferUseCase calls repo.createTransfer which
+            // might re-validate.
             // This is acceptable redundancy for safety.
             final persistResult = await _createTransferUseCase(transfer);
 
             await persistResult.fold(
               (error) async {
-                unawaited(_analyticsService.logTransferFailure(
-                    reason: error.message,),);
+                unawaited(
+                  _analyticsService.logTransferFailure(
+                    reason: error.message,
+                  ),
+                );
                 emitError(error);
               },
               (_) async {
@@ -123,7 +131,7 @@ class TransferCubit extends BaseCubit<TransferState> {
         final persistResult = await _createTransferUseCase(transfer);
         _handlePersistenceResult(persistResult, amount, currency);
       }
-    } catch (e) {
+    } on Object catch (e) {
       unawaited(_analyticsService.logTransferFailure(reason: e.toString()));
       emitError(const UnknownFailure('An unexpected error occurred'));
     }
@@ -142,7 +150,8 @@ class TransferCubit extends BaseCubit<TransferState> {
               (t) {
                 if (t == null) return false;
                 // Terminal statuses
-                final isTerminal = t.status == TransferStatus.completed ||
+                final isTerminal =
+                    t.status == TransferStatus.completed ||
                     t.status == TransferStatus.failed;
                 if (isTerminal) return true;
 
@@ -193,7 +202,7 @@ class TransferCubit extends BaseCubit<TransferState> {
         _analyticsService.logTransferFailure(reason: 'Transfer timed out'),
       );
       emitError(const UnknownFailure('Transfer processing timed out'));
-    } catch (e) {
+    } on Object catch (e) {
       unawaited(
         _analyticsService.logTransferFailure(reason: e.toString()),
       );

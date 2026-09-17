@@ -5,5 +5,6 @@ import 'package:fpdart/fpdart.dart';
 abstract class NotificationPreferenceRepository {
   Stream<Either<Failure, NotificationPreferenceEntity>> watchPreferences();
   Future<Either<Failure, void>> updatePreferences(
-      NotificationPreferenceEntity preferences,);
+    NotificationPreferenceEntity preferences,
+  );
 }

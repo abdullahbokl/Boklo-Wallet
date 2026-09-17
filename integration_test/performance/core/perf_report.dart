@@ -3,7 +3,8 @@ import 'perf_metrics.dart';
 /// Aggregated performance report across all tested pages.
 ///
 /// Collects [PagePerfResult] entries and serializes them into a
-/// structured JSON map suitable for `IntegrationTestWidgetsFlutterBinding.reportData()`.
+/// structured JSON map suitable for
+//`IntegrationTestWidgetsFlutterBinding.reportData()`.
 class PerfReport {
   PerfReport();
 
@@ -54,7 +55,10 @@ class PerfReport {
     }
 
     // Sort jankReport by cold_p99_ms descending
-    jankReport.sort((a, b) => (b['cold_p99_ms'] as double).compareTo(a['cold_p99_ms'] as double));
+    jankReport.sort(
+      (a, b) =>
+          (b['cold_p99_ms'] as double).compareTo(a['cold_p99_ms'] as double),
+    );
 
     return {
       'generated_at': (_endTime ?? DateTime.now()).toIso8601String(),
@@ -84,8 +88,8 @@ class PagePerfResult {
   final PerfDelta delta;
 
   Map<String, dynamic> toJson() => {
-        'cold': cold.toJson(),
-        'warm': warm.toJson(),
-        'delta': delta.toJson(),
-      };
+    'cold': cold.toJson(),
+    'warm': warm.toJson(),
+    'delta': delta.toJson(),
+  };
 }

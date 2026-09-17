@@ -11,12 +11,10 @@ void main() {
   const config = PageTestConfig(
     pageName: 'NotificationSettingsPage',
     routePath: '/notification-settings',
-    hasScrollableContent: true,
     scrollIterations: 3,
   );
 
-  testWidgets('NotificationSettingsPage performance benchmark',
-      (tester) async {
+  testWidgets('NotificationSettingsPage performance benchmark', (tester) async {
     final result = await runPagePerfTest(tester, binding, config);
     binding.reportData = <String, dynamic>{
       'pages': {config.pageName: result.toJson()},

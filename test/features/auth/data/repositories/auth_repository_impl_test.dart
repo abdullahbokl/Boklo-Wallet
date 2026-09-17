@@ -13,8 +13,6 @@ class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 
 class MockUserRemoteDataSource extends Mock implements UserRemoteDataSource {}
 
-class MockFirebaseAuthException extends Mock implements FirebaseAuthException {}
-
 class FakeUserModel extends Fake implements UserModel {}
 
 void main() {
@@ -47,8 +45,9 @@ void main() {
   group('register', () {
     test('should return Success<User> when auth is successful', () async {
       // Arrange
-      when(() => mockRemoteDataSource.register(any(), any()))
-          .thenAnswer((_) async => tUserModel);
+      when(
+        () => mockRemoteDataSource.register(any(), any()),
+      ).thenAnswer((_) async => tUserModel);
 
       // Act
       final result = await authRepository.register(tEmail, tPassword);
@@ -63,39 +62,46 @@ void main() {
     });
 
     test(
-        'should return Failure with ServerFailure when auth fails with FirebaseAuthException',
-        () async {
-      // Arrange
-      final tException = FirebaseAuthException(
-        code: 'email-already-in-use',
-        message: 'Email used',
-      );
-      when(() => mockRemoteDataSource.register(any(), any()))
-          .thenThrow(tException);
+      'should return Failure with ServerFailure when auth fails with  '
+      'FirebaseAuthException',
+      () async {
+        // Arrange
+        final tException = FirebaseAuthException(
+          code: 'email-already-in-use',
+          message: 'Email used',
+        );
+        when(
+          () => mockRemoteDataSource.register(any(), any()),
+        ).thenThrow(tException);
 
-      // Act
-      final result = await authRepository.register(tEmail, tPassword);
+        // Act
+        final result = await authRepository.register(tEmail, tPassword);
 
-      // Assert
-      expect(result, isA<Left<Failure, User>>());
-      result.fold(
-        (error) {
-          expect(error, isA<ServerFailure>());
-          expect((error as ServerFailure).message, 'Email used');
-        },
-        (user) => fail('Expected Failure but got Success'),
-      );
-      verify(() => mockRemoteDataSource.register(tEmail, tPassword)).called(1);
-    });
+        // Assert
+        expect(result, isA<Left<Failure, User>>());
+        result.fold(
+          (error) {
+            expect(error, isA<ServerFailure>());
+            expect((error as ServerFailure).message, 'Email used');
+          },
+          (user) => fail('Expected Failure but got Success'),
+        );
+        verify(
+          () => mockRemoteDataSource.register(tEmail, tPassword),
+        ).called(1);
+      },
+    );
   });
 
   group('login', () {
     test('should return Success<User> when login is successful', () async {
       // Arrange
-      when(() => mockRemoteDataSource.login(any(), any()))
-          .thenAnswer((_) async => tUserModel);
-      when(() => mockUserRemoteDataSource.getUser(any()))
-          .thenAnswer((_) async => tUserModel);
+      when(
+        () => mockRemoteDataSource.login(any(), any()),
+      ).thenAnswer((_) async => tUserModel);
+      when(
+        () => mockUserRemoteDataSource.getUser(any()),
+      ).thenAnswer((_) async => tUserModel);
 
       // Act
       final result = await authRepository.login(tEmail, tPassword);
@@ -111,83 +117,92 @@ void main() {
     });
 
     test(
-        'should return Failure with ValidationFailure when login fails with invalid credentials',
-        () async {
-      // Arrange
-      final tException = FirebaseAuthException(
-        code: 'invalid-credential',
-        message: 'Invalid password',
-      );
-      when(() => mockRemoteDataSource.login(any(), any()))
-          .thenThrow(tException);
+      'should return Failure with ValidationFailure when login fails '
+      'with invalid credentials',
+      () async {
+        // Arrange
+        final tException = FirebaseAuthException(
+          code: 'invalid-credential',
+          message: 'Invalid password',
+        );
+        when(
+          () => mockRemoteDataSource.login(any(), any()),
+        ).thenThrow(tException);
 
-      // Act
-      final result = await authRepository.login(tEmail, tPassword);
+        // Act
+        final result = await authRepository.login(tEmail, tPassword);
 
-      // Assert
-      expect(result, isA<Left<Failure, User>>());
-      result.fold(
-        (error) {
-          expect(error, isA<ValidationFailure>());
-          expect(
-            (error as ValidationFailure).message,
-            'Please re-enter your password to confirm account deletion.',
-          );
-        },
-        (user) => fail('Expected Failure but got Success'),
-      );
-      verify(() => mockRemoteDataSource.login(tEmail, tPassword)).called(1);
-    });
-
-    test(
-        'should return Failure with NetworkFailure when login fails with network-request-failed',
-        () async {
-      // Arrange
-      final tException = FirebaseAuthException(
-        code: 'network-request-failed',
-        message: 'Network error',
-      );
-      when(() => mockRemoteDataSource.login(any(), any()))
-          .thenThrow(tException);
-
-      // Act
-      final result = await authRepository.login(tEmail, tPassword);
-
-      // Assert
-      expect(result, isA<Left<Failure, User>>());
-      result.fold(
-        (error) => expect(error, isA<NetworkFailure>()),
-        (user) => fail('Expected Failure but got Success'),
-      );
-      verify(() => mockRemoteDataSource.login(tEmail, tPassword)).called(1);
-    });
+        // Assert
+        expect(result, isA<Left<Failure, User>>());
+        result.fold(
+          (error) {
+            expect(error, isA<ValidationFailure>());
+            expect(
+              (error as ValidationFailure).message,
+              'Please re-enter your password to confirm account deletion.',
+            );
+          },
+          (user) => fail('Expected Failure but got Success'),
+        );
+        verify(() => mockRemoteDataSource.login(tEmail, tPassword)).called(1);
+      },
+    );
 
     test(
-        'should return Failure with UnknownFailure when unknown exception occurs',
-        () async {
-      // Arrange
-      final tException = Exception('Something went wrong');
-      when(() => mockRemoteDataSource.login(any(), any()))
-          .thenThrow(tException);
+      'should return Failure with NetworkFailure when login fails with '
+      'network-request-failed',
+      () async {
+        // Arrange
+        final tException = FirebaseAuthException(
+          code: 'network-request-failed',
+          message: 'Network error',
+        );
+        when(
+          () => mockRemoteDataSource.login(any(), any()),
+        ).thenThrow(tException);
 
-      // Act
-      final result = await authRepository.login(tEmail, tPassword);
+        // Act
+        final result = await authRepository.login(tEmail, tPassword);
 
-      // Assert
-      expect(result, isA<Left<Failure, User>>());
-      result.fold(
-        (error) => expect(error, isA<UnknownFailure>()),
-        (user) => fail('Expected Failure but got Success'),
-      );
-      verify(() => mockRemoteDataSource.login(tEmail, tPassword)).called(1);
-    });
+        // Assert
+        expect(result, isA<Left<Failure, User>>());
+        result.fold(
+          (error) => expect(error, isA<NetworkFailure>()),
+          (user) => fail('Expected Failure but got Success'),
+        );
+        verify(() => mockRemoteDataSource.login(tEmail, tPassword)).called(1);
+      },
+    );
+
+    test(
+      'should return Failure with UnknownFailure when unknown exception occurs',
+      () async {
+        // Arrange
+        final tException = Exception('Something went wrong');
+        when(
+          () => mockRemoteDataSource.login(any(), any()),
+        ).thenThrow(tException);
+
+        // Act
+        final result = await authRepository.login(tEmail, tPassword);
+
+        // Assert
+        expect(result, isA<Left<Failure, User>>());
+        result.fold(
+          (error) => expect(error, isA<UnknownFailure>()),
+          (user) => fail('Expected Failure but got Success'),
+        );
+        verify(() => mockRemoteDataSource.login(tEmail, tPassword)).called(1);
+      },
+    );
   });
 
   group('logout', () {
     test('should return Success<void> when logout is successful', () async {
       // Arrange
-      when(() => mockRemoteDataSource.logout())
-          .thenAnswer((_) => Future.value());
+      when(
+        () => mockRemoteDataSource.logout(),
+      ).thenAnswer((_) => Future.value());
 
       // Act
       final result = await authRepository.logout();
@@ -212,48 +227,57 @@ void main() {
   });
 
   group('deleteAccount', () {
-    test('should reauthenticate then delete account when request succeeds',
-        () async {
-      when(() => mockRemoteDataSource.reauthenticate(any()))
-          .thenAnswer((_) async {});
-      when(() => mockUserRemoteDataSource.deleteAccount())
-          .thenAnswer((_) async {});
+    test(
+      'should reauthenticate then delete account when request succeeds',
+      () async {
+        when(
+          () => mockRemoteDataSource.reauthenticate(any()),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockUserRemoteDataSource.deleteAccount(),
+        ).thenAnswer((_) async {});
 
-      final result = await authRepository.deleteAccount(tPassword);
+        final result = await authRepository.deleteAccount(tPassword);
 
-      expect(result, isA<Right<Failure, void>>());
-      verify(() => mockRemoteDataSource.reauthenticate(tPassword)).called(1);
-      verify(() => mockUserRemoteDataSource.deleteAccount()).called(1);
-    });
+        expect(result, isA<Right<Failure, void>>());
+        verify(() => mockRemoteDataSource.reauthenticate(tPassword)).called(1);
+        verify(() => mockUserRemoteDataSource.deleteAccount()).called(1);
+      },
+    );
 
-    test('should return ValidationFailure when reauthentication fails',
-        () async {
-      final exception = FirebaseAuthException(
-        code: 'wrong-password',
-        message: 'Wrong password',
-      );
-      when(() => mockRemoteDataSource.reauthenticate(any()))
-          .thenThrow(exception);
+    test(
+      'should return ValidationFailure when reauthentication fails',
+      () async {
+        final exception = FirebaseAuthException(
+          code: 'wrong-password',
+          message: 'Wrong password',
+        );
+        when(
+          () => mockRemoteDataSource.reauthenticate(any()),
+        ).thenThrow(exception);
 
-      final result = await authRepository.deleteAccount(tPassword);
+        final result = await authRepository.deleteAccount(tPassword);
 
-      expect(result, isA<Left<Failure, void>>());
-      result.fold(
-        (error) => expect(error, isA<ValidationFailure>()),
-        (_) => fail('Expected failure'),
-      );
-      verify(() => mockRemoteDataSource.reauthenticate(tPassword)).called(1);
-      verifyNever(() => mockUserRemoteDataSource.deleteAccount());
-    });
+        expect(result, isA<Left<Failure, void>>());
+        result.fold(
+          (error) => expect(error, isA<ValidationFailure>()),
+          (_) => fail('Expected failure'),
+        );
+        verify(() => mockRemoteDataSource.reauthenticate(tPassword)).called(1);
+        verifyNever(() => mockUserRemoteDataSource.deleteAccount());
+      },
+    );
   });
 
   group('getCurrentUser', () {
     test('should return Success<User> when user exists', () async {
       // Arrange
-      when(() => mockRemoteDataSource.getCurrentUser())
-          .thenAnswer((_) => Future.value(tUserModel));
-      when(() => mockUserRemoteDataSource.getUser(any()))
-          .thenAnswer((_) async => tUserModel);
+      when(
+        () => mockRemoteDataSource.getCurrentUser(),
+      ).thenAnswer((_) => Future.value(tUserModel));
+      when(
+        () => mockUserRemoteDataSource.getUser(any()),
+      ).thenAnswer((_) async => tUserModel);
 
       // Act
       final result = await authRepository.getCurrentUser();
@@ -270,8 +294,9 @@ void main() {
 
     test('should return Success<null> when no user exists', () async {
       // Arrange
-      when(() => mockRemoteDataSource.getCurrentUser())
-          .thenAnswer((_) => Future<UserModel?>.value());
+      when(
+        () => mockRemoteDataSource.getCurrentUser(),
+      ).thenAnswer((_) => Future<UserModel?>.value());
 
       // Act
       final result = await authRepository.getCurrentUser();

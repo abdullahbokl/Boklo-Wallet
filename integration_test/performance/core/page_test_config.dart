@@ -37,5 +37,6 @@ class PageTestConfig {
   final bool requiresAuth;
 
   @override
-  String toString() => 'PageTestConfig($pageName, route=$routePath, auth=$requiresAuth)';
+  String toString() =>
+      'PageTestConfig($pageName, route=$routePath, auth=$requiresAuth)';
 }

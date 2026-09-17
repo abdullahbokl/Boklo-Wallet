@@ -7,6 +7,8 @@ abstract class ContactEntity with _$ContactEntity {
   const factory ContactEntity({
     required String uid,
     required String displayName,
-    required String email, required DateTime createdAt, String? photoUrl,
+    required String email,
+    required DateTime createdAt,
+    String? photoUrl,
   }) = _ContactEntity;
 }

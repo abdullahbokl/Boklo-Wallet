@@ -28,14 +28,16 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
       final transferRef = _firestore.collection('transfers').doc(transfer.id);
 
       // BACKEND-AUTHORITY:
-      // We strictly use a Firestore transaction here to ensure data consistency of the transfer record.
+      // We strictly use a Firestore transaction here to ensure data
+      // consistency of the transfer record.
       // We DO NOT update wallet balances on the client.
       // The backend (Cloud Functions) is solely responsible for:
       // 1. Validating the transfer (again)
       // 2. Atomically updating balances (Ledger)
       // 3. Updating the transfer status to COMPLETED or FAILED
       await _firestore.runTransaction((transaction) async {
-        // We read the doc first even though it's a new create, to ensure we don't overwrite if ID collides (rare but safe)
+        // Read the doc first even though it's a new create, to ensure we
+        // don't overwrite if the ID collides (rare but safe).
         final docSnapshot = await transaction.get(transferRef);
         if (docSnapshot.exists) {
           throw Exception('Transfer with ID ${transfer.id} already exists');
@@ -71,7 +73,8 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
 
     if (query.docs.length > 1) {
       throw Exception(
-          'Data integrity error: Multiple wallets found with alias $alias',);
+        'Data integrity error: Multiple wallets found with alias $alias',
+      );
     }
 
     if (query.docs.isNotEmpty) {

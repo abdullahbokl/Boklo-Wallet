@@ -7,10 +7,10 @@ import 'package:boklo/features/contacts/presentation/bloc/contact_cubit.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_state.dart';
 import 'package:boklo/features/contacts/presentation/widgets/add_contact_sheet.dart';
 import 'package:boklo/features/contacts/presentation/widgets/contact_item.dart';
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
 import 'package:boklo/shared/widgets/molecules/app_section_header.dart';
-import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -75,7 +75,10 @@ class _ContactListBody extends StatelessWidget {
         }
 
         return ListView(
-          padding: const EdgeInsets.only(top: AppDimens.md, bottom: AppDimens.xxl),
+          padding: const EdgeInsets.only(
+            top: AppDimens.md,
+            bottom: AppDimens.xxl,
+          ),
           children: [
             AppSectionHeader(
               title: 'Your network',
@@ -91,13 +94,17 @@ class _ContactListBody extends StatelessWidget {
                 onTap: isPickMode
                     ? () => getIt<NavigationService>().pop(contact)
                     : null,
-                onSendMoney: () => getIt<NavigationService>()
-                    .push('/transfer', extra: contact),
-                onRequestMoney: () => getIt<NavigationService>()
-                    .push('/payment-requests/create', extra: contact),
+                onSendMoney: () => getIt<NavigationService>().push(
+                  '/transfer',
+                  extra: contact,
+                ),
+                onRequestMoney: () => getIt<NavigationService>().push(
+                  '/payment-requests/create',
+                  extra: contact,
+                ),
                 onRemove: () => context.read<ContactCubit>().removeContact(
-                      contact.uid,
-                    ),
+                  contact.uid,
+                ),
               ),
             ),
           ],

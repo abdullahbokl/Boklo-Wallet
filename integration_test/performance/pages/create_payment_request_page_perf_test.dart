@@ -11,12 +11,10 @@ void main() {
   const config = PageTestConfig(
     pageName: 'CreatePaymentRequestPage',
     routePath: '/payment-requests/create',
-    hasScrollableContent: true,
     scrollIterations: 3,
   );
 
-  testWidgets('CreatePaymentRequestPage performance benchmark',
-      (tester) async {
+  testWidgets('CreatePaymentRequestPage performance benchmark', (tester) async {
     final result = await runPagePerfTest(tester, binding, config);
     binding.reportData = <String, dynamic>{
       'pages': {config.pageName: result.toJson()},

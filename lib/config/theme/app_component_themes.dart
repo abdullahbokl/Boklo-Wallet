@@ -21,13 +21,15 @@ class AppComponentThemes {
     borderRadius: BorderRadius.all(Radius.circular(AppDimens.radiusLg)),
   );
 
-  static const _inputRadius = BorderRadius.all(Radius.circular(AppDimens.radiusMd));
+  static const _inputRadius = BorderRadius.all(
+    Radius.circular(AppDimens.radiusMd),
+  );
 
-  static InputDecorationTheme input(
-      bool isDark,
-      Color hintColor,
-      Color fillColor,
-      ) {
+  static InputDecorationTheme input({
+    required bool isDark,
+    required Color hintColor,
+    required Color fillColor,
+  }) {
     final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
     final primary = isDark ? AppColors.primaryLight : AppColors.primary;
 
@@ -59,12 +61,12 @@ class AppComponentThemes {
     );
   }
 
-  static ChipThemeData chip(
-      bool isDark,
-      Color textColor,
-      Color surface,
-      Color primary,
-      ) {
+  static ChipThemeData chip({
+    required bool isDark,
+    required Color textColor,
+    required Color surface,
+    required Color primary,
+  }) {
     return ChipThemeData(
       backgroundColor: surface,
       selectedColor: primary.withValues(alpha: 0.12),

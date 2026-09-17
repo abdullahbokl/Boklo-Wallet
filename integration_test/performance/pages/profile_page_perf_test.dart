@@ -11,7 +11,6 @@ void main() {
   const config = PageTestConfig(
     pageName: 'ProfilePage',
     routePath: '/profile',
-    hasScrollableContent: true,
     scrollIterations: 3,
   );
 

@@ -17,20 +17,20 @@ class StatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final (color, text, icon) = switch (status) {
       TransactionStatus.pending => (
-          AppColors.warning,
-          'Pending',
-          Icons.schedule_rounded,
-        ),
+        AppColors.warning,
+        'Pending',
+        Icons.schedule_rounded,
+      ),
       TransactionStatus.completed => (
-          AppColors.success,
-          'Completed',
-          Icons.check_circle_rounded,
-        ),
+        AppColors.success,
+        'Completed',
+        Icons.check_circle_rounded,
+      ),
       TransactionStatus.failed => (
-          AppColors.error,
-          'Failed',
-          Icons.error_rounded,
-        ),
+        AppColors.error,
+        'Failed',
+        Icons.error_rounded,
+      ),
     };
 
     return Container(

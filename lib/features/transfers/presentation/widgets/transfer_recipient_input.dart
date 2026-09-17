@@ -22,8 +22,10 @@ class TransferRecipientInput extends StatefulWidget {
 
 class _TransferRecipientInputState extends State<TransferRecipientInput> {
   Future<void> _pickContact() async {
-    final contact = await getIt<NavigationService>()
-        .push<ContactEntity>('/contacts', extra: {'pickMode': true});
+    final contact = await getIt<NavigationService>().push<ContactEntity>(
+      '/contacts',
+      extra: {'pickMode': true},
+    );
 
     if (contact != null && mounted) {
       setState(() {

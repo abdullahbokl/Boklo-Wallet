@@ -11,7 +11,6 @@ void main() {
   const config = PageTestConfig(
     pageName: 'TransferPage',
     routePath: '/transfer',
-    hasScrollableContent: true,
     scrollIterations: 3,
   );
 

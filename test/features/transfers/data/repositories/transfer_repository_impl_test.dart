@@ -35,24 +35,30 @@ void main() {
   group('getWallet (Unified Resolution)', () {
     test('should resolve by Email when input contains @', () async {
       // Arrange
-      when(() => mockDataSource.getWalletByEmail('alice@example.com'))
-          .thenAnswer((_) async => tWalletModel);
+      when(
+        () => mockDataSource.getWalletByEmail('alice@example.com'),
+      ).thenAnswer((_) async => tWalletModel);
 
       // Act
       final result = await repository.getWallet('alice@example.com');
 
       // Assert
-      verify(() => mockDataSource.getWalletByEmail('alice@example.com'))
-          .called(1);
+      verify(
+        () => mockDataSource.getWalletByEmail('alice@example.com'),
+      ).called(1);
       verifyNever(() => mockDataSource.getWallet(any()));
       expect(result, isA<Right<Failure, WalletEntity>>());
-      expect((result as Right<Failure, WalletEntity>).value.id, tWalletModel.id);
+      expect(
+        (result as Right<Failure, WalletEntity>).value.id,
+        tWalletModel.id,
+      );
     });
 
     test('should resolve by Alias when input starts with BOKLO-', () async {
       // Arrange
-      when(() => mockDataSource.getWalletByAlias('BOKLO-123'))
-          .thenAnswer((_) async => tWalletModel);
+      when(
+        () => mockDataSource.getWalletByAlias('BOKLO-123'),
+      ).thenAnswer((_) async => tWalletModel);
 
       // Act
       final result = await repository.getWallet('BOKLO-123');
@@ -65,8 +71,9 @@ void main() {
 
     test('should resolve by ID when input is normal string', () async {
       // Arrange
-      when(() => mockDataSource.getWallet('wallet-123'))
-          .thenAnswer((_) async => tWalletModel);
+      when(
+        () => mockDataSource.getWallet('wallet-123'),
+      ).thenAnswer((_) async => tWalletModel);
 
       // Act
       final result = await repository.getWallet('wallet-123');
@@ -79,15 +86,19 @@ void main() {
 
     test('should return Failure when wallet not found', () async {
       // Arrange
-      when(() => mockDataSource.getWalletByEmail('unknown@example.com'))
-          .thenAnswer((_) async => null);
+      when(
+        () => mockDataSource.getWalletByEmail('unknown@example.com'),
+      ).thenAnswer((_) async => null);
 
       // Act
       final result = await repository.getWallet('unknown@example.com');
 
       // Assert
       expect(result, isA<Left<Failure, WalletEntity>>());
-      expect((result as Left<Failure, WalletEntity>).value, isA<ValidationFailure>());
+      expect(
+        (result as Left<Failure, WalletEntity>).value,
+        isA<ValidationFailure>(),
+      );
     });
   });
 }

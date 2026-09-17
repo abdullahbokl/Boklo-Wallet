@@ -13,7 +13,7 @@ class ProvisionWalletUseCase {
     try {
       await _remoteDataSource.provisionWallet();
       return right(null);
-    } catch (e) {
+    } on Object catch (e) {
       if (e is Failure) {
         return left(e);
       }

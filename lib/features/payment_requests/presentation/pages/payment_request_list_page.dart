@@ -24,8 +24,8 @@ class PaymentRequestListPage extends StatelessWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.add_rounded),
-              onPressed: () => getIt<NavigationService>()
-                  .push('/payment-requests/create'),
+              onPressed: () =>
+                  getIt<NavigationService>().push('/payment-requests/create'),
             ),
           ],
           bottom: const TabBar(
@@ -34,23 +34,24 @@ class PaymentRequestListPage extends StatelessWidget {
               Tab(text: 'Outgoing'),
             ],
           ),
-          child: BlocBuilder<PaymentRequestCubit, BaseState<PaymentRequestState>>(
-            builder: (context, state) {
-              final data = state.data ?? const PaymentRequestState();
-              return TabBarView(
-                children: [
-                  _RequestList(
-                    requests: data.incomingRequests,
-                    actingOnId: data.actingOnRequestId,
-                  ),
-                  _RequestList(
-                    requests: data.outgoingRequests,
-                    isOutgoing: true,
-                  ),
-                ],
-              );
-            },
-          ),
+          child:
+              BlocBuilder<PaymentRequestCubit, BaseState<PaymentRequestState>>(
+                builder: (context, state) {
+                  final data = state.data ?? const PaymentRequestState();
+                  return TabBarView(
+                    children: [
+                      _RequestList(
+                        requests: data.incomingRequests,
+                        actingOnId: data.actingOnRequestId,
+                      ),
+                      _RequestList(
+                        requests: data.outgoingRequests,
+                        isOutgoing: true,
+                      ),
+                    ],
+                  );
+                },
+              ),
         ),
       ),
     );

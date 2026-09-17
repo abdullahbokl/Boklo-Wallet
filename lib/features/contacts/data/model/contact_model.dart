@@ -1,5 +1,3 @@
-// ignore_for_file: invalid_annotation_target
-
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -9,15 +7,17 @@ part 'contact_model.g.dart';
 
 @freezed
 abstract class ContactModel with _$ContactModel {
-
   const factory ContactModel({
     required String uid,
     required String displayName,
-    required String email, @JsonKey(
-        name: 'createdAt',
-        fromJson: _timestampFromJson,
-        toJson: _timestampToJson,)
-    required DateTime createdAt, @JsonKey(name: 'photoUrl') String? photoUrl,
+    required String email,
+    @JsonKey(
+      name: 'createdAt',
+      fromJson: _timestampFromJson,
+      toJson: _timestampToJson,
+    )
+    required DateTime createdAt,
+    @JsonKey(name: 'photoUrl') String? photoUrl,
   }) = _ContactModel;
   const ContactModel._();
 
@@ -26,7 +26,8 @@ abstract class ContactModel with _$ContactModel {
 
   factory ContactModel.fromSnapshot(DocumentSnapshot doc) {
     final data = doc.data()! as Map<String, dynamic>;
-    // uid might be doc id or field? In Cloud Function we set doc(contactUid).set(contactData).
+    // uid might be doc id or field? In Cloud Function we set
+    // doc(contactUid).set(contactData).
     // And contactData contained 'uid'.
     // So both are valid.
     return ContactModel.fromJson(data);

@@ -46,53 +46,62 @@ void main() {
   );
 
   test(
-      'should return TransferEntity with status PENDING when validation succeeds',
-      () async {
-    // Arrange
-    when(() => mockRepository.getWallet('1'))
-        .thenAnswer((_) async => right(tFromWallet));
-    when(() => mockRepository.getWallet('2'))
-        .thenAnswer((_) async => right(tToWallet));
+    'should return TransferEntity with status PENDING when validation succeeds',
+    () async {
+      // Arrange
+      when(
+        () => mockRepository.getWallet('1'),
+      ).thenAnswer((_) async => right(tFromWallet));
+      when(
+        () => mockRepository.getWallet('2'),
+      ).thenAnswer((_) async => right(tToWallet));
 
-    when(() => mockValidator.validate(
+      when(
+        () => mockValidator.validate(
           fromWallet: any(named: 'fromWallet'),
           toWallet: any(named: 'toWallet'),
           amount: any(named: 'amount'),
-        ),).thenReturn(right(null));
+        ),
+      ).thenReturn(right(null));
 
-    // Act
-    final result = await useCase.call(
-      fromWalletId: '1',
-      toWalletId: '2',
-      amount: 10,
-    );
+      // Act
+      final result = await useCase.call(
+        fromWalletId: '1',
+        toWalletId: '2',
+        amount: 10,
+      );
 
-    // Assert
-    expect(result.isRight(), isTrue);
-    result.fold(
-      (l) => fail('Should be right'),
-      (transfer) {
-        expect(transfer.status, TransferStatus.pending);
-        expect(transfer.amount, 10.0);
-        expect(transfer.fromWalletId, tFromWallet.id);
-        expect(transfer.toWalletId, tToWallet.id);
-      },
-    );
-  });
+      // Assert
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (l) => fail('Should be right'),
+        (transfer) {
+          expect(transfer.status, TransferStatus.pending);
+          expect(transfer.amount, 10.0);
+          expect(transfer.fromWalletId, tFromWallet.id);
+          expect(transfer.toWalletId, tToWallet.id);
+        },
+      );
+    },
+  );
 
   test('should return Failure when validation fails', () async {
     // Arrange
-    when(() => mockRepository.getWallet('1'))
-        .thenAnswer((_) async => right(tFromWallet));
-    when(() => mockRepository.getWallet('2'))
-        .thenAnswer((_) async => right(tToWallet));
+    when(
+      () => mockRepository.getWallet('1'),
+    ).thenAnswer((_) async => right(tFromWallet));
+    when(
+      () => mockRepository.getWallet('2'),
+    ).thenAnswer((_) async => right(tToWallet));
 
     const tError = ValidationFailure('Insufficient balance');
-    when(() => mockValidator.validate(
-          fromWallet: any(named: 'fromWallet'),
-          toWallet: any(named: 'toWallet'),
-          amount: any(named: 'amount'),
-        ),).thenReturn(left(tError));
+    when(
+      () => mockValidator.validate(
+        fromWallet: any(named: 'fromWallet'),
+        toWallet: any(named: 'toWallet'),
+        amount: any(named: 'amount'),
+      ),
+    ).thenReturn(left(tError));
 
     // Act
     final result = await useCase.call(

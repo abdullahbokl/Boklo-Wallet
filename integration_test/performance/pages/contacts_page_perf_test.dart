@@ -11,8 +11,6 @@ void main() {
   const config = PageTestConfig(
     pageName: 'ContactListPage',
     routePath: '/contacts',
-    hasScrollableContent: true,
-    scrollIterations: 5,
   );
 
   testWidgets('ContactListPage performance benchmark', (tester) async {

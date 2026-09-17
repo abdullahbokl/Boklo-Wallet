@@ -100,8 +100,10 @@ class _TransactionItemSkeleton extends StatelessWidget {
       child: Row(
         children: [
           DecoratedBox(
-            decoration:
-                BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
             child: SizedBox.square(dimension: 48),
           ),
           SizedBox(width: AppDimens.md),

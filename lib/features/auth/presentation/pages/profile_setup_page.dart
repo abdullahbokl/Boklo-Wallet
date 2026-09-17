@@ -27,7 +27,8 @@ class ProfileSetupPage extends StatelessWidget {
                   getIt<NavigationService>().go('/wallet');
                 }
               },
-              error: (error) => getIt<SnackbarService>().showError(error.message),
+              error: (error) =>
+                  getIt<SnackbarService>().showError(error.message),
             );
           },
           child: Center(
@@ -43,7 +44,8 @@ class ProfileSetupPage extends StatelessWidget {
                     LoginHeader(
                       title: 'Set up your profile',
                       subtitle:
-                          'Choose a username others can use to find and pay you.',
+                          'Choose a username others can use to find and pay  '
+                          'you.',
                     ),
                     SizedBox(height: AppDimens.xl),
                     AppCard(

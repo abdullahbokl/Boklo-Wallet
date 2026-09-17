@@ -46,7 +46,10 @@ class AppIconButton extends StatelessWidget {
     if (badge != null) {
       button = Stack(
         clipBehavior: Clip.none,
-        children: [button, Positioned(right: -2, top: -2, child: badge!)],
+        children: [
+          button,
+          Positioned(right: -2, top: -2, child: badge!),
+        ],
       );
     }
 

@@ -24,8 +24,9 @@ void main() {
 
   test('should return User when login is successful', () async {
     // Arrange
-    when(() => mockAuthRepository.login(tEmail, tPassword))
-        .thenAnswer((_) async => right(tUser));
+    when(
+      () => mockAuthRepository.login(tEmail, tPassword),
+    ).thenAnswer((_) async => right(tUser));
 
     // Act
     final result = await loginUseCase(tLoginParams);
@@ -42,8 +43,9 @@ void main() {
   test('should return Failure when login fails', () async {
     // Arrange
     const tError = UnknownFailure('Login failed');
-    when(() => mockAuthRepository.login(tEmail, tPassword))
-        .thenAnswer((_) async => left(tError));
+    when(
+      () => mockAuthRepository.login(tEmail, tPassword),
+    ).thenAnswer((_) async => left(tError));
 
     // Act
     final result = await loginUseCase(tLoginParams);

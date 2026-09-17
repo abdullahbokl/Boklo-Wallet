@@ -42,14 +42,23 @@ class NotificationModel {
 
   NotificationEntity toEntity() {
     // Helper to resolve title/body from keys in model
-    // In a real app, we'd use localizations, but for now we follow the backend logic
+    // In a real app, we'd use localizations, but for now we follow the backend
+    // logic
     var resolvedTitle = payload.titleKey;
     var resolvedBody = payload.bodyKey;
 
-    if (payload.titleKey == 'transfer_sent_success_title') resolvedTitle = 'Transfer Sent';
-    if (payload.titleKey == 'transfer_received_title') resolvedTitle = 'Money Received';
-    if (payload.titleKey == 'transfer_failed_title') resolvedTitle = 'Transfer Failed';
-    if (payload.titleKey == 'payment_request_title') resolvedTitle = 'Payment Requested';
+    if (payload.titleKey == 'transfer_sent_success_title') {
+      resolvedTitle = 'Transfer Sent';
+    }
+    if (payload.titleKey == 'transfer_received_title') {
+      resolvedTitle = 'Money Received';
+    }
+    if (payload.titleKey == 'transfer_failed_title') {
+      resolvedTitle = 'Transfer Failed';
+    }
+    if (payload.titleKey == 'payment_request_title') {
+      resolvedTitle = 'Payment Requested';
+    }
 
     resolvedBody = _resolveBody(payload.bodyKey, payload.data);
 
@@ -80,10 +89,16 @@ class NotificationModel {
 
   String _resolveBody(String key, Map<String, dynamic>? data) {
     var text = key;
-    if (key == 'transfer_sent_success_body') text = 'You sent {amount} {currency}.';
-    if (key == 'transfer_received_body') text = 'You received {amount} {currency}.';
+    if (key == 'transfer_sent_success_body') {
+      text = 'You sent {amount} {currency}.';
+    }
+    if (key == 'transfer_received_body') {
+      text = 'You received {amount} {currency}.';
+    }
     if (key == 'transfer_failed_body') text = 'Your transfer failed. {reason}';
-    if (key == 'payment_request_body') text = '{requesterId} requested {amount} {currency}.';
+    if (key == 'payment_request_body') {
+      text = '{requesterId} requested {amount} {currency}.';
+    }
 
     if (data != null) {
       data.forEach((k, v) {

@@ -11,8 +11,6 @@ void main() {
   const config = PageTestConfig(
     pageName: 'PaymentRequestListPage',
     routePath: '/payment-requests',
-    hasScrollableContent: true,
-    scrollIterations: 5,
   );
 
   testWidgets('PaymentRequestListPage performance benchmark', (tester) async {

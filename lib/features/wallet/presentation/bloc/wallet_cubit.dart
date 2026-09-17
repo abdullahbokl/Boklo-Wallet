@@ -48,7 +48,7 @@ class WalletCubit extends BaseCubit<WalletState> {
     log('🔄 WalletCubit: Starting wallet load...');
 
     // 1. Start watching wallet stream
-    _walletSubscription?.cancel();
+    unawaited(_walletSubscription?.cancel());
     _walletSubscription = _watchWalletUseCase().listen((result) {
       result.fold(
         emitError,
@@ -65,8 +65,10 @@ class WalletCubit extends BaseCubit<WalletState> {
     // 2. If wallet not received after 3 seconds, call provisionWallet (once)
     _provisionTimer = Timer(const Duration(seconds: 3), () {
       if (!_walletReceived && !_hasCalledProvision) {
-        log('⏱️ WalletCubit: Wallet not received after 3s, calling provision...');
-        _callProvisionWallet();
+        log(
+          '⏱️ WalletCubit: Wallet not received after 3s, calling provision...',
+        );
+        unawaited(_callProvisionWallet());
       }
     });
 
@@ -74,10 +76,12 @@ class WalletCubit extends BaseCubit<WalletState> {
     _timeoutTimer = Timer(const Duration(seconds: 15), () {
       if (!_walletReceived) {
         log('❌ WalletCubit: Wallet not received after 15s timeout');
-        emitError(const UnknownFailure(
-          'Wallet setup is taking longer than expected. '
-          'Please try logging out and back in.',
-        ),);
+        emitError(
+          const UnknownFailure(
+            'Wallet setup is taking longer than expected. '
+            'Please try logging out and back in.',
+          ),
+        );
       }
     });
 
@@ -98,13 +102,13 @@ class WalletCubit extends BaseCubit<WalletState> {
 
     // 4. Watch Transactions in parallel
     _txSubscription ??= _getTransactionsUseCase.watch().listen((result) {
-        result.fold(
-          (error) {
-            // Silently log or handle stream errors
-          },
-          _updateTransactions,
-        );
-      });
+      result.fold(
+        (error) {
+          // Silently log or handle stream errors
+        },
+        _updateTransactions,
+      );
+    });
   }
 
   Future<void> loadMoreTransactions() async {
@@ -172,8 +176,11 @@ class WalletCubit extends BaseCubit<WalletState> {
     final currentType = state.data?.filterType;
     final currentStatus = state.data?.filterStatus;
 
-    final filtered =
-        _applyFilters(_lastTransactions, currentType, currentStatus);
+    final filtered = _applyFilters(
+      _lastTransactions,
+      currentType,
+      currentStatus,
+    );
 
     emitSuccess(
       WalletState(
@@ -236,8 +243,11 @@ class WalletCubit extends BaseCubit<WalletState> {
     );
   }
 
-  List<TransactionEntity> _applyFilters(List<TransactionEntity> transactions,
-      TransactionType? type, TransactionStatus? status,) {
+  List<TransactionEntity> _applyFilters(
+    List<TransactionEntity> transactions,
+    TransactionType? type,
+    TransactionStatus? status,
+  ) {
     return transactions.where((tx) {
       if (type != null && tx.type != type) return false;
       if (status != null && tx.status != status) return false;
@@ -246,10 +256,10 @@ class WalletCubit extends BaseCubit<WalletState> {
   }
 
   @override
-  Future<void> close() {
-    _walletSubscription?.cancel();
-    _txSubscription?.cancel();
+  Future<void> close() async {
+    await _walletSubscription?.cancel();
+    await _txSubscription?.cancel();
     _cancelTimers();
-    return super.close();
+    await super.close();
   }
 }

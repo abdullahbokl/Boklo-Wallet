@@ -6,5 +6,7 @@ import 'package:fpdart/fpdart.dart';
 abstract class DiscoveryRepository {
   Future<Either<Failure, UserPublicProfile>> resolveWalletByEmail(String email);
   Future<Either<Failure, String>> resolveWalletIdByAlias(String alias);
-  Future<Either<Failure, UserPublicProfile>> resolveWalletByUsername(String username);
+  Future<Either<Failure, UserPublicProfile>> resolveWalletByUsername(
+    String username,
+  );
 }

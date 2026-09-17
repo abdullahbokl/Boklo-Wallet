@@ -16,11 +16,15 @@ void main() {
     await tester.pumpWidget(buildSubject());
 
     expect(find.text('Delete account'), findsNWidgets(2));
-    expect(find.textContaining('permanently removes your profile data'), findsOneWidget);
+    expect(
+      find.textContaining('permanently removes your profile data'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('confirm stays disabled until password is entered',
-      (tester) async {
+  testWidgets('confirm stays disabled until password is entered', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildSubject());
 
     var deleteButton = tester.widget<AppButton>(find.byType(AppButton));

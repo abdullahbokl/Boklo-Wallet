@@ -2,7 +2,6 @@ import 'package:boklo/features/ledger_debug/domain/entities/ledger_entry_entity.
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LedgerEntryModel {
-
   const LedgerEntryModel({
     required this.id,
     required this.transactionId,

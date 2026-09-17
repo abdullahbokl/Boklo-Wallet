@@ -29,20 +29,20 @@ class TransactionFilters extends StatelessWidget {
             label: 'Income',
             selected: data.filterType == TransactionType.credit,
             onTap: () => context.read<WalletCubit>().setFilterType(
-                  data.filterType == TransactionType.credit
-                      ? null
-                      : TransactionType.credit,
-                ),
+              data.filterType == TransactionType.credit
+                  ? null
+                  : TransactionType.credit,
+            ),
           ),
           const SizedBox(width: AppDimens.sm),
           _FilterPill(
             label: 'Expense',
             selected: data.filterType == TransactionType.debit,
             onTap: () => context.read<WalletCubit>().setFilterType(
-                  data.filterType == TransactionType.debit
-                      ? null
-                      : TransactionType.debit,
-                ),
+              data.filterType == TransactionType.debit
+                  ? null
+                  : TransactionType.debit,
+            ),
           ),
         ],
       ),
@@ -82,9 +82,9 @@ class _FilterPill extends StatelessWidget {
         child: Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: selected ? scheme.onPrimary : scheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
+            color: selected ? scheme.onPrimary : scheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

@@ -1,11 +1,12 @@
 // Print statements are used for logging performance results to stdout.
 // ignore_for_file: avoid_print
 
-import 'dart:ui';
-
 import 'package:boklo/app.dart';
+import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
+import 'package:boklo/features/auth/domain/entities/user.dart';
+import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -16,9 +17,6 @@ import 'core/page_test_config.dart';
 import 'core/perf_metrics.dart';
 import 'core/perf_report.dart';
 import 'core/stress_scroll.dart';
-import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
-import 'package:boklo/features/auth/domain/entities/user.dart';
-import 'package:boklo/core/base/base_state.dart';
 
 /// Runs a full cold-start + warm-start performance benchmark for a single page.
 ///
@@ -45,7 +43,7 @@ Future<PagePerfResult> runPagePerfTest(
   try {
     // Only wait 2 seconds for initial bootstrap, don't hang on spinners.
     await tester.pumpAndSettle(const Duration(seconds: 2));
-  } catch (_) {}
+  } on Object catch (_) {}
 
   // Capture frame timings during navigation + interaction.
   final coldTimings = await _captureFrameTimings(
@@ -61,9 +59,9 @@ Future<PagePerfResult> runPagePerfTest(
   print('🔥 [${config.pageName}] Starting WARM run...');
 
   // Navigate away first (to /login as a neutral page), then back.
-  final navigationService = getIt<NavigationService>();
-  final context = navigationService.navigatorKey.currentContext!;
-  GoRouter.of(context).go('/login');
+  GoRouter.of(
+    getIt<NavigationService>().navigatorKey.currentContext!,
+  ).go('/login');
   await tester.pumpAndSettle();
 
   // Clear image cache but do NOT reset DI — simulates a "back navigation"
@@ -121,20 +119,18 @@ Future<List<FrameTiming>> _captureFrameTimings(
     }
 
     // Navigate to the target page.
-    final context = getIt<NavigationService>().navigatorKey.currentContext!;
-    GoRouter.of(context).go(
-      config.routePath,
-      extra: config.routeExtra,
-    );
+    GoRouter.of(
+      getIt<NavigationService>().navigatorKey.currentContext!,
+    ).go(config.routePath, extra: config.routeExtra);
 
     // Initial transition wait.
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500)); 
+    await tester.pump(const Duration(milliseconds: 500));
 
     // Settle as much as possible.
     try {
-      await tester.pumpAndSettle(const Duration(seconds: 2)); 
-    } catch (_) {}
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+    } on Object catch (_) {}
 
     // Stress scroll if the page has scrollable content.
     if (config.hasScrollableContent) {
@@ -149,7 +145,7 @@ Future<List<FrameTiming>> _captureFrameTimings(
     await tester.pump(const Duration(milliseconds: 200));
     try {
       await tester.pumpAndSettle(const Duration(seconds: 1));
-    } catch (_) {}
+    } on Object catch (_) {}
 
     // Brief wait for engine to report last frames.
     await tester.pump(const Duration(milliseconds: 500));

@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: AppNotificationRemoteDataSource)
-class AppNotificationRemoteDataSourceImpl implements AppNotificationRemoteDataSource {
+class AppNotificationRemoteDataSourceImpl
+    implements AppNotificationRemoteDataSource {
   AppNotificationRemoteDataSourceImpl(this._firestore);
 
   final FirebaseFirestore _firestore;
@@ -18,20 +19,22 @@ class AppNotificationRemoteDataSourceImpl implements AppNotificationRemoteDataSo
         .limit(50)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return NotificationModel.fromJson(data);
-      }).toList();
-    });
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return NotificationModel.fromJson(data);
+          }).toList();
+        });
   }
 
   @override
-  Future<void> updateNotificationStatus(String notificationId, String status) async {
-    await _firestore
-        .collection('notifications')
-        .doc(notificationId)
-        .update({'status': status});
+  Future<void> updateNotificationStatus(
+    String notificationId,
+    String status,
+  ) async {
+    await _firestore.collection('notifications').doc(notificationId).update({
+      'status': status,
+    });
   }
 
   @override

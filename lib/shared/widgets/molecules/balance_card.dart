@@ -39,7 +39,8 @@ class BalanceCard extends StatelessWidget {
         decoration: AppDecorations.gradientCard(),
         child: Padding(
           padding: const EdgeInsets.all(AppDimens.xl),
-          // We use a SizedBox(width: double.infinity) to replace Container's width
+          // We use a SizedBox(width: double.infinity) to replace Container's
+          // width
           child: SizedBox(
             width: double.infinity,
             child: Column(
@@ -87,8 +88,9 @@ class BalanceCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         balance.toStringAsFixed(2),
-                        style:
-                            AppTypography.amount.copyWith(color: Colors.white),
+                        style: AppTypography.amount.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],

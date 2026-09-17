@@ -38,7 +38,9 @@ class AuthCubit extends BaseCubit<User?> {
 
   Future<void> login(String email, String password) async {
     emitLoading();
-    final result = await _loginUseCase(LoginParams(email: email, password: password));
+    final result = await _loginUseCase(
+      LoginParams(email: email, password: password),
+    );
     result.fold(
       emitError,
       (user) {
@@ -50,7 +52,9 @@ class AuthCubit extends BaseCubit<User?> {
 
   Future<void> register(String email, String password) async {
     emitLoading();
-    final result = await _registerUseCase(RegisterParams(email: email, password: password));
+    final result = await _registerUseCase(
+      RegisterParams(email: email, password: password),
+    );
     result.fold(
       emitError,
       emitSuccess,
@@ -97,10 +101,12 @@ class AuthCubit extends BaseCubit<User?> {
     String? name,
   }) async {
     emitLoading();
-    final result = await _setUserProfileUseCase(SetUserProfileParams(
-      username: username,
-      name: name,
-    ),);
+    final result = await _setUserProfileUseCase(
+      SetUserProfileParams(
+        username: username,
+        name: name,
+      ),
+    );
     result.fold(
       emitError,
       (_) async {

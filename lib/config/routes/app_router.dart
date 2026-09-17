@@ -90,7 +90,8 @@ class AppRouter {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           return ContactListPage(
-              isPickMode: (extra?['pickMode'] as bool?) ?? false,);
+            isPickMode: (extra?['pickMode'] as bool?) ?? false,
+          );
         },
       ),
       GoRoute(

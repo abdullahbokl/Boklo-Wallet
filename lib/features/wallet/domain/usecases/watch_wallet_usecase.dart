@@ -6,7 +6,6 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class WatchWalletUseCase {
-
   WatchWalletUseCase(this._repository);
   final WalletRepository _repository;
 

@@ -65,7 +65,9 @@ class WalletContent extends StatelessWidget {
                     },
                     onNotificationsTap: () {
                       unawaited(
-                        getIt<NavigationService>().push('/notification-settings'),
+                        getIt<NavigationService>().push(
+                          '/notification-settings',
+                        ),
                       );
                     },
                   ),
@@ -76,8 +78,8 @@ class WalletContent extends StatelessWidget {
                     trailing: TextButton(
                       onPressed:
                           data.filterType != null || data.filterStatus != null
-                              ? () => context.read<WalletCubit>().clearFilters()
-                              : null,
+                          ? () => context.read<WalletCubit>().clearFilters()
+                          : null,
                       child: const Text('Clear filters'),
                     ),
                   ),

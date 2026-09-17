@@ -12,7 +12,6 @@ import 'package:injectable/injectable.dart';
 @LazySingleton(as: NotificationPreferenceRepository)
 class NotificationPreferenceRepositoryImpl
     implements NotificationPreferenceRepository {
-
   NotificationPreferenceRepositoryImpl(this._firestore, this._auth);
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
@@ -30,31 +29,37 @@ class NotificationPreferenceRepositoryImpl
         .collection('preferences')
         .doc('notifications')
         .snapshots()
-        .transform(StreamTransformer<DocumentSnapshot<Map<String, dynamic>>,
-            Either<Failure, NotificationPreferenceEntity>>.fromHandlers(
-          handleData: (snapshot, sink) {
-            try {
-              if (!snapshot.exists || snapshot.data() == null) {
-                // Default preferences if doc doesn't exist
-                sink.add(const Right(NotificationPreferenceEntity()));
-              } else {
-                final model =
-                    NotificationPreferenceModel.fromJson(snapshot.data()!);
-                sink.add(Right(model.toEntity()));
+        .transform(
+          StreamTransformer<
+            DocumentSnapshot<Map<String, dynamic>>,
+            Either<Failure, NotificationPreferenceEntity>
+          >.fromHandlers(
+            handleData: (snapshot, sink) {
+              try {
+                if (!snapshot.exists || snapshot.data() == null) {
+                  // Default preferences if doc doesn't exist
+                  sink.add(const Right(NotificationPreferenceEntity()));
+                } else {
+                  final model = NotificationPreferenceModel.fromJson(
+                    snapshot.data()!,
+                  );
+                  sink.add(Right(model.toEntity()));
+                }
+              } on Object catch (e) {
+                sink.add(Left(UnknownFailure(e.toString())));
               }
-            } catch (e) {
-              sink.add(Left(UnknownFailure(e.toString())));
-            }
-          },
-          handleError: (error, stack, sink) {
-            sink.add(Left(UnknownFailure(error.toString())));
-          },
-        ),);
+            },
+            handleError: (error, stack, sink) {
+              sink.add(Left(UnknownFailure(error.toString())));
+            },
+          ),
+        );
   }
 
   @override
   Future<Either<Failure, void>> updatePreferences(
-      NotificationPreferenceEntity preferences,) async {
+    NotificationPreferenceEntity preferences,
+  ) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) {
       return const Left(ServerFailure('User not logged in'));
@@ -69,7 +74,7 @@ class NotificationPreferenceRepositoryImpl
           .doc('notifications')
           .set(model.toJson(), SetOptions(merge: true));
       return const Right(null);
-    } catch (e) {
+    } on Object catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
   }

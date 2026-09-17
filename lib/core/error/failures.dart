@@ -1,7 +1,10 @@
 import 'package:equatable/equatable.dart';
 
-sealed class Failure extends Equatable {
-  
+/// Base type for all domain-level errors.
+///
+/// Implements [Exception] so Failures can be thrown across data-layer
+/// boundaries and still satisfy `only_throw_errors`.
+sealed class Failure extends Equatable implements Exception {
   const Failure(this.message);
   final String message;
 

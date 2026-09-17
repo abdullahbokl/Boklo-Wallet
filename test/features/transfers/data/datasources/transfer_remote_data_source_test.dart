@@ -1,6 +1,6 @@
+// Tests create mock classes that extend Firebase sealed classes for
+// unit-testing purposes only; acceptable to ignore in test code.
 // ignore_for_file: subtype_of_sealed_class
-// Reason: Tests create mock classes that extend Firebase sealed classes
-// for unit-testing purposes only; acceptable to ignore in test code.
 
 import 'package:boklo/features/transfers/data/datasources/transfer_remote_data_source.dart';
 import 'package:boklo/features/transfers/data/models/transfer_model.dart';
@@ -14,15 +14,16 @@ class MockCollectionReference<T> extends Mock
 
 class MockDocumentReference<T> extends Mock implements DocumentReference<T> {}
 
-class MockDocumentSnapshot<T> extends Mock implements DocumentSnapshot<T> {}
-
 class MockTransaction extends Mock implements Transaction {
   DocumentReference? lastSetRef;
   Map<String, dynamic>? lastSetData;
 
   @override
-  Transaction set<T>(DocumentReference<T> documentReference, T data,
-      [SetOptions? options,]) {
+  Transaction set<T>(
+    DocumentReference<T> documentReference,
+    T data, [
+    SetOptions? options,
+  ]) {
     lastSetRef = documentReference;
     lastSetData = data as Map<String, dynamic>;
     return this;
@@ -30,8 +31,9 @@ class MockTransaction extends Mock implements Transaction {
 }
 
 class FakeDocumentSnapshot<T> extends Fake implements DocumentSnapshot<T> {
-
-  FakeDocumentSnapshot(this._exists, [this._data]);
+  FakeDocumentSnapshot({required bool exists, T? data})
+    : _exists = exists,
+      _data = data;
   final bool _exists;
   final T? _data;
 
@@ -46,9 +48,11 @@ class MockFirebaseFirestore extends Mock implements FirebaseFirestore {
   Transaction? transactionToUse;
 
   @override
-  Future<T> runTransaction<T>(TransactionHandler<T> updateFunction,
-      {Duration timeout = const Duration(seconds: 30),
-      int maxAttempts = 5,}) async {
+  Future<T> runTransaction<T>(
+    TransactionHandler<T> updateFunction, {
+    Duration timeout = const Duration(seconds: 30),
+    int maxAttempts = 5,
+  }) async {
     return updateFunction(transactionToUse ?? MockTransaction());
   }
 
@@ -81,8 +85,9 @@ void main() {
 
     dataSource = TransferRemoteDataSourceImpl(mockFirestore);
 
-    when(() => mockFirestore.collection('transfers'))
-        .thenReturn(mockTransfersCollection);
+    when(
+      () => mockFirestore.collection('transfers'),
+    ).thenReturn(mockTransfersCollection);
     when(() => mockTransfersCollection.doc(any())).thenReturn(mockTransferDoc);
 
     // Stub set to return the transaction itself (fluent API)
@@ -106,51 +111,63 @@ void main() {
     );
 
     test(
-        'should create transfer document in transaction when it does not exist',
-        () async {
-      // Arrange
-      // createTransfer checks if doc exists. We return a fake snapshot that says usage exists=false
-      final fakeSnapshot = FakeDocumentSnapshot<Map<String, dynamic>>(false);
+      'should create transfer document in transaction when it does not exist',
+      () async {
+        // Arrange
+        // createTransfer checks if doc exists. We return a fake snapshot that
+        // says usage exists=false
+        final fakeSnapshot = FakeDocumentSnapshot<Map<String, dynamic>>(
+          exists: false,
+        );
 
-      when(() => mockTransaction.get(mockTransferDoc))
-          .thenAnswer((_) async => fakeSnapshot);
+        when(
+          () => mockTransaction.get(mockTransferDoc),
+        ).thenAnswer((_) async => fakeSnapshot);
 
-      // Act
-      await dataSource.createTransfer(transferModel);
+        // Act
+        await dataSource.createTransfer(transferModel);
 
-      // Assert
-      verify(() => mockFirestore.collection('transfers')).called(1);
-      verify(() => mockTransfersCollection.doc(transferModel.id)).called(1);
-      // verify(() => mockFirestore.runTransaction(any())).called(1); // Manual fake executes it, cannot verify with any()
-      verify(() => mockTransaction.get(mockTransferDoc)).called(1);
+        // Assert
+        verify(() => mockFirestore.collection('transfers')).called(1);
+        verify(() => mockTransfersCollection.doc(transferModel.id)).called(1);
+        // verify(() => mockFirestore.runTransaction(any())).called(1); // Manual fake executes it, cannot verify with any()
+        verify(() => mockTransaction.get(mockTransferDoc)).called(1);
 
-      // Manual verification of set
-      expect(mockTransaction.lastSetData, equals(transferModel.toJson()));
-    });
+        // Manual verification of set
+        expect(mockTransaction.lastSetData, equals(transferModel.toJson()));
+      },
+    );
 
-    test('should throw Exception when transfer document already exists',
-        () async {
-      // Arrange
-      final fakeSnapshot = FakeDocumentSnapshot<Map<String, dynamic>>(true);
+    test(
+      'should throw Exception when transfer document already exists',
+      () async {
+        // Arrange
+        final fakeSnapshot = FakeDocumentSnapshot<Map<String, dynamic>>(
+          exists: true,
+        );
 
-      when(() => mockTransaction.get(mockTransferDoc))
-          .thenAnswer((_) async => fakeSnapshot);
+        when(
+          () => mockTransaction.get(mockTransferDoc),
+        ).thenAnswer((_) async => fakeSnapshot);
 
-      // Act
-      final call = dataSource.createTransfer;
+        // Act
+        final call = dataSource.createTransfer;
 
-      // Assert
-      expect(
-        () => call(transferModel),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'message',
-          contains('already exists'),
-        ),),
-      );
+        // Assert
+        expect(
+          () => call(transferModel),
+          throwsA(
+            isA<Exception>().having(
+              (e) => e.toString(),
+              'message',
+              contains('already exists'),
+            ),
+          ),
+        );
 
-      verify(() => mockTransaction.get(mockTransferDoc)).called(1);
-      expect(mockTransaction.lastSetData, isNull);
-    });
+        verify(() => mockTransaction.get(mockTransferDoc)).called(1);
+        expect(mockTransaction.lastSetData, isNull);
+      },
+    );
   });
 }

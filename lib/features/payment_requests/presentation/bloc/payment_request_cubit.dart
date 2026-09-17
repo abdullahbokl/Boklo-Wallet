@@ -29,7 +29,7 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
   }
 
   void _watchIncoming() {
-    _incomingSub?.cancel();
+    unawaited(_incomingSub?.cancel());
     _incomingSub = _repository.watchIncomingRequests().listen(
       (result) {
         result.fold(
@@ -48,7 +48,7 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
   }
 
   void _watchOutgoing() {
-    _outgoingSub?.cancel();
+    unawaited(_outgoingSub?.cancel());
     _outgoingSub = _repository.watchOutgoingRequests().listen(
       (result) {
         result.fold(

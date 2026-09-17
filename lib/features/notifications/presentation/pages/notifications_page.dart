@@ -37,7 +37,8 @@ class NotificationsView extends StatelessWidget {
           if (state is NotificationsError) {
             return WalletErrorView(
               title: state.message,
-              onRetry: () => context.read<NotificationsCubit>().observeNotifications(),
+              onRetry: () =>
+                  context.read<NotificationsCubit>().observeNotifications(),
             );
           }
 
@@ -45,15 +46,21 @@ class NotificationsView extends StatelessWidget {
             if (state.notifications.isEmpty) {
               return const AppEmptyState(
                 title: 'No notifications yet',
-                subtitle: 'Important account activity and transfer updates appear here.',
+                subtitle:
+                    'Important account activity and transfer updates appear  '
+                    'here.',
                 icon: Icons.notifications_none_rounded,
               );
             }
 
             return ListView.separated(
-              padding: const EdgeInsets.only(top: AppDimens.md, bottom: AppDimens.xxl),
+              padding: const EdgeInsets.only(
+                top: AppDimens.md,
+                bottom: AppDimens.xxl,
+              ),
               itemCount: state.notifications.length,
-              separatorBuilder: (context, index) => const SizedBox(height: AppDimens.sm),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: AppDimens.sm),
               itemBuilder: (context, index) {
                 final notification = state.notifications[index];
                 return NotificationTile(

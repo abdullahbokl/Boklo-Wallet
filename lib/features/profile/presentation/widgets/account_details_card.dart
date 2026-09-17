@@ -10,22 +10,22 @@ import 'package:go_router/go_router.dart';
 // --- DART 3 EXTENSION: Cleaner abstraction than loose helper functions ---
 extension on ThemeMode {
   IconData get icon => switch (this) {
-        ThemeMode.system => Icons.brightness_auto_rounded,
-        ThemeMode.light => Icons.light_mode_rounded,
-        ThemeMode.dark => Icons.dark_mode_rounded,
-      };
+    ThemeMode.system => Icons.brightness_auto_rounded,
+    ThemeMode.light => Icons.light_mode_rounded,
+    ThemeMode.dark => Icons.dark_mode_rounded,
+  };
 
   String get label => switch (this) {
-        ThemeMode.system => 'System',
-        ThemeMode.light => 'Light',
-        ThemeMode.dark => 'Dark',
-      };
+    ThemeMode.system => 'System',
+    ThemeMode.light => 'Light',
+    ThemeMode.dark => 'Dark',
+  };
 
   Color color(ColorScheme scheme) => switch (this) {
-        ThemeMode.system => scheme.secondary,
-        ThemeMode.light => AppColors.accent,
-        ThemeMode.dark => scheme.primary,
-      };
+    ThemeMode.system => scheme.secondary,
+    ThemeMode.light => AppColors.accent,
+    ThemeMode.dark => scheme.primary,
+  };
 }
 
 class AccountDetailsCard extends StatelessWidget {
@@ -129,27 +129,27 @@ class _ThemeModeSection extends StatelessWidget {
                         child: _ThemeModeSegment(
                           mode: ThemeMode.dark,
                           isSelected: themeMode == ThemeMode.dark,
-                          onTap: () => context
-                              .read<ThemeCubit>()
-                              .setThemeMode(ThemeMode.dark),
+                          onTap: () => context.read<ThemeCubit>().setThemeMode(
+                            ThemeMode.dark,
+                          ),
                         ),
                       ),
                       Expanded(
                         child: _ThemeModeSegment(
                           mode: ThemeMode.system,
                           isSelected: themeMode == ThemeMode.system,
-                          onTap: () => context
-                              .read<ThemeCubit>()
-                              .setThemeMode(ThemeMode.system),
+                          onTap: () => context.read<ThemeCubit>().setThemeMode(
+                            ThemeMode.system,
+                          ),
                         ),
                       ),
                       Expanded(
                         child: _ThemeModeSegment(
                           mode: ThemeMode.light,
                           isSelected: themeMode == ThemeMode.light,
-                          onTap: () => context
-                              .read<ThemeCubit>()
-                              .setThemeMode(ThemeMode.light),
+                          onTap: () => context.read<ThemeCubit>().setThemeMode(
+                            ThemeMode.light,
+                          ),
                         ),
                       ),
                     ],

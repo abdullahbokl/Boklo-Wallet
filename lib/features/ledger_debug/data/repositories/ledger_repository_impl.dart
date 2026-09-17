@@ -8,13 +8,13 @@ import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: LedgerRepository)
 class LedgerRepositoryImpl implements LedgerRepository {
-
   LedgerRepositoryImpl(this._firestore);
   final FirebaseFirestore _firestore;
 
   @override
-  Stream<Either<Failure, List<LedgerEntryEntity>>> watchWalletLedger(
-      {required String walletId,}) {
+  Stream<Either<Failure, List<LedgerEntryEntity>>> watchWalletLedger({
+    required String walletId,
+  }) {
     return _firestore
         .collection('wallets')
         .doc(walletId)
@@ -23,14 +23,14 @@ class LedgerRepositoryImpl implements LedgerRepository {
         .limit(100)
         .snapshots()
         .map((snapshot) {
-      try {
-        final entries = snapshot.docs.map((doc) {
-          return LedgerEntryModel.fromJson(doc.data(), doc.id).toEntity();
-        }).toList();
-        return Right(entries);
-      } catch (e) {
-        return Left(UnknownFailure(e.toString()));
-      }
-    });
+          try {
+            final entries = snapshot.docs.map((doc) {
+              return LedgerEntryModel.fromJson(doc.data(), doc.id).toEntity();
+            }).toList();
+            return Right(entries);
+          } on Object catch (e) {
+            return Left(UnknownFailure(e.toString()));
+          }
+        });
   }
 }

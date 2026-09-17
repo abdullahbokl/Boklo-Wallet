@@ -66,8 +66,9 @@ class NotificationTile extends StatelessWidget {
                           notification.title,
                           style: AppTypography.subtitle.copyWith(
                             color: scheme.onSurface,
-                            fontWeight:
-                                isRead ? FontWeight.w500 : FontWeight.w600,
+                            fontWeight: isRead
+                                ? FontWeight.w500
+                                : FontWeight.w600,
                           ),
                         ),
                       ),

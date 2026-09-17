@@ -58,7 +58,8 @@ class RegisterPage extends StatelessWidget {
                     LoginHeader(
                       title: 'Create your Boklo account',
                       subtitle:
-                          'Open a secure wallet and start sending or requesting money.',
+                          'Open a secure wallet and start sending or  '
+                          'requesting money.',
                     ),
                     SizedBox(height: AppDimens.xl),
                     AppCard(

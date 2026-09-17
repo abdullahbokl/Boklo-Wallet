@@ -1,4 +1,3 @@
-// ignore_for_file: invalid_annotation_target // Freezed + json_serializable use annotations
 // for generated code and Firestore timestamp JsonKey helpers; the annotation
 // target lint is not applicable here and is safe to ignore.
 
@@ -11,20 +10,26 @@ part 'payment_request_model.freezed.dart';
 
 @freezed
 abstract class PaymentRequestModel with _$PaymentRequestModel {
-  // Ignore extra fields for firestore compatibility if needed, using generic json logic
+  // Ignore extra fields for firestore compatibility if needed, using generic
+  // json logic
   const factory PaymentRequestModel({
     required String id,
     required String requesterId,
     required String payerId,
     required double amount,
     required String currency,
-    required String status, // String from Firestore, mapped to Enum in toEntity, @JsonKey(fromJson: _timestampFromJson, toJson: _timestampToJson)
-    required DateTime createdAt, String? note,
+    required String status,
+    required DateTime createdAt,
+    String? note,
     @JsonKey(
-        fromJson: _timestampNullableFromJson, toJson: _timestampNullableToJson,)
+      fromJson: _timestampNullableFromJson,
+      toJson: _timestampNullableToJson,
+    )
     DateTime? acceptedAt,
     @JsonKey(
-        fromJson: _timestampNullableFromJson, toJson: _timestampNullableToJson,)
+      fromJson: _timestampNullableFromJson,
+      toJson: _timestampNullableToJson,
+    )
     DateTime? declinedAt,
   }) = _PaymentRequestModel;
 
@@ -37,17 +42,6 @@ abstract class PaymentRequestModel with _$PaymentRequestModel {
     return PaymentRequestModel.fromJson(data);
   }
 }
-
-DateTime _timestampFromJson(Object json) {
-  if (json is Timestamp) {
-    return json.toDate();
-  } else if (json is String) {
-    return DateTime.parse(json);
-  }
-  return DateTime.now(); // Fallback
-}
-
-Object _timestampToJson(DateTime date) => Timestamp.fromDate(date);
 
 DateTime? _timestampNullableFromJson(Object? json) {
   if (json == null) return null;
@@ -72,8 +66,9 @@ extension PaymentRequestModelX on PaymentRequestModel {
       currency: currency,
       note: note,
       status: PaymentRequestStatus.values.firstWhere(
-          (e) => e.name.toUpperCase() == status.toUpperCase(),
-          orElse: () => PaymentRequestStatus.invalid,),
+        (e) => e.name.toUpperCase() == status.toUpperCase(),
+        orElse: () => PaymentRequestStatus.invalid,
+      ),
       createdAt: createdAt,
       acceptedAt: acceptedAt,
       declinedAt: declinedAt,

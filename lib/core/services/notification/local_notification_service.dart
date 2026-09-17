@@ -13,25 +13,24 @@ class LocalNotificationService {
   Future<void> initialize({
     required void Function(String?) onNotificationTap,
   }) async {
-    const initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const initializationSettingsAndroid = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
 
-    const initializationSettingsDarwin =
-        DarwinInitializationSettings(
+    const initializationSettingsDarwin = DarwinInitializationSettings(
       requestSoundPermission: false,
       requestBadgePermission: false,
       requestAlertPermission: false,
     );
 
-    const initializationSettings =
-        InitializationSettings(
+    const initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsDarwin,
     );
 
     await _localNotifications.initialize(
       settings: initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
+      onDidReceiveNotificationResponse: (response) {
         log('Notification tapped (Foreground/Local): ${response.payload}');
         onNotificationTap(response.payload);
       },
@@ -50,7 +49,8 @@ class LocalNotificationService {
 
     await _localNotifications
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
   }
 
@@ -65,27 +65,27 @@ class LocalNotificationService {
       await _localNotifications.show(
         id: DateTime.now().millisecondsSinceEpoch % 100000,
         title: notification.title,
-      body: notification.body,
-      notificationDetails: NotificationDetails(
-        android: android != null
-            ? AndroidNotificationDetails(
-                'high_importance_channel',
-                'High Importance Notifications',
-                channelDescription:
-                    'This channel is used for important notifications.',
-                icon: android.smallIcon ?? '@mipmap/ic_launcher',
-                importance: Importance.max,
-                priority: Priority.high,
-              )
-            : null,
-        iOS: const DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
+        body: notification.body,
+        notificationDetails: NotificationDetails(
+          android: android != null
+              ? AndroidNotificationDetails(
+                  'high_importance_channel',
+                  'High Importance Notifications',
+                  channelDescription:
+                      'This channel is used for important notifications.',
+                  icon: android.smallIcon ?? '@mipmap/ic_launcher',
+                  importance: Importance.max,
+                  priority: Priority.high,
+                )
+              : null,
+          iOS: const DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
         ),
-      ),
-      payload: jsonEncode(message.data),
-    );
+        payload: jsonEncode(message.data),
+      );
     }
   }
 

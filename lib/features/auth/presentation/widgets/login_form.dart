@@ -34,9 +34,9 @@ class _LoginFormState extends State<LoginForm> {
     if (_formKey.currentState?.validate() ?? false) {
       unawaited(
         context.read<AuthCubit>().login(
-              _emailController.text.trim(),
-              _passwordController.text,
-            ),
+          _emailController.text.trim(),
+          _passwordController.text,
+        ),
       );
     }
   }
@@ -70,7 +70,9 @@ class _LoginFormState extends State<LoginForm> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: isLoading ? null : () {}, // Forgot password placeholder
+                  onPressed: isLoading
+                      ? null
+                      : () {}, // Forgot password placeholder
                   child: Text(
                     'Forgot Password?',
                     style: AppTypography.label.copyWith(

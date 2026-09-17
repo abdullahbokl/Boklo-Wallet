@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
@@ -20,6 +22,7 @@ class LedgerEntryTile extends StatelessWidget {
     final prefix = isCredit ? '+' : '-';
     final scheme = Theme.of(context).colorScheme;
 
+    final walletIdTail = entry.walletId.substring(entry.walletId.length - 6);
     return Container(
       margin: const EdgeInsets.symmetric(vertical: AppDimens.xs),
       padding: const EdgeInsets.all(AppDimens.md),
@@ -45,7 +48,7 @@ class LedgerEntryTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -68,17 +71,23 @@ class LedgerEntryTile extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
-                      Clipboard.setData(ClipboardData(text: entry.walletId));
-                      getIt<SnackbarService>()
-                          .showSuccess('Wallet ID copied to clipboard');
+                      unawaited(
+                        Clipboard.setData(
+                          ClipboardData(text: entry.walletId),
+                        ),
+                      );
+                      getIt<SnackbarService>().showSuccess(
+                        'Wallet ID copied to clipboard',
+                      );
                     },
                     borderRadius: BorderRadius.circular(AppDimens.radiusSm),
                     child: Row(
                       children: [
                         Text(
-                          'Wallet: ...${entry.walletId.substring(entry.walletId.length - 6)}',
-                          style:
-                              AppTypography.bodyMedium.copyWith(fontSize: 12),
+                          'Wallet: ...$walletIdTail',
+                          style: AppTypography.bodyMedium.copyWith(
+                            fontSize: 12,
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Icon(
@@ -91,8 +100,9 @@ class LedgerEntryTile extends StatelessWidget {
                   ),
                   Text(
                     DateFormat('HH:mm:ss.SSS').format(entry.occurredAt),
-                    style: AppTypography.caption
-                        .copyWith(color: scheme.onSurfaceVariant),
+                    style: AppTypography.caption.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),

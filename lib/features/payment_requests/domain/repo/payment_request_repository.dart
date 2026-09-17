@@ -3,11 +3,12 @@ import 'package:boklo/features/payment_requests/domain/entity/payment_request_en
 import 'package:fpdart/fpdart.dart';
 
 abstract class PaymentRequestRepository {
-  Future<Either<Failure, String>> createRequest(
-      {required String payerId,
-      required double amount,
-      required String currency,
-      String? note,});
+  Future<Either<Failure, String>> createRequest({
+    required String payerId,
+    required double amount,
+    required String currency,
+    String? note,
+  });
 
   Stream<Either<Failure, List<PaymentRequestEntity>>> watchIncomingRequests();
   Stream<Either<Failure, List<PaymentRequestEntity>>> watchOutgoingRequests();

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
@@ -35,7 +36,8 @@ class EmulatorConfig {
   static const String _androidEmulatorHost = '10.0.2.2';
   static const String _localhost = 'localhost';
 
-  // Allow passing host via command line: --dart-define=EMULATOR_HOST=192.168.1.X
+  // Allow passing host via command line:
+  // --dart-define=EMULATOR_HOST=192.168.1.X
   static const String _envHost = String.fromEnvironment('EMULATOR_HOST');
 
   static String? _resolvedHost;
@@ -56,19 +58,21 @@ class EmulatorConfig {
       isPhysicalAndroid = androidInfo.isPhysicalDevice && !isGenymotion;
     }
 
-    log('🔥 Configuring Firebase Emulators at $host'
-        '${isGenymotion ? ' (Genymotion detected)' : ''}');
+    log(
+      '🔥 Configuring Firebase Emulators at $host'
+      '${isGenymotion ? ' (Genymotion detected)' : ''}',
+    );
 
     // 1. Auth (Hybrid: Real Auth on Physical, Emulator on others)
     if (isPhysicalAndroid) {
       log('⚠️ Hybrid Setup: Using REAL Firebase Auth on Physical Device');
       // Do NOT enable Auth emulator
     } else if (host != null) {
-      FirebaseAuth.instance.useAuthEmulator(host, _authPort);
-      FirebaseAuth.instance.setLanguageCode('en');
+      await FirebaseAuth.instance.useAuthEmulator(host, _authPort);
+      await FirebaseAuth.instance.setLanguageCode('en');
     } else {
       // Default fallback if somehow host is null but not physical device.
-      FirebaseAuth.instance.setLanguageCode('en');
+      await FirebaseAuth.instance.setLanguageCode('en');
     }
 
     // 2. Firestore
@@ -76,18 +80,23 @@ class EmulatorConfig {
       FirebaseFirestore.instance.useFirestoreEmulator(host, _firestorePort);
 
       // 3. Functions (use explicit region to match app_module.dart)
-      FirebaseFunctions.instanceFor(region: 'us-central1')
-          .useFunctionsEmulator(host, _functionsPort);
+      FirebaseFunctions.instanceFor(
+        region: 'us-central1',
+      ).useFunctionsEmulator(host, _functionsPort);
 
       // 4. Storage
-      FirebaseStorage.instance.useStorageEmulator(host, _storagePort);
+      await FirebaseStorage.instance.useStorageEmulator(host, _storagePort);
     } else {
       // When running on a physical Android device without an explicit
       // EMULATOR_HOST we avoid trying to connect to emulators (which would
       // otherwise fail or time out). Informative logs tell the developer what
       // to do if they intended to use emulators from a physical device.
-      log('⚠️ EMULATOR HOST NOT PROVIDED: Skipping Firestore/Functions/Storage emulator configuration.');
-      log('   If you want to connect a physical device to local emulators, run:');
+      log(
+        '⚠️ EMULATOR HOST NOT PROVIDED: Skipping Firestore/Functions/Storage emulator configuration.',
+      );
+      log(
+        '   If you want to connect a physical device to local emulators, run:',
+      );
       log('   flutter run --dart-define=EMULATOR_HOST=YOUR_LOCAL_IP');
     }
 
@@ -96,7 +105,7 @@ class EmulatorConfig {
     if (user != null) {
       try {
         await user.reload();
-      } catch (e) {
+      } on Object {
         log('ℹ️ Auth State Mismatch: Signing out to clear stale token...');
         await FirebaseAuth.instance.signOut();
       }
@@ -125,7 +134,8 @@ class EmulatorConfig {
   }
 
   static Future<String?> _resolveHost() async {
-    // 1. If host is explicitly provided via env (e.g. for physical device testing), use it.
+    // 1. If host is explicitly provided via env (e.g. for physical device
+    // testing), use it.
     if (_envHost.isNotEmpty) {
       log('🔥 Using explicit emulator host from env: $_envHost');
       return _envHost;
@@ -142,7 +152,10 @@ class EmulatorConfig {
 
     // 3a. Genymotion detection
     if (_isGenymotion(androidInfo)) {
-      log('🎮 Genymotion detected (${androidInfo.manufacturer}). Using host: $_genymotionHost');
+      log(
+        '🎮 Genymotion detected (${androidInfo.manufacturer}). '
+        'Using host: $_genymotionHost',
+      );
       return _genymotionHost;
     }
 
@@ -152,7 +165,9 @@ class EmulatorConfig {
       // If EMULATOR_HOST is not provided, return null so callers can skip
       // emulator configuration and avoid unnecessary timeouts.
       log('⚠️ PHYSICAL ANDROID DEVICE DETECTED ⚠️');
-      log('   You must provide the developer machine IP to connect to emulators.');
+      log(
+        '   You must provide the developer machine IP to connect to emulators.',
+      );
       log('   Run with: flutter run --dart-define=EMULATOR_HOST=YOUR_LOCAL_IP');
 
       return null;

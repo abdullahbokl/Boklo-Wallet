@@ -1,3 +1,5 @@
+// Perf tooling prints warnings for the human-readable driver log.
+// ignore_for_file: avoid_print
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -20,9 +22,11 @@ Future<void> stressScroll(
   double speed = 3000,
 }) async {
   final effectiveFinder = scrollable ?? find.byType(Scrollable);
-  
+
   if (!tester.any(effectiveFinder)) {
-    print('      ⚠️  No Scrollable found on this page. Skipping stress scroll.');
+    print(
+      '      ⚠️  No Scrollable found on this page. Skipping stress scroll.',
+    );
     return;
   }
 

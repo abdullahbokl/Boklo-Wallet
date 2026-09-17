@@ -6,7 +6,6 @@ part 'transaction_model.g.dart';
 
 @JsonSerializable()
 class TransactionModel {
-
   const TransactionModel({
     required this.id,
     required this.amount,

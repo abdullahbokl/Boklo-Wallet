@@ -14,8 +14,6 @@ void main() {
   const config = PageTestConfig(
     pageName: 'WalletPage',
     routePath: '/wallet',
-    hasScrollableContent: true,
-    scrollIterations: 5,
     settleTimeout: Duration(seconds: 15),
   );
 

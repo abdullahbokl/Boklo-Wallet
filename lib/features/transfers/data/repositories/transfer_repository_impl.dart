@@ -25,8 +25,9 @@ class TransferRepositoryImpl implements TransferRepository {
   @override
   Future<Either<Failure, void>> createTransfer(TransferEntity transfer) async {
     try {
-      final fromWalletModel =
-          await _dataSource.getWallet(transfer.fromWalletId);
+      final fromWalletModel = await _dataSource.getWallet(
+        transfer.fromWalletId,
+      );
       final toWalletModel = await _resolveWallet(transfer.toWalletId);
 
       if (fromWalletModel == null || toWalletModel == null) {

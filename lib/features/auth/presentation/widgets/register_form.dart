@@ -38,9 +38,9 @@ class _RegisterFormState extends State<RegisterForm> {
         return;
       }
       await context.read<AuthCubit>().register(
-            _emailController.text,
-            _passwordController.text,
-          );
+        _emailController.text,
+        _passwordController.text,
+      );
     }
   }
 

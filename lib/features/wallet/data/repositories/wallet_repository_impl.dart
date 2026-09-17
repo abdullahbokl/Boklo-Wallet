@@ -16,7 +16,6 @@ import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: WalletRepository)
 class WalletRepositoryImpl implements WalletRepository {
-
   WalletRepositoryImpl(
     this._remoteDataSource,
     this._localDataSource,
@@ -35,13 +34,13 @@ class WalletRepositoryImpl implements WalletRepository {
       final remoteWallet = await _remoteDataSource.getWallet();
       await _localDataSource.cacheWallet(remoteWallet);
       return Right(remoteWallet.toEntity());
-    } catch (e) {
+    } on Object catch (e) {
       try {
         final localWallet = await _localDataSource.getLastWallet();
         if (localWallet != null) {
           return Right(localWallet.toEntity());
         }
-      } catch (_) {}
+      } on Object catch (_) {}
       return Left(ServerFailure('Failed to fetch wallet: $e'));
     }
   }
@@ -59,14 +58,14 @@ class WalletRepositoryImpl implements WalletRepository {
 
       try {
         await _localDataSource.cacheTransactions(result.transactions);
-      } catch (e) {
+      } on Object catch (e) {
         log('⚠️ Failed to cache transactions: $e');
       }
 
       return Right(
         result.transactions.map((e) => e.toEntity()).toList(),
       );
-    } catch (e) {
+    } on Object catch (e) {
       try {
         final localTransactions = await _localDataSource.getLastTransactions();
         if (localTransactions != null) {
@@ -74,7 +73,7 @@ class WalletRepositoryImpl implements WalletRepository {
             localTransactions.map((e) => e.toEntity()).toList(),
           );
         }
-      } catch (_) {}
+      } on Object catch (_) {}
       return Left(ServerFailure('Failed to fetch transactions: $e'));
     }
   }
@@ -99,7 +98,7 @@ class WalletRepositoryImpl implements WalletRepository {
       return Right(
         TransactionPage(transactions: entities, hasMore: _hasMore),
       );
-    } catch (e) {
+    } on Object catch (e) {
       return Left(ServerFailure('Failed to load more transactions: $e'));
     }
   }
@@ -107,29 +106,34 @@ class WalletRepositoryImpl implements WalletRepository {
   @override
   Stream<Either<Failure, List<TransactionEntity>>> watchTransactions() {
     return _remoteDataSource.watchTransactions().transform(
-          StreamTransformer<List<TransactionModel>,
-              Either<Failure, List<TransactionEntity>>>.fromHandlers(
-            handleData: (data, sink) {
-              sink.add(Right(data.map((e) => e.toEntity()).toList()));
-            },
-            handleError: (error, stack, sink) {
-              sink.add(Left(UnknownFailure('Stream error: $error')));
-            },
-          ),
-        );
+      StreamTransformer<
+        List<TransactionModel>,
+        Either<Failure, List<TransactionEntity>>
+      >.fromHandlers(
+        handleData: (data, sink) {
+          sink.add(Right(data.map((e) => e.toEntity()).toList()));
+        },
+        handleError: (error, stack, sink) {
+          sink.add(Left(UnknownFailure('Stream error: $error')));
+        },
+      ),
+    );
   }
 
   @override
   Stream<Either<Failure, WalletEntity>> watchWallet() {
     return _remoteDataSource.watchWallet().transform(
-          StreamTransformer<WalletModel, Either<Failure, WalletEntity>>.fromHandlers(
-            handleData: (data, sink) {
-              sink.add(Right(data.toEntity()));
-            },
-            handleError: (error, stack, sink) {
-              sink.add(Left(UnknownFailure('Stream error: $error')));
-            },
-          ),
-        );
+      StreamTransformer<
+        WalletModel,
+        Either<Failure, WalletEntity>
+      >.fromHandlers(
+        handleData: (data, sink) {
+          sink.add(Right(data.toEntity()));
+        },
+        handleError: (error, stack, sink) {
+          sink.add(Left(UnknownFailure('Stream error: $error')));
+        },
+      ),
+    );
   }
 }

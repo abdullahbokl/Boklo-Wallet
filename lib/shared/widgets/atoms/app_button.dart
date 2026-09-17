@@ -31,31 +31,32 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveVariant =
-        variant ?? (isSecondary ? AppButtonVariant.secondary : AppButtonVariant.primary);
+        variant ??
+        (isSecondary ? AppButtonVariant.secondary : AppButtonVariant.primary);
     final enabled = onPressed != null && !isLoading;
     final scheme = Theme.of(context).colorScheme;
 
     final config = switch (effectiveVariant) {
       AppButtonVariant.primary => _ButtonConfig(
-          backgroundColor: scheme.primary,
-          foregroundColor: scheme.onPrimary,
-          borderColor: scheme.primary,
-        ),
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        borderColor: scheme.primary,
+      ),
       AppButtonVariant.secondary => _ButtonConfig(
-          backgroundColor: Colors.transparent,
-          foregroundColor: scheme.onSurface,
-          borderColor: scheme.outlineVariant,
-        ),
+        backgroundColor: Colors.transparent,
+        foregroundColor: scheme.onSurface,
+        borderColor: scheme.outlineVariant,
+      ),
       AppButtonVariant.tonal => _ButtonConfig(
-          backgroundColor: scheme.primaryContainer.withValues(alpha: 0.75),
-          foregroundColor: scheme.primary,
-          borderColor: Colors.transparent,
-        ),
+        backgroundColor: scheme.primaryContainer.withValues(alpha: 0.75),
+        foregroundColor: scheme.primary,
+        borderColor: Colors.transparent,
+      ),
       AppButtonVariant.destructive => _ButtonConfig(
-          backgroundColor: AppColors.error,
-          foregroundColor: scheme.onError,
-          borderColor: AppColors.error,
-        ),
+        backgroundColor: AppColors.error,
+        foregroundColor: scheme.onError,
+        borderColor: AppColors.error,
+      ),
     };
 
     return SizedBox(

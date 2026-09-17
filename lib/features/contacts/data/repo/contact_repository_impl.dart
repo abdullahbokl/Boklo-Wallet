@@ -12,7 +12,6 @@ import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: ContactRepository)
 class ContactRepositoryImpl implements ContactRepository {
-
   ContactRepositoryImpl(this._firestore, this._auth, this._functions);
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
@@ -31,22 +30,26 @@ class ContactRepositoryImpl implements ContactRepository {
         .collection('contacts')
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .transform(StreamTransformer<QuerySnapshot<Map<String, dynamic>>,
-            Either<Failure, List<ContactEntity>>>.fromHandlers(
-          handleData: (snapshot, sink) {
-            try {
-              final entities = snapshot.docs.map((doc) {
-                return ContactModel.fromSnapshot(doc).toEntity();
-              }).toList();
-              sink.add(Right(entities));
-            } catch (e) {
-              sink.add(Left(UnknownFailure(e.toString())));
-            }
-          },
-          handleError: (error, stack, sink) {
-            sink.add(Left(UnknownFailure(error.toString())));
-          },
-        ),);
+        .transform(
+          StreamTransformer<
+            QuerySnapshot<Map<String, dynamic>>,
+            Either<Failure, List<ContactEntity>>
+          >.fromHandlers(
+            handleData: (snapshot, sink) {
+              try {
+                final entities = snapshot.docs.map((doc) {
+                  return ContactModel.fromSnapshot(doc).toEntity();
+                }).toList();
+                sink.add(Right(entities));
+              } on Object catch (e) {
+                sink.add(Left(UnknownFailure(e.toString())));
+              }
+            },
+            handleError: (error, stack, sink) {
+              sink.add(Left(UnknownFailure(error.toString())));
+            },
+          ),
+        );
   }
 
   @override
@@ -61,8 +64,8 @@ class ContactRepositoryImpl implements ContactRepository {
 
       final callable = _functions.httpsCallable('addContact');
       final result = await callable.call<Map<String, dynamic>>({
-        if (email != null) 'email': email,
-        if (username != null) 'username': username,
+        'email': ?email,
+        'username': ?username,
       });
 
       final data = result.data;
@@ -72,7 +75,7 @@ class ContactRepositoryImpl implements ContactRepository {
       return Right(model.toEntity());
     } on FirebaseFunctionsException catch (e) {
       return Left(UnknownFailure(e.message ?? e.code));
-    } catch (e) {
+    } on Object catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
   }
@@ -91,7 +94,7 @@ class ContactRepositoryImpl implements ContactRepository {
           .doc(contactUid)
           .delete();
       return const Right(null);
-    } catch (e) {
+    } on Object catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
   }

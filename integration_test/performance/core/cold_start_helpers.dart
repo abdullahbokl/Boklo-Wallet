@@ -1,3 +1,5 @@
+// Perf tooling prints progress for the human-readable driver log.
+// ignore_for_file: avoid_print
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:flutter/painting.dart';
 

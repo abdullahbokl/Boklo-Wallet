@@ -10,8 +10,9 @@ class NavigationService {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   Future<T?> push<T extends Object?>(String route, {Object? extra}) {
-    return GoRouter.of(navigatorKey.currentContext!)
-        .push<T>(route, extra: extra);
+    return GoRouter.of(
+      navigatorKey.currentContext!,
+    ).push<T>(route, extra: extra);
   }
 
   void pushReplacement(String route) {

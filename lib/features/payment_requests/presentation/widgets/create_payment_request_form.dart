@@ -25,7 +25,8 @@ class CreatePaymentRequestForm extends StatefulWidget {
   final bool isCreating;
 
   @override
-  State<CreatePaymentRequestForm> createState() => _CreatePaymentRequestFormState();
+  State<CreatePaymentRequestForm> createState() =>
+      _CreatePaymentRequestFormState();
 }
 
 class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
@@ -33,17 +34,22 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
 
   void _onSend(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      unawaited(context.read<PaymentRequestCubit>().createRequest(
-        payerId: widget.payerIdController.text,
-        amount: double.parse(widget.amountController.text),
-        currency: 'USD',
-        note: widget.noteController.text,
-      ).then((_) {
-        if (mounted) {
-          getIt<NavigationService>().pop();
-          getIt<SnackbarService>().showSuccess('Request Sent');
-        }
-      }),);
+      unawaited(
+        context
+            .read<PaymentRequestCubit>()
+            .createRequest(
+              payerId: widget.payerIdController.text,
+              amount: double.parse(widget.amountController.text),
+              currency: 'USD',
+              note: widget.noteController.text,
+            )
+            .then((_) {
+              if (mounted) {
+                getIt<NavigationService>().pop();
+                getIt<SnackbarService>().showSuccess('Request Sent');
+              }
+            }),
+      );
     }
   }
 
@@ -63,7 +69,10 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
               icon: const Icon(Icons.contacts),
               onPressed: () async {
                 final contact = await getIt<NavigationService>()
-                    .push<ContactEntity>('/contacts', extra: {'pickMode': true});
+                    .push<ContactEntity>(
+                      '/contacts',
+                      extra: {'pickMode': true},
+                    );
                 if (contact != null) {
                   setState(() => widget.payerIdController.text = contact.email);
                 }

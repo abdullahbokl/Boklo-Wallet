@@ -11,8 +11,6 @@ void main() {
   const config = PageTestConfig(
     pageName: 'NotificationsPage',
     routePath: '/notifications',
-    hasScrollableContent: true,
-    scrollIterations: 5,
   );
 
   testWidgets('NotificationsPage performance benchmark', (tester) async {

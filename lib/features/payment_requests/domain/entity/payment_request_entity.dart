@@ -6,7 +6,8 @@ enum PaymentRequestStatus {
   pending,
   accepted,
   declined,
-  invalid;
+  invalid
+  ;
 
   String get label => name.toUpperCase();
 }
@@ -19,7 +20,9 @@ abstract class PaymentRequestEntity with _$PaymentRequestEntity {
     required String payerId,
     required double amount,
     required String currency,
-    required PaymentRequestStatus status, required DateTime createdAt, String? note,
+    required PaymentRequestStatus status,
+    required DateTime createdAt,
+    String? note,
     DateTime? acceptedAt,
     DateTime? declinedAt,
   }) = _PaymentRequestEntity;

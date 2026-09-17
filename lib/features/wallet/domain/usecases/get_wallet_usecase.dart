@@ -6,7 +6,6 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class GetWalletUseCase {
-
   GetWalletUseCase(this._repository);
   final WalletRepository _repository;
 

@@ -20,78 +20,83 @@ class NotificationSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) {
-        final cubit = getIt<NotificationPreferenceCubit>();
-        cubit.init();
+        final cubit = getIt<NotificationPreferenceCubit>()..init();
         return cubit;
       },
       child: AppPageScaffold(
         title: 'Notification settings',
-        child: BlocConsumer<NotificationPreferenceCubit,
-            BaseState<NotificationPreferenceState>>(
-          listener: (context, state) {
-            state.whenOrNull(
-              error: (e) => getIt<SnackbarService>().showError(e.message),
-            );
-          },
-          builder: (context, state) {
-            if (state.isLoading && state.data?.preferences == null) {
-              return const AppLoadingIndicator();
-            }
+        child:
+            BlocConsumer<
+              NotificationPreferenceCubit,
+              BaseState<NotificationPreferenceState>
+            >(
+              listener: (context, state) {
+                state.whenOrNull(
+                  error: (e) => getIt<SnackbarService>().showError(e.message),
+                );
+              },
+              builder: (context, state) {
+                if (state.isLoading && state.data?.preferences == null) {
+                  return const AppLoadingIndicator();
+                }
 
-            final prefs = state.data?.preferences;
-            if (prefs == null) {
-              return WalletErrorView(
-                onRetry: () =>
-                    context.read<NotificationPreferenceCubit>().init(),
-              );
-            }
+                final prefs = state.data?.preferences;
+                if (prefs == null) {
+                  return WalletErrorView(
+                    onRetry: () =>
+                        context.read<NotificationPreferenceCubit>().init(),
+                  );
+                }
 
-            return ListView(
-              padding: const EdgeInsets.only(
-                  top: AppDimens.md, bottom: AppDimens.xxl),
-              children: [
-                const AppSectionHeader(
-                  title: 'Transfer alerts',
-                  subtitle:
-                      'Decide which money movement events should notify you.',
-                ),
-                const SizedBox(height: AppDimens.md),
-                AppCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      PreferenceItem(
-                        title: 'Incoming transfers',
-                        subtitle: 'Notify me when money arrives',
-                        value: prefs.enableIncoming,
-                        onChanged: (v) => context
-                            .read<NotificationPreferenceCubit>()
-                            .toggleIncoming(v),
-                      ),
-                      Divider(
-                        height: 1,
-                        indent: AppDimens.lg,
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                      PreferenceItem(
-                        title: 'Outgoing transfers',
-                        subtitle: 'Notify me when money is sent',
-                        value: prefs.enableOutgoing,
-                        onChanged: (v) => context
-                            .read<NotificationPreferenceCubit>()
-                            .toggleOutgoing(v),
-                      ),
-                    ],
+                return ListView(
+                  padding: const EdgeInsets.only(
+                    top: AppDimens.md,
+                    bottom: AppDimens.xxl,
                   ),
-                ),
-                if (state.data?.isUpdating ?? false) ...[
-                  const SizedBox(height: AppDimens.md),
-                  const LinearProgressIndicator(),
-                ],
-              ],
-            );
-          },
-        ),
+                  children: [
+                    const AppSectionHeader(
+                      title: 'Transfer alerts',
+                      subtitle:
+                          'Decide which money movement events should notify  '
+                          'you.',
+                    ),
+                    const SizedBox(height: AppDimens.md),
+                    AppCard(
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          PreferenceItem(
+                            title: 'Incoming transfers',
+                            subtitle: 'Notify me when money arrives',
+                            value: prefs.enableIncoming,
+                            onChanged: (v) => context
+                                .read<NotificationPreferenceCubit>()
+                                .toggleIncoming(value: v),
+                          ),
+                          Divider(
+                            height: 1,
+                            indent: AppDimens.lg,
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                          PreferenceItem(
+                            title: 'Outgoing transfers',
+                            subtitle: 'Notify me when money is sent',
+                            value: prefs.enableOutgoing,
+                            onChanged: (v) => context
+                                .read<NotificationPreferenceCubit>()
+                                .toggleOutgoing(value: v),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (state.data?.isUpdating ?? false) ...[
+                      const SizedBox(height: AppDimens.md),
+                      const LinearProgressIndicator(),
+                    ],
+                  ],
+                );
+              },
+            ),
       ),
     );
   }

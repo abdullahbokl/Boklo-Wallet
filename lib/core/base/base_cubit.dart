@@ -26,7 +26,8 @@ abstract class BaseCubit<T> extends Cubit<BaseState<T>> {
     }
   }
 
-  /// Executes a [Future] returning [Either] and handles state emission automatically.
+  /// Executes a [Future] returning [Either] and handles state emission
+  //automatically.
   ///
   /// 1. Emits [BaseState.loading].
   /// 2. Awaits [action].

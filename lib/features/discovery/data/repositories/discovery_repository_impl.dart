@@ -12,13 +12,14 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
   final DiscoveryRemoteDataSource _dataSource;
 
   @override
-  Future<Either<Failure, UserPublicProfile>> resolveWalletByEmail(String email) async {
+  Future<Either<Failure, UserPublicProfile>> resolveWalletByEmail(
+    String email,
+  ) async {
     try {
       final model = await _dataSource.resolveWalletByEmail(email);
       return Right(model);
       // Map generic exceptions to AppError
-      // ignore: avoid_catches_without_on_clauses
-    } catch (e) {
+    } on Object catch (e) {
       final message = e.toString();
       if (message.contains('User not found')) {
         return const Left(ServerFailure('User not found'));
@@ -35,8 +36,7 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
     try {
       final walletId = await _dataSource.resolveWalletIdByAlias(alias);
       return Right(walletId);
-      // ignore: avoid_catches_without_on_clauses
-    } catch (e) {
+    } on Object catch (e) {
       final message = e.toString();
       if (message.contains('Wallet alias not found')) {
         return const Left(ServerFailure('Wallet alias not found'));
@@ -47,11 +47,12 @@ class DiscoveryRepositoryImpl implements DiscoveryRepository {
 
   @override
   Future<Either<Failure, UserPublicProfile>> resolveWalletByUsername(
-      String username,) async {
+    String username,
+  ) async {
     try {
       final model = await _dataSource.resolveWalletByUsername(username);
       return Right(model);
-    } catch (e) {
+    } on Object catch (e) {
       final message = e.toString();
       if (message.contains('Username not found')) {
         return const Left(ServerFailure('Username not found'));

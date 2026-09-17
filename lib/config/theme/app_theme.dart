@@ -11,10 +11,12 @@ class AppTheme {
   static ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final scheme = isDark ? _darkScheme : _lightScheme;
-    final textPrimary =
-        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final textSecondary =
-        isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final textPrimary = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final textSecondary = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
     final divider = isDark ? AppColors.dividerDark : AppColors.dividerLight;
     final surface = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
     final bg = isDark ? AppColors.backgroundDark : AppColors.backgroundLight;
@@ -30,10 +32,18 @@ class AppTheme {
       textTheme: _textTheme(textPrimary, textSecondary, primary),
       appBarTheme: _appBarTheme(textPrimary),
       elevatedButtonTheme: _elevatedButtonTheme(primary),
-      inputDecorationTheme:
-          AppComponentThemes.input(isDark, textSecondary, surface),
+      inputDecorationTheme: AppComponentThemes.input(
+        isDark: isDark,
+        hintColor: textSecondary,
+        fillColor: surface,
+      ),
       cardTheme: AppComponentThemes.card(surface),
-      chipTheme: AppComponentThemes.chip(isDark, textPrimary, surface, primary),
+      chipTheme: AppComponentThemes.chip(
+        isDark: isDark,
+        textColor: textPrimary,
+        surface: surface,
+        primary: primary,
+      ),
       listTileTheme: AppComponentThemes.listTile(textPrimary),
       tabBarTheme: AppComponentThemes.tabBar(primary, textSecondary),
       dividerTheme: DividerThemeData(color: divider, thickness: 1),

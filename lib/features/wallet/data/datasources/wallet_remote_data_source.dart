@@ -49,27 +49,35 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       return Stream.error(const ValidationFailure('User not logged in'));
     }
 
-    return _firestore.collection('wallets').doc(userId).snapshots().transform(
-            StreamTransformer<DocumentSnapshot<Map<String, dynamic>>,
-                WalletModel>.fromHandlers(
-          handleData: (doc, sink) {
-            if (doc.exists && doc.data() != null) {
-              try {
-                sink.add(WalletModel.fromJson(doc.data()!));
-              } catch (e) {
-                // If deserialization fails, it's a real error
-                sink.addError(ValidationFailure('Invalid wallet data: $e'));
+    return _firestore
+        .collection('wallets')
+        .doc(userId)
+        .snapshots()
+        .transform(
+          StreamTransformer<
+            DocumentSnapshot<Map<String, dynamic>>,
+            WalletModel
+          >.fromHandlers(
+            handleData: (doc, sink) {
+              if (doc.exists && doc.data() != null) {
+                try {
+                  sink.add(WalletModel.fromJson(doc.data()!));
+                } on Object catch (e) {
+                  // If deserialization fails, it's a real error
+                  sink.addError(ValidationFailure('Invalid wallet data: $e'));
+                }
+              } else {
+                // Document does not exist yet (backend creation in progress).
+                // We do NOT emit an error here. We stay silent.
+                // The stream will stay active and emit when the backend
+                // creates the doc.
               }
-            } else {
-              // Document does not exist yet (backend creation in progress).
-              // We do NOT emit an error here. We stay silent.
-              // The stream will stay active and emit when the backend creates the doc.
-            }
-          },
-          handleError: (error, stack, sink) {
-            sink.addError(UnknownFailure('Wallet stream error: $error'));
-          },
-        ),);
+            },
+            handleError: (error, stack, sink) {
+              sink.addError(UnknownFailure('Wallet stream error: $error'));
+            },
+          ),
+        );
   }
 
   @override
@@ -167,11 +175,14 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
       final result = await callable.call<Map<String, dynamic>>();
       final created = result.data['created'] as bool? ?? false;
 
-      log('✅ provisionWallet ${created ? 'created new wallet' : 'wallet existed'}');
+      log(
+        '✅ provisionWallet '
+        '${created ? 'created new wallet' : 'wallet existed'}',
+      );
     } on FirebaseFunctionsException catch (e) {
       log('❌ provisionWallet failed: [${e.code}] ${e.message}');
       throw UnknownFailure('Failed to provision wallet: ${e.message}');
-    } catch (e) {
+    } on Object catch (e) {
       log('❌ provisionWallet unexpected error: $e');
       throw UnknownFailure('Failed to provision wallet: $e');
     }

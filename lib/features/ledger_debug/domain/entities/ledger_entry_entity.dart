@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 
 class LedgerEntryEntity extends Equatable {
-
   const LedgerEntryEntity({
     required this.id,
     required this.transactionId,
@@ -23,13 +22,13 @@ class LedgerEntryEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        transactionId,
-        walletId,
-        amount,
-        currency,
-        direction,
-        occurredAt,
-        description,
-      ];
+    id,
+    transactionId,
+    walletId,
+    amount,
+    currency,
+    direction,
+    occurredAt,
+    description,
+  ];
 }

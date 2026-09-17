@@ -13,7 +13,8 @@ import 'dart:math' as math;
 /// );
 /// ```
 class RetryExecutor {
-  /// Retries [action] up to [maxAttempts] times with exponential backoff + jitter.
+  /// Retries [action] up to [maxAttempts] times with exponential backoff +
+  //jitter.
   ///
   /// - [maxAttempts]: Total attempts (including first try). Default: 3.
   /// - [baseDelay]: Initial delay before first retry. Default: 1 second.

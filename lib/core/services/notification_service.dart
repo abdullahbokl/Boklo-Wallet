@@ -1,3 +1,8 @@
+// Members of NotificationService are resolved dynamically through
+// injectable's generated DI registrations (getIt), which the analyzer
+// cannot see, so some appear unreachable from main.
+// ignore_for_file: unreachable_from_main
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
@@ -15,7 +20,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 @lazySingleton
 class NotificationService {
-
   NotificationService(
     this._navigationService,
     this._tokenManager,
@@ -30,7 +34,8 @@ class NotificationService {
 
   Future<void> initialize() async {
     await _localNotifications.initialize(
-        onNotificationTap: _handleNotificationTap,);
+      onNotificationTap: _handleNotificationTap,
+    );
     await _requestPermissions();
     await _checkInitialMessage();
     _registerForegroundHandler();
@@ -39,10 +44,10 @@ class NotificationService {
   }
 
   Future<void> _requestPermissions() async {
-    final settings = await _messaging.requestPermission(
-        );
+    final settings = await _messaging.requestPermission();
     await _messaging.setForegroundNotificationPresentationOptions(
-        badge: true,);
+      badge: true,
+    );
     log('User granted permission: ${settings.authorizationStatus}');
   }
 
@@ -55,7 +60,7 @@ class NotificationService {
   }
 
   void _registerForegroundHandler() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((message) {
       log('Got a message whilst in the foreground!');
       unawaited(_localNotifications.show(message));
     });
@@ -63,7 +68,7 @@ class NotificationService {
 
   void _registerBackgroundHandler() {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
       log('App opened from background state via notification');
       _handleRemoteMessageTap(message);
     });
@@ -74,7 +79,7 @@ class NotificationService {
       try {
         final data = jsonDecode(payload) as Map<String, dynamic>;
         _navigateFromData(data);
-      } catch (e) {
+      } on Object catch (e) {
         log('Error parsing notification payload: $e');
       }
     }
@@ -86,7 +91,7 @@ class NotificationService {
 
   void _navigateFromData(Map<String, dynamic> data) {
     log('Navigating based on notification data: $data');
-    _navigationService.push('/wallet');
+    unawaited(_navigationService.push('/wallet'));
   }
 
   void _setPendingRoute(RemoteMessage message) {

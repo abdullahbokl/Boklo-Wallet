@@ -6,7 +6,6 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class LoadMoreTransactionsUseCase {
-
   LoadMoreTransactionsUseCase(this._repository);
   final WalletRepository _repository;
 

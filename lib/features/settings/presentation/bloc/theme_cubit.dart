@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import 'package:injectable/injectable.dart';
 @lazySingleton
 class ThemeCubit extends Cubit<ThemeMode> {
   ThemeCubit(this._storage) : super(ThemeMode.system) {
-    _loadTheme();
+    unawaited(_loadTheme());
   }
 
   final FlutterSecureStorage _storage;
@@ -31,7 +32,7 @@ class ThemeCubit extends Cubit<ThemeMode> {
             emit(ThemeMode.system);
         }
       }
-    } catch (e) {
+    } on Object catch (e) {
       log('⚠️ ThemeCubit: Failed to load theme preference: $e');
       // Gracefully fall back to system theme
     }
@@ -41,7 +42,7 @@ class ThemeCubit extends Cubit<ThemeMode> {
     emit(mode);
     try {
       await _storage.write(key: _key, value: mode.name);
-    } catch (e) {
+    } on Object catch (e) {
       log('⚠️ ThemeCubit: Failed to persist theme preference: $e');
     }
   }

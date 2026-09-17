@@ -18,7 +18,7 @@ import 'package:integration_test/integration_test_driver.dart';
 /// ```
 Future<void> main() async {
   await integrationDriver(
-    responseDataCallback: (Map<String, dynamic>? data) async {
+    responseDataCallback: (data) async {
       print('📥 Driver received data from test...');
       if (data == null || data.isEmpty) {
         print('⚠️  No performance data received from the integration test.');
@@ -31,7 +31,7 @@ Future<void> main() async {
       }
 
       final outputFile = File('${outputDir.path}/performance_summary.json');
-      final encoder = const JsonEncoder.withIndent('  ');
+      const encoder = JsonEncoder.withIndent('  ');
       await outputFile.writeAsString(encoder.convert(data));
 
       print('');

@@ -22,59 +22,59 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPageScaffold(
-        title: 'Profile',
-        child: BlocBuilder<AuthCubit, BaseState<User?>>(
-          builder: (context, state) {
-            return state.when(
-              initial: () => const AppLoadingIndicator(),
-              loading: () => const AppLoadingIndicator(),
-              error: (failure) => WalletErrorView(
-                title: failure.message,
-                onRetry: () => context.read<AuthCubit>().checkAuthStatus(),
-              ),
-              success: (user) {
-                if (user == null) {
-                  return const Center(
-                    child: Text('Please sign in to view profile.'),
-                  );
-                }
+      title: 'Profile',
+      child: BlocBuilder<AuthCubit, BaseState<User?>>(
+        builder: (context, state) {
+          return state.when(
+            initial: () => const AppLoadingIndicator(),
+            loading: () => const AppLoadingIndicator(),
+            error: (failure) => WalletErrorView(
+              title: failure.message,
+              onRetry: () => context.read<AuthCubit>().checkAuthStatus(),
+            ),
+            success: (user) {
+              if (user == null) {
+                return const Center(
+                  child: Text('Please sign in to view profile.'),
+                );
+              }
 
-                return ListView(
-                  padding: const EdgeInsets.only(
-                    top: AppDimens.md,
-                    bottom: AppDimens.xxl,
+              return ListView(
+                padding: const EdgeInsets.only(
+                  top: AppDimens.md,
+                  bottom: AppDimens.xxl,
+                ),
+                children: [
+                  ProfileHeader(user: user),
+                  const SizedBox(height: AppDimens.xl),
+                  const AccountDetailsCard(),
+                  const SizedBox(height: AppDimens.xl),
+                  AppButton(
+                    text: 'Sign out',
+                    variant: AppButtonVariant.secondary,
+                    onPressed: () => _handleLogout(context),
                   ),
-                  children: [
-                    ProfileHeader(user: user),
-                    const SizedBox(height: AppDimens.xl),
-                    const AccountDetailsCard(),
-                    const SizedBox(height: AppDimens.xl),
-                    AppButton(
-                      text: 'Sign out',
-                      variant: AppButtonVariant.secondary,
-                      onPressed: () => _handleLogout(context),
-                    ),
-                    const SizedBox(height: AppDimens.md),
-                    AppButton(
-                      text: 'Delete account',
-                      variant: AppButtonVariant.destructive,
-                      onPressed: () => _showDeleteAccountDialog(context),
-                    ),
-                    const SizedBox(height: AppDimens.md),
-                    Center(
-                      child: Text(
-                        'v1.0.0 beta',
-                        style: AppTypography.caption.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                  const SizedBox(height: AppDimens.md),
+                  AppButton(
+                    text: 'Delete account',
+                    variant: AppButtonVariant.destructive,
+                    onPressed: () => _showDeleteAccountDialog(context),
+                  ),
+                  const SizedBox(height: AppDimens.md),
+                  Center(
+                    child: Text(
+                      'v1.0.0 beta',
+                      style: AppTypography.caption.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                  ],
-                );
-              },
-            );
-          },
-        ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 

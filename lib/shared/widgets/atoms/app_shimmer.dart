@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +26,8 @@ class _AppShimmerState extends State<AppShimmer>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
-    )..repeat();
+    );
+    unawaited(_controller.repeat());
   }
 
   @override

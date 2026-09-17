@@ -29,9 +29,9 @@ class UserModel {
       createdAt: json['createdAt'] == null
           ? null
           : (json['createdAt'] is String)
-              ? DateTime.parse(json['createdAt'] as String)
-              : (json['createdAt'] as dynamic).toDate()
-                  as DateTime?, // Handle Timestamp
+          ? DateTime.parse(json['createdAt'] as String)
+          : (json['createdAt'] as dynamic).toDate()
+                as DateTime?, // Handle Timestamp
       isActive: json['isActive'] as bool? ?? true,
     );
   }

@@ -6,7 +6,6 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class ResolveRecipientUseCase {
-
   const ResolveRecipientUseCase(this._emailUseCase, this._usernameUseCase);
   final ResolveWalletByEmailUseCase _emailUseCase;
   final ResolveWalletByUsernameUseCase _usernameUseCase;
@@ -25,10 +24,11 @@ class ResolveRecipientUseCase {
             return left(error);
           }
           // Fallback to treating as Wallet ID is handled by caller or implicitly if we return error/null here?
-          // Actually, the original logic said: "If it IS 28 chars, ignore username error and try as Wallet ID"
-          // So if error, and length == 28, we return Success(recipient) assuming it's an ID?
-          // The original logic was: toWalletId = recipient (initial).
-          // If resolution succeeds, toWalletId = resolvedId.
+          // The original logic said: "If it IS 28 chars, ignore username
+          // error and try as Wallet ID". So if error and length == 28, we
+          // return Success(recipient), assuming it's an ID.
+          // toWalletId starts as `recipient`; if resolution succeeds it is
+          // replaced by resolvedId.
           // If resolution fails, and length != 28, return error.
           // If resolution fails, and length == 28, keep original recipient.
 

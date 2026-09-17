@@ -8,9 +8,8 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class LedgerCubit extends Cubit<LedgerState> {
-
   LedgerCubit(this._repository, this._walletRepository)
-      : super(const LedgerState.initial());
+    : super(const LedgerState.initial());
   final LedgerRepository _repository;
   final WalletRepository _walletRepository;
   StreamSubscription<dynamic>? _subscription;
@@ -26,49 +25,52 @@ class LedgerCubit extends Cubit<LedgerState> {
       },
       (wallet) async {
         await _subscription?.cancel();
-        _subscription =
-            _repository.watchWalletLedger(walletId: wallet.id).listen(
-          (result) {
-            result.fold(
-              (error) {
-                emit(LedgerState.error(error.message));
-              },
-              (entries) {
-                if (entries.isEmpty) {
-                  emit(const LedgerState.empty());
-                } else {
-                  double totalCredits = 0;
-                  double totalDebits = 0;
+        _subscription = _repository
+            .watchWalletLedger(walletId: wallet.id)
+            .listen(
+              (result) {
+                result.fold(
+                  (error) {
+                    emit(LedgerState.error(error.message));
+                  },
+                  (entries) {
+                    if (entries.isEmpty) {
+                      emit(const LedgerState.empty());
+                    } else {
+                      double totalCredits = 0;
+                      double totalDebits = 0;
 
-                  for (final e in entries) {
-                    if (e.direction == 'CREDIT') {
-                      totalCredits += e.amount;
-                    } else if (e.direction == 'DEBIT') {
-                      totalDebits += e.amount;
+                      for (final e in entries) {
+                        if (e.direction == 'CREDIT') {
+                          totalCredits += e.amount;
+                        } else if (e.direction == 'DEBIT') {
+                          totalDebits += e.amount;
+                        }
+                      }
+
+                      // Net Delta: Credits - Debits.
+                      final netDelta = totalCredits - totalDebits;
+
+                      emit(
+                        LedgerState.success(
+                          entries: entries,
+                          totalCredits: totalCredits,
+                          totalDebits: totalDebits,
+                          netDelta: netDelta,
+                        ),
+                      );
                     }
-                  }
-
-                  // Net Delta: Credits - Debits.
-                  final netDelta = totalCredits - totalDebits;
-
-                  emit(LedgerState.success(
-                    entries: entries,
-                    totalCredits: totalCredits,
-                    totalDebits: totalDebits,
-                    netDelta: netDelta,
-                  ),);
-                }
+                  },
+                );
               },
             );
-          },
-        );
       },
     );
   }
 
   @override
-  Future<void> close() {
-    _subscription?.cancel();
-    return super.close();
+  Future<void> close() async {
+    await _subscription?.cancel();
+    await super.close();
   }
 }

@@ -2,7 +2,8 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
-import 'package:boklo/shared/widgets/molecules/balance_card.dart' show BalanceCard;
+import 'package:boklo/shared/widgets/molecules/balance_card.dart'
+    show BalanceCard;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -43,16 +44,19 @@ class BalanceCardBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     if (_displayId == null) return const SizedBox.shrink();
     return Material(
-      // Use 'color' here instead of a Container decoration to avoid extra layers
+      // Use 'color' here instead of a Container decoration to avoid extra
+      // layers
       color: Colors.white.withValues(alpha: 0.2),
       borderRadius: BorderRadius.circular(AppDimens.radiusSm),
       // clipBehavior is important for the ripple to follow the border radius
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: _copyValue == null ? null : () async {
-          await Clipboard.setData(ClipboardData(text: _copyValue!));
-          getIt<SnackbarService>().showInfo('Copied to clipboard');
-        },
+        onTap: _copyValue == null
+            ? null
+            : () async {
+                await Clipboard.setData(ClipboardData(text: _copyValue!));
+                getIt<SnackbarService>().showInfo('Copied to clipboard');
+              },
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppDimens.sm,

@@ -40,7 +40,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
         throw const NetworkFailure('Unable to reach profile service');
       }
       throw UnknownFailure('Failed to fetch user profile: ${e.code}');
-    } catch (e) {
+    } on Object catch (e) {
       throw UnknownFailure('Failed to fetch user profile: $e');
     }
   }
@@ -54,19 +54,25 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       log('🚀 Calling setUserProfile function');
       log('   - Mode: ${isEmulator ? "EMULATOR" : "PRODUCTION"}');
       if (isEmulator) {
-        log('   - Host: ${EmulatorConfig.resolvedHost}:${EmulatorConfig.functionsPort}');
+        log(
+          '- Host:  '
+          '${EmulatorConfig.resolvedHost}:${EmulatorConfig.functionsPort}',
+        );
       }
       log('   - Params: username=$username, name=$name');
 
-      final result =
-          await callable.call<Map<String, dynamic>>(<String, dynamic>{
-        'username': username,
-        'name': name,
-      });
+      final result = await callable.call<Map<String, dynamic>>(
+        <String, dynamic>{
+          'username': username,
+          'name': name,
+        },
+      );
       log('✅ setUserProfile success: ${result.data}');
     } on FirebaseFunctionsException catch (e) {
-      log('❌ setUserProfile FirebaseFunctionsException: '
-          '[${e.code}] ${e.message}');
+      log(
+        '❌ setUserProfile FirebaseFunctionsException: '
+        '[${e.code}] ${e.message}',
+      );
       log('   - Details: ${e.details}');
 
       if (e.code == 'already-exists') {
@@ -93,7 +99,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
         throw const NetworkFailure('Unable to reach profile service');
       }
       throw UnknownFailure('Profile update failed: ${e.code}');
-    } catch (e) {
+    } on Object catch (e) {
       log('❌ setUserProfile Unexpected Error: $e');
       throw UnknownFailure('Profile update failed: $e');
     }
@@ -106,14 +112,18 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       await callable.call<Map<String, dynamic>>();
     } on FirebaseFunctionsException catch (e) {
       if (e.code == 'failed-precondition') {
-        throw ValidationFailure(e.message ?? 'Account deletion is not allowed.');
+        throw ValidationFailure(
+          e.message ?? 'Account deletion is not allowed.',
+        );
       } else if (e.code == 'unauthenticated') {
-        throw const ServerFailure('Your session expired. Please sign in again.');
+        throw const ServerFailure(
+          'Your session expired. Please sign in again.',
+        );
       } else if (e.code == 'unavailable') {
         throw const NetworkFailure('Unable to reach account deletion service');
       }
       throw UnknownFailure(e.message ?? 'Failed to delete account');
-    } catch (e) {
+    } on Object catch (e) {
       throw UnknownFailure('Failed to delete account: $e');
     }
   }

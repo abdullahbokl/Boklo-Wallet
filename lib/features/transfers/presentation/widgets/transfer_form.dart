@@ -59,11 +59,11 @@ class _TransferFormState extends State<TransferForm> {
           onConfirm: () {
             unawaited(
               context.read<TransferCubit>().createTransfer(
-                    fromWalletId: fromWalletId,
-                    recipient: recipient,
-                    amount: amount,
-                    currency: currency,
-                  ),
+                fromWalletId: fromWalletId,
+                recipient: recipient,
+                amount: amount,
+                currency: currency,
+              ),
             );
           },
         ),

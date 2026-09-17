@@ -44,8 +44,8 @@ void main() {
     );
   });
 
-  tearDown(() {
-    cubit.close();
+  tearDown(() async {
+    await cubit.close();
   });
 
   const tWallet = WalletEntity(
@@ -75,12 +75,15 @@ void main() {
     blocTest<WalletCubit, BaseState<WalletState>>(
       'emits [loading, success] when wallet is received immediately',
       build: () {
-        when(() => mockWatchWalletUseCase.call())
-            .thenAnswer((_) => Stream.value(right(tWallet)));
-        when(() => mockGetTransactionsUseCase.call())
-            .thenAnswer((_) async => right(tTransactions));
-        when(() => mockGetTransactionsUseCase.watch())
-            .thenAnswer((_) => Stream.value(right(tTransactions)));
+        when(
+          () => mockWatchWalletUseCase.call(),
+        ).thenAnswer((_) => Stream.value(right(tWallet)));
+        when(
+          () => mockGetTransactionsUseCase.call(),
+        ).thenAnswer((_) async => right(tTransactions));
+        when(
+          () => mockGetTransactionsUseCase.watch(),
+        ).thenAnswer((_) => Stream.value(right(tTransactions)));
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
@@ -105,12 +108,15 @@ void main() {
     blocTest<WalletCubit, BaseState<WalletState>>(
       'emits [loading, error] when wallet stream emits failure',
       build: () {
-        when(() => mockWatchWalletUseCase.call())
-            .thenAnswer((_) => Stream.value(left(tError)));
-        when(() => mockGetTransactionsUseCase.call())
-            .thenAnswer((_) async => right(const []));
-        when(() => mockGetTransactionsUseCase.watch())
-            .thenAnswer((_) => const Stream.empty());
+        when(
+          () => mockWatchWalletUseCase.call(),
+        ).thenAnswer((_) => Stream.value(left(tError)));
+        when(
+          () => mockGetTransactionsUseCase.call(),
+        ).thenAnswer((_) async => right(const []));
+        when(
+          () => mockGetTransactionsUseCase.watch(),
+        ).thenAnswer((_) => const Stream.empty());
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
@@ -128,14 +134,18 @@ void main() {
       'calls provisionWallet after 3s if wallet not received',
       build: () {
         // Wallet stream never emits, simulating missing wallet
-        when(() => mockWatchWalletUseCase.call())
-            .thenAnswer((_) => const Stream.empty());
-        when(() => mockGetTransactionsUseCase.call())
-            .thenAnswer((_) async => right(const []));
-        when(() => mockGetTransactionsUseCase.watch())
-            .thenAnswer((_) => const Stream.empty());
-        when(() => mockProvisionWalletUseCase.call())
-            .thenAnswer((_) async => right(null));
+        when(
+          () => mockWatchWalletUseCase.call(),
+        ).thenAnswer((_) => const Stream.empty());
+        when(
+          () => mockGetTransactionsUseCase.call(),
+        ).thenAnswer((_) async => right(const []));
+        when(
+          () => mockGetTransactionsUseCase.watch(),
+        ).thenAnswer((_) => const Stream.empty());
+        when(
+          () => mockProvisionWalletUseCase.call(),
+        ).thenAnswer((_) async => right(null));
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),
@@ -165,14 +175,17 @@ void main() {
               ),
             );
           }
-            return Stream.value(right(tWallet));
+          return Stream.value(right(tWallet));
         });
-        when(() => mockGetTransactionsUseCase.call())
-            .thenAnswer((_) async => right(const []));
-        when(() => mockGetTransactionsUseCase.watch())
-            .thenAnswer((_) => const Stream.empty());
-        when(() => mockProvisionWalletUseCase.call())
-            .thenAnswer((_) async => right(null));
+        when(
+          () => mockGetTransactionsUseCase.call(),
+        ).thenAnswer((_) async => right(const []));
+        when(
+          () => mockGetTransactionsUseCase.watch(),
+        ).thenAnswer((_) => const Stream.empty());
+        when(
+          () => mockProvisionWalletUseCase.call(),
+        ).thenAnswer((_) async => right(null));
         return cubit;
       },
       act: (cubit) => cubit.loadWallet(),

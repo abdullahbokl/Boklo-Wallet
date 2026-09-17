@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
@@ -33,12 +35,14 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      context.read<AuthCubit>().setUserProfile(
-            username: _usernameController.text.trim(),
-            name: _nameController.text.trim().isEmpty
-                ? null
-                : _nameController.text.trim(),
-          );
+      unawaited(
+        context.read<AuthCubit>().setUserProfile(
+          username: _usernameController.text.trim(),
+          name: _nameController.text.trim().isEmpty
+              ? null
+              : _nameController.text.trim(),
+        ),
+      );
     }
   }
 

@@ -35,16 +35,16 @@ class TransferEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        fromWalletId,
-        toWalletId,
-        amount,
-        currency,
-        status,
-        createdAt,
-        failureReason,
-        reasons,
-        riskLevel,
-        riskMode,
-      ];
+    id,
+    fromWalletId,
+    toWalletId,
+    amount,
+    currency,
+    status,
+    createdAt,
+    failureReason,
+    reasons,
+    riskLevel,
+    riskMode,
+  ];
 }

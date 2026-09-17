@@ -47,7 +47,8 @@ class RequestTransferUseCase {
                 fromWalletId: fromWallet.id,
                 toWalletId: toWallet.id,
                 amount: amount,
-                currency: fromWallet.currency, // Verified same currency in validator
+                currency:
+                    fromWallet.currency, // Verified same currency in validator
                 status: TransferStatus.pending,
                 createdAt: DateTime.now(),
               );

@@ -12,7 +12,6 @@ class RegisterParams {
 }
 
 @injectable
-
 /// Use case for user registration.
 class RegisterUseCase implements UseCase<User, RegisterParams> {
   RegisterUseCase(this.repository);

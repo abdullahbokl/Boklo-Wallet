@@ -71,8 +71,9 @@ void main() {
     mockAnalyticsService = MockAnalyticsService();
     mockNotificationService = MockNotificationService();
 
-    when(() => mockAnalyticsService.logLogin(method: any(named: 'method')))
-        .thenAnswer((_) async {});
+    when(
+      () => mockAnalyticsService.logLogin(method: any(named: 'method')),
+    ).thenAnswer((_) async {});
 
     when(() => mockNotificationService.deleteToken()).thenAnswer((_) async {});
 
@@ -101,8 +102,9 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, success] when login is successful',
       build: () {
-        when(() => mockLoginUseCase.call(any()))
-            .thenAnswer((_) async => right(tUser));
+        when(
+          () => mockLoginUseCase.call(any()),
+        ).thenAnswer((_) async => right(tUser));
         return cubit;
       },
       act: (cubit) => cubit.login(tEmail, tPassword),
@@ -118,8 +120,9 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, error] when login fails',
       build: () {
-        when(() => mockLoginUseCase.call(any()))
-            .thenAnswer((_) async => left(tError));
+        when(
+          () => mockLoginUseCase.call(any()),
+        ).thenAnswer((_) async => left(tError));
         return cubit;
       },
       act: (cubit) => cubit.login(tEmail, tPassword),
@@ -135,8 +138,9 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, success(null)] when logout is successful',
       build: () {
-        when(() => mockLogoutUseCase.call(any()))
-            .thenAnswer((_) async => right(null));
+        when(
+          () => mockLogoutUseCase.call(any()),
+        ).thenAnswer((_) async => right(null));
         return cubit;
       },
       act: (cubit) => cubit.logout(),
@@ -152,8 +156,9 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, error] when logout fails',
       build: () {
-        when(() => mockLogoutUseCase.call(any()))
-            .thenAnswer((_) async => left(tError));
+        when(
+          () => mockLogoutUseCase.call(any()),
+        ).thenAnswer((_) async => left(tError));
         return cubit;
       },
       act: (cubit) => cubit.logout(),
@@ -169,10 +174,12 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, success(null)] when account deletion succeeds',
       build: () {
-        when(() => mockDeleteAccountUseCase.call(any()))
-            .thenAnswer((_) async => right(null));
-        when(() => mockLogoutUseCase.call(any()))
-            .thenAnswer((_) async => right(null));
+        when(
+          () => mockDeleteAccountUseCase.call(any()),
+        ).thenAnswer((_) async => right(null));
+        when(
+          () => mockLogoutUseCase.call(any()),
+        ).thenAnswer((_) async => right(null));
         return cubit;
       },
       act: (cubit) => cubit.deleteAccount(tPassword),
@@ -190,8 +197,9 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, error] when account deletion fails',
       build: () {
-        when(() => mockDeleteAccountUseCase.call(any()))
-            .thenAnswer((_) async => left(tError));
+        when(
+          () => mockDeleteAccountUseCase.call(any()),
+        ).thenAnswer((_) async => left(tError));
         return cubit;
       },
       act: (cubit) => cubit.deleteAccount(tPassword),
@@ -208,8 +216,9 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, success] when checkAuthStatus finds a user',
       build: () {
-        when(() => mockGetCurrentUserUseCase.call(any()))
-            .thenAnswer((_) async => right(tUser));
+        when(
+          () => mockGetCurrentUserUseCase.call(any()),
+        ).thenAnswer((_) async => right(tUser));
         return cubit;
       },
       act: (cubit) => cubit.checkAuthStatus(),
@@ -225,8 +234,9 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, success] when register is successful',
       build: () {
-        when(() => mockRegisterUseCase.call(any()))
-            .thenAnswer((_) async => right(tUser));
+        when(
+          () => mockRegisterUseCase.call(any()),
+        ).thenAnswer((_) async => right(tUser));
         return cubit;
       },
       act: (cubit) => cubit.register(tEmail, tPassword),
@@ -242,8 +252,9 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, error] when register fails',
       build: () {
-        when(() => mockRegisterUseCase.call(any()))
-            .thenAnswer((_) async => left(tError));
+        when(
+          () => mockRegisterUseCase.call(any()),
+        ).thenAnswer((_) async => left(tError));
         return cubit;
       },
       act: (cubit) => cubit.register(tEmail, tPassword),
@@ -259,10 +270,12 @@ void main() {
     blocTest<AuthCubit, BaseState<User?>>(
       'emits [loading, loading, success] when setUserProfile is successful',
       build: () {
-        when(() => mockSetUserProfileUseCase.call(any()))
-            .thenAnswer((_) async => right(null));
-        when(() => mockGetCurrentUserUseCase.call(any()))
-            .thenAnswer((_) async => right(tUser));
+        when(
+          () => mockSetUserProfileUseCase.call(any()),
+        ).thenAnswer((_) async => right(null));
+        when(
+          () => mockGetCurrentUserUseCase.call(any()),
+        ).thenAnswer((_) async => right(tUser));
         return cubit;
       },
       act: (cubit) =>

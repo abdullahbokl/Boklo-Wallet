@@ -18,8 +18,8 @@ class TransactionList extends StatelessWidget {
     this.onLoadMore,
   });
 
-  static final DateFormat _transactionDateFormatter =
-      DateFormat.yMMMd().add_jm();
+  static final DateFormat _transactionDateFormatter = DateFormat.yMMMd()
+      .add_jm();
 
   final List<domain.TransactionEntity> transactions;
   final bool isLoading;

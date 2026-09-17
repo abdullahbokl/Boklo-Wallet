@@ -45,7 +45,8 @@ class TransferFormContent extends StatelessWidget {
                 children: [
                   const AppSectionHeader(
                     title: 'Transfer details',
-                    subtitle: 'Enter who should receive the money and how much.',
+                    subtitle:
+                        'Enter who should receive the money and how much.',
                   ),
                   const SizedBox(height: AppDimens.lg),
                   TransferRecipientInput(
@@ -59,7 +60,8 @@ class TransferFormContent extends StatelessWidget {
                   ),
                   const SizedBox(height: AppDimens.lg),
                   Text(
-                    'Transfers are confirmed by the backend before balances update.',
+                    'Transfers are confirmed by the backend before balances  '
+                    'update.',
                     style: AppTypography.bodySmall.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),

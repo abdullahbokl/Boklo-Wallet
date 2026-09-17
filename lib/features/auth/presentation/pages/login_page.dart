@@ -54,7 +54,8 @@ class LoginPage extends StatelessWidget {
                     LoginHeader(
                       title: 'Sign in to Boklo',
                       subtitle:
-                          'Secure access to your wallet, transfers, and requests.',
+                          'Secure access to your wallet, transfers, and  '
+                          'requests.',
                     ),
                     SizedBox(height: AppDimens.xl),
                     AppCard(

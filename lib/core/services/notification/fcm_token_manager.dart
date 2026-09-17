@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,7 +8,6 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class FcmTokenManager {
-
   FcmTokenManager(this._messaging, this._auth, this._firestore);
   final FirebaseMessaging _messaging;
   final FirebaseAuth _auth;
@@ -31,7 +31,7 @@ class FcmTokenManager {
     // Monitor Token Refresh
     _messaging.onTokenRefresh.listen((newToken) {
       log('FCM Token refreshed: $newToken');
-      _saveTokenToFirestore(newToken);
+      unawaited(_saveTokenToFirestore(newToken));
     });
   }
 
@@ -48,12 +48,12 @@ class FcmTokenManager {
           .collection('tokens')
           .doc(token)
           .set({
-        'token': token,
-        'createdAt': FieldValue.serverTimestamp(),
-        'platform': 'flutter',
-      });
+            'token': token,
+            'createdAt': FieldValue.serverTimestamp(),
+            'platform': 'flutter',
+          });
       log('FCM Token saved to Firestore');
-    } catch (e) {
+    } on Object catch (e) {
       log('Error saving FCM token: $e');
     }
   }
@@ -73,7 +73,7 @@ class FcmTokenManager {
             .delete();
         log('FCM Token deleted from Firestore');
       }
-    } catch (e) {
+    } on Object catch (e) {
       log('Error deleting FCM token: $e');
     }
   }

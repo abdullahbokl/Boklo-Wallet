@@ -68,7 +68,8 @@ class PaymentRequestItem extends StatelessWidget {
                 ),
               ),
             ],
-            if (!isOutgoing && request.status == PaymentRequestStatus.pending) ...[
+            if (!isOutgoing &&
+                request.status == PaymentRequestStatus.pending) ...[
               const SizedBox(height: AppDimens.lg),
               Row(
                 children: [
@@ -80,8 +81,8 @@ class PaymentRequestItem extends StatelessWidget {
                       onPressed: isLoading
                           ? null
                           : () => context
-                              .read<PaymentRequestCubit>()
-                              .declineRequest(request.id),
+                                .read<PaymentRequestCubit>()
+                                .declineRequest(request.id),
                     ),
                   ),
                   const SizedBox(width: AppDimens.md),
@@ -95,8 +96,8 @@ class PaymentRequestItem extends StatelessWidget {
                       onPressed: isLoading
                           ? null
                           : () => context
-                              .read<PaymentRequestCubit>()
-                              .acceptRequest(request.id),
+                                .read<PaymentRequestCubit>()
+                                .acceptRequest(request.id),
                     ),
                   ),
                 ],

@@ -26,29 +26,35 @@ void main() {
 
   test('should return walletId when repository call is successful', () async {
     // Arrange
-    when(() => mockDiscoveryRepository.resolveWalletByEmail(tEmail))
-        .thenAnswer((_) async => right<Failure, UserPublicProfile>(tProfile));
+    when(
+      () => mockDiscoveryRepository.resolveWalletByEmail(tEmail),
+    ).thenAnswer((_) async => right<Failure, UserPublicProfile>(tProfile));
 
     // Act
     final result = await useCase(tEmail);
 
     // Assert
     expect(result, right<Failure, String>('wallet1'));
-    verify(() => mockDiscoveryRepository.resolveWalletByEmail(tEmail))
-        .called(1);
+    verify(
+      () => mockDiscoveryRepository.resolveWalletByEmail(tEmail),
+    ).called(1);
   });
 
   test('should return Failure when repository call fails', () async {
     // Arrange
-    when(() => mockDiscoveryRepository.resolveWalletByEmail(tEmail))
-        .thenAnswer((_) async => left<Failure, UserPublicProfile>(const ServerFailure('Network error')));
+    when(() => mockDiscoveryRepository.resolveWalletByEmail(tEmail)).thenAnswer(
+      (_) async => left<Failure, UserPublicProfile>(
+        const ServerFailure('Network error'),
+      ),
+    );
 
     // Act
     final result = await useCase(tEmail);
 
     // Assert
     expect(result, left<Failure, String>(const ServerFailure('Network error')));
-    verify(() => mockDiscoveryRepository.resolveWalletByEmail(tEmail))
-        .called(1);
+    verify(
+      () => mockDiscoveryRepository.resolveWalletByEmail(tEmail),
+    ).called(1);
   });
 }

@@ -19,8 +19,9 @@ void main() {
 
   test('should return void when logout is successful', () async {
     // Arrange
-    when(() => mockAuthRepository.logout())
-        .thenAnswer((_) async => right(null));
+    when(
+      () => mockAuthRepository.logout(),
+    ).thenAnswer((_) async => right(null));
 
     // Act
     final result = await logoutUseCase(NoParams());
@@ -33,8 +34,9 @@ void main() {
   test('should return Failure when logout fails', () async {
     // Arrange
     const tError = UnknownFailure('Logout failed');
-    when(() => mockAuthRepository.logout())
-        .thenAnswer((_) async => left(tError));
+    when(
+      () => mockAuthRepository.logout(),
+    ).thenAnswer((_) async => left(tError));
 
     // Act
     final result = await logoutUseCase(NoParams());

@@ -42,7 +42,9 @@ class _AddContactSheetState extends State<AddContactSheet> {
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppDimens.xl)),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppDimens.xl),
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppDimens.lg),
@@ -60,7 +62,9 @@ class _AddContactSheetState extends State<AddContactSheet> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
