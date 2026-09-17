@@ -18,6 +18,7 @@ import 'package:boklo/features/payment_requests/presentation/pages/payment_reque
 import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
+import 'package:boklo/features/wallet/presentation/pages/transaction_detail_page.dart';
 import 'package:boklo/features/wallet/presentation/pages/wallet_page.dart';
 import 'package:boklo/shared/widgets/molecules/adaptive_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,12 @@ class AppRouter {
         path: '/profile-setup',
         builder: (context, state) => const ProfileSetupPage(),
       ),
-      // --- Adaptive tabbed shell (bottom bar / navigation rail) ---
+      GoRoute(
+        path: '/transaction-detail',
+        builder: (context, state) => TransactionDetailPage.fromExtra(
+          state.extra! as Map<String, dynamic>,
+        ),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AdaptiveScaffold(navigationShell: navigationShell),
@@ -101,9 +107,15 @@ class AppRouter {
               GoRoute(
                 path: '/transfer',
                 builder: (context, state) {
-                  // Extract contact email if passed from contacts page
-                  final contact = state.extra as ContactEntity?;
-                  return TransferPage(prefilledRecipient: contact?.email);
+                  // Extra may be a ContactEntity (contacts page), a plain
+                  // recipient identifier string (retry flow), or absent.
+                  final extra = state.extra;
+                  final prefilled = switch (extra) {
+                    final ContactEntity contact => contact.email,
+                    final String recipient => recipient,
+                    _ => null,
+                  };
+                  return TransferPage(prefilledRecipient: prefilled);
                 },
               ),
             ],

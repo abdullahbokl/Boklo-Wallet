@@ -12,6 +12,8 @@ class TransactionModel {
     required this.type,
     required this.timestamp,
     this.status = TransactionStatus.completed,
+    this.counterpartyId,
+    this.description,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) =>
@@ -34,6 +36,8 @@ class TransactionModel {
   final DateTime timestamp;
 
   final TransactionStatus status;
+  final String? counterpartyId;
+  final String? description;
 
   Map<String, dynamic> toJson() => _$TransactionModelToJson(this);
 
@@ -44,6 +48,8 @@ class TransactionModel {
       type: type,
       timestamp: timestamp,
       status: status,
+      counterpartyId: counterpartyId,
+      description: description,
     );
   }
 }

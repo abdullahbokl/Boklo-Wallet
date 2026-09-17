@@ -1,6 +1,5 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
-import 'package:boklo/shared/widgets/atoms/status_chip.dart';
 import 'package:flutter/material.dart';
 
 /// A themed transaction tile with credit/debit styling and status badge.
@@ -12,8 +11,8 @@ class TransactionTile extends StatelessWidget {
     required this.title,
     required this.amount,
     required this.date,
-    required this.status,
     required this.isCredit,
+    this.statusBadge,
     super.key,
     this.onTap,
   });
@@ -21,7 +20,7 @@ class TransactionTile extends StatelessWidget {
   final String title;
   final String amount;
   final String date;
-  final TransactionStatus status;
+  final Widget? statusBadge;
   final bool isCredit;
   final VoidCallback? onTap;
 
@@ -74,7 +73,7 @@ class TransactionTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppDimens.xs4),
-                  StatusChip(status: status),
+                  ?statusBadge,
                 ],
               ),
             ],

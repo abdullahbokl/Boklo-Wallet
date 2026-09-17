@@ -1,13 +1,15 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart'
     as domain;
+import 'package:boklo/features/wallet/presentation/pages/transaction_detail_page.dart';
+import 'package:boklo/features/wallet/presentation/widgets/transaction_status_chip.dart';
 import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
-import 'package:boklo/shared/widgets/atoms/status_chip.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/transaction_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class TransactionList extends StatelessWidget {
@@ -68,27 +70,26 @@ class TransactionList extends StatelessWidget {
         final tx = transactions[index];
         final isCredit = tx.type == domain.TransactionType.credit;
 
-        // Map Domain Status to UI Status
-        var uiStatus = TransactionStatus.pending;
-        switch (tx.status) {
-          case domain.TransactionStatus.pending:
-            uiStatus = TransactionStatus.pending;
-          case domain.TransactionStatus.completed:
-            uiStatus = TransactionStatus.completed;
-          case domain.TransactionStatus.failed:
-            uiStatus = TransactionStatus.failed;
-        }
-
         return Padding(
           padding: EdgeInsets.only(
             bottom: index < transactions.length - 1 ? AppDimens.sm : 0,
           ),
           child: RepaintBoundary(
             child: TransactionTile(
-              title: isCredit ? 'Received Money' : 'Sent Money',
+              title: isCredit
+                  ? context.l10n.receivedMoney
+                  : context.l10n.sentMoney,
               amount: tx.amount.moneyLabel(currency),
               date: _transactionDateFormatter.format(tx.timestamp),
-              status: uiStatus,
+              statusBadge: TransactionStatusChip(status: tx.status),
+              onTap: () => context.push(
+                TransactionDetailPage.routePath,
+                extra: {
+                  'transaction': tx,
+                  'currency': currency,
+                  'walletId': '',
+                },
+              ),
               isCredit: isCredit,
             ),
           ),

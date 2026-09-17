@@ -246,11 +246,24 @@ class WalletCubit extends BaseCubit<WalletState> {
   List<TransactionEntity> _applyFilters(
     List<TransactionEntity> transactions,
     TransactionType? type,
-    TransactionStatus? status,
-  ) {
+    TransactionStatus? status, {
+    String query = '',
+    DateTime? from,
+    DateTime? to,
+  }) {
+    final normalizedQuery = query.trim().toLowerCase();
     return transactions.where((tx) {
       if (type != null && tx.type != type) return false;
       if (status != null && tx.status != status) return false;
+      if (from != null && tx.timestamp.isBefore(from)) return false;
+      if (to != null && tx.timestamp.isAfter(to.add(const Duration(days: 1)))) {
+        return false;
+      }
+      if (normalizedQuery.isNotEmpty &&
+          !tx.id.toLowerCase().contains(normalizedQuery) &&
+          !(tx.counterpartyId ?? '').toLowerCase().contains(normalizedQuery)) {
+        return false;
+      }
       return true;
     }).toList();
   }

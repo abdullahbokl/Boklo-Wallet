@@ -801,6 +801,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signed out successfully.'**
   String get signedOutSuccessfully;
+
+  /// No description provided for @transactionDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction details'**
+  String get transactionDetailTitle;
+
+  /// No description provided for @detailDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get detailDate;
+
+  /// No description provided for @detailFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get detailFrom;
+
+  /// No description provided for @detailTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get detailTo;
+
+  /// No description provided for @detailDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get detailDescription;
+
+  /// No description provided for @detailTransactionId.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction ID'**
+  String get detailTransactionId;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// No description provided for @reportProblem.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem'**
+  String get reportProblem;
+
+  /// No description provided for @reportProblemHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what happened'**
+  String get reportProblemHint;
+
+  /// No description provided for @reportProblemSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit report'**
+  String get reportProblemSubmit;
+
+  /// No description provided for @reportProblemSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Report submitted. Our team will review it.'**
+  String get reportProblemSubmitted;
+
+  /// No description provided for @receivedMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Received Money'**
+  String get receivedMoney;
+
+  /// No description provided for @sentMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent Money'**
+  String get sentMoney;
 }
 
 class _AppLocalizationsDelegate

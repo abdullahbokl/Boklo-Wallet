@@ -377,4 +377,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signedOutSuccessfully => 'Signed out successfully.';
+
+  @override
+  String get transactionDetailTitle => 'Transaction details';
+
+  @override
+  String get detailDate => 'Date';
+
+  @override
+  String get detailFrom => 'From';
+
+  @override
+  String get detailTo => 'To';
+
+  @override
+  String get detailDescription => 'Description';
+
+  @override
+  String get detailTransactionId => 'Transaction ID';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get reportProblem => 'Report a problem';
+
+  @override
+  String get reportProblemHint => 'Tell us what happened';
+
+  @override
+  String get reportProblemSubmit => 'Submit report';
+
+  @override
+  String get reportProblemSubmitted =>
+      'Report submitted. Our team will review it.';
+
+  @override
+  String get receivedMoney => 'Received Money';
+
+  @override
+  String get sentMoney => 'Sent Money';
 }

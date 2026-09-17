@@ -21,5 +21,7 @@ abstract class TransactionEntity with _$TransactionEntity {
     required TransactionType type,
     required DateTime timestamp,
     @Default(TransactionStatus.completed) TransactionStatus status,
+    String? counterpartyId,
+    String? description,
   }) = _TransactionEntity;
 }

@@ -11,6 +11,9 @@ abstract class WalletState with _$WalletState {
     @Default([]) List<TransactionEntity> transactions,
     TransactionType? filterType,
     TransactionStatus? filterStatus,
+    DateTime? searchFrom,
+    DateTime? searchTo,
+    @Default('') String searchQuery,
     @Default(true) bool hasMore,
     @Default(false) bool isLoadingMore,
   }) = _WalletState;

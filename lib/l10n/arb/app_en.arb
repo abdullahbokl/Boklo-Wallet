@@ -130,5 +130,21 @@
   "verifyEmailResend": "Resend email",
   "verifyEmailRefresh": "I've verified",
   "emailVerifiedBannerDismiss": "Dismiss",
-  "signedOutSuccessfully": "Signed out successfully."
+  "signedOutSuccessfully": "Signed out successfully.",
+  "transactionDetailTitle": "Transaction details",
+  "detailDate": "Date",
+  "detailFrom": "From",
+  "detailTo": "To",
+  "detailDescription": "Description",
+  "detailTransactionId": "Transaction ID",
+  "tryAgain": "Try again",
+  "reportProblem": "Report a problem",
+  "reportProblemHint": "Tell us what happened",
+  "reportProblemSubmit": "Submit report",
+  "reportProblemSubmitted": "Report submitted. Our team will review it.",
+  "receivedMoney": "Received Money",
+  "sentMoney": "Sent Money",
+  "searchTransactions": "Search transactions",
+  "dateRange": "Date range",
+  "clearDates": "Clear dates"
 }
