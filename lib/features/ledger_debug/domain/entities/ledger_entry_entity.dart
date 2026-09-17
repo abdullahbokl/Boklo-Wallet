@@ -14,7 +14,7 @@ class LedgerEntryEntity extends Equatable {
   final String id;
   final String transactionId;
   final String walletId;
-  final double amount;
+  final int amount;
   final String currency;
   final String direction; // 'DEBIT' or 'CREDIT'
   final DateTime occurredAt;

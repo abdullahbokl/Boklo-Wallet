@@ -85,7 +85,7 @@ void main() {
   // Use a 28-char ID to bypass username resolution logic and treat as a
   // direct wallet ID.
   const tToId = '1234567890123456789012345678';
-  const tAmount = 100.0;
+  const tAmount = 100;
   const tCurrency = 'SAR';
 
   group('createTransfer', () {

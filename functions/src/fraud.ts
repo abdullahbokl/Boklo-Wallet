@@ -20,12 +20,16 @@ export interface FraudCheckContext {
 // Configurable Risk Mode
 export const RISK_MODE: 'ENFORCE' | 'MONITOR' = process.env.RISK_MODE === 'MONITOR' ? 'MONITOR' : 'ENFORCE';
 
-// Default limits — used as fallback when Remote Config is unavailable
+// Default limits — used as fallback when Remote Config is unavailable.
+// AMOUNT_* limits are expressed in INTEGER MINOR UNITS (EGP piastres):
+// 500_000 = EGP 5,000.00, 1_000_000 = EGP 10,000.00.
+// Keep the Remote Config params `fraud_amount_single` / `fraud_amount_24h`
+// in minor units as well (see docs/MONEY_MIGRATION.md).
 const DEFAULT_LIMITS = {
     VELOCITY_1H: 5,
     VELOCITY_24H: 20,
-    AMOUNT_SINGLE: 5000,
-    AMOUNT_24H: 10000,
+    AMOUNT_SINGLE: 500_000,
+    AMOUNT_24H: 1_000_000,
     FAILURE_RATE_1H: 3,
 };
 

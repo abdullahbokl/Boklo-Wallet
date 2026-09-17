@@ -29,7 +29,8 @@ export const onUserCreated = functions.auth.user().onCreate(async (user) => {
         // Create the wallet document
         await walletRef.set({
             id: uid,
-            balance: 0,
+            balance: 0, // integer minor units (EGP piastres)
+            minorUnits: true,
             currency: "EGP", // Default currency
             ownerId: uid,
             ownerEmail: email,

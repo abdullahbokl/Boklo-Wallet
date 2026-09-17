@@ -1,10 +1,12 @@
 import 'dart:async';
+
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
+import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +41,7 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
             .read<PaymentRequestCubit>()
             .createRequest(
               payerId: widget.payerIdController.text,
-              amount: double.parse(widget.amountController.text),
+              amount: tryParseMoney(widget.amountController.text)!,
               note: widget.noteController.text,
             )
             .then((_) {

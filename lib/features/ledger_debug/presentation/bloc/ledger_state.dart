@@ -9,9 +9,9 @@ class LedgerState with _$LedgerState {
   const factory LedgerState.loading() = _Loading;
   const factory LedgerState.success({
     required List<LedgerEntryEntity> entries,
-    required double totalCredits,
-    required double totalDebits,
-    required double netDelta,
+    required int totalCredits,
+    required int totalDebits,
+    required int netDelta,
   }) = _Success;
   const factory LedgerState.empty() = _Empty;
   const factory LedgerState.error(String message) = _Error;

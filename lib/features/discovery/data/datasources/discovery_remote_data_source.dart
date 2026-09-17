@@ -33,26 +33,36 @@ class DiscoveryRemoteDataSourceImpl implements DiscoveryRemoteDataSource {
       throw Exception('Invalid identifier mapping');
     }
 
-    final userDoc = await _firestore.collection('users').doc(walletId).get();
+    final identifierValue =
+        mappingDoc.data()?['value'] as String? ?? emailLower;
 
-    if (!userDoc.exists) {
+    final publicDoc = await _firestore
+        .collection('wallet_public')
+        .doc(walletId)
+        .get();
+
+    if (!publicDoc.exists) {
       throw Exception('User profile not found');
     }
 
-    final data = userDoc.data()!;
+    final data = publicDoc.data()!;
     final isActive = data['isActive'] as bool? ?? true;
 
     if (!isActive) {
       throw Exception('User inactive');
     }
 
-    return UserPublicProfileModel.fromJson(data);
+    return UserPublicProfileModel(
+      userId: walletId,
+      email: identifierValue,
+      walletId: walletId,
+    );
   }
 
   @override
   Future<String> resolveWalletIdByAlias(String alias) async {
     final snapshot = await _firestore
-        .collection('wallets')
+        .collection('wallet_public')
         .where('alias', isEqualTo: alias)
         .limit(1)
         .get();
@@ -85,12 +95,19 @@ class DiscoveryRemoteDataSourceImpl implements DiscoveryRemoteDataSource {
       throw Exception('Invalid identifier mapping');
     }
 
-    final userDoc = await _firestore.collection('users').doc(walletId).get();
+    final publicDoc = await _firestore
+        .collection('wallet_public')
+        .doc(walletId)
+        .get();
 
-    if (!userDoc.exists) {
+    if (!publicDoc.exists) {
       throw Exception('User profile not found');
     }
 
-    return UserPublicProfileModel.fromJson(userDoc.data()!);
+    return UserPublicProfileModel(
+      userId: walletId,
+      email: '',
+      walletId: walletId,
+    );
   }
 }

@@ -20,11 +20,13 @@ class RequestTransferUseCase {
   Future<Either<Failure, TransferEntity>> call({
     required String fromWalletId,
     required String toWalletId,
-    required double amount,
+    required int amount,
   }) async {
-    // 0. Fetch Wallets
+    // 0. Fetch Wallets: full (owner) document for the sender - validation
+    // needs the real balance - and the balance-free public record for the
+    // recipient.
     final fromWalletResult = await _repository.getWallet(fromWalletId);
-    final toWalletResult = await _repository.getWallet(toWalletId);
+    final toWalletResult = await _repository.getPublicWallet(toWalletId);
 
     return fromWalletResult.fold(
       left,

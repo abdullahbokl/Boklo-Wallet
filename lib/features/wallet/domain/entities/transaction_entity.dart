@@ -17,7 +17,7 @@ enum TransactionStatus {
 abstract class TransactionEntity with _$TransactionEntity {
   const factory TransactionEntity({
     required String id,
-    required double amount,
+    required int amount,
     required TransactionType type,
     required DateTime timestamp,
     @Default(TransactionStatus.completed) TransactionStatus status,

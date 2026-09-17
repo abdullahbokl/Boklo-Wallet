@@ -70,7 +70,7 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
 
   Future<void> createRequest({
     required String payerId,
-    required double amount,
+    required int amount,
     String? note,
   }) async {
     final currentState = state.data ?? const PaymentRequestState();

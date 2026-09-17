@@ -1,6 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+/// Firestore stores money as integer minor units; this converter tolerates
+/// numeric inputs from legacy/JSON sources by rounding.
+class MinorUnitsConverter implements JsonConverter<int, Object> {
+  const MinorUnitsConverter();
+
+  @override
+  int fromJson(Object json) {
+    if (json is num) {
+      return json.round();
+    }
+    if (json is String) {
+      return int.parse(json);
+    }
+    throw FormatException('Unsupported minor-units value: $json');
+  }
+
+  @override
+  Object toJson(int object) => object;
+}
+
 class TimestampConverter implements JsonConverter<DateTime, Object> {
   const TimestampConverter();
 

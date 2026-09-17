@@ -11,6 +11,7 @@ import 'package:boklo/features/transfers/presentation/widgets/transfer_form_cont
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
+import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/wallet_error_view.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,8 @@ class _TransferFormState extends State<TransferForm> {
 
   void _onSubmit(String fromWalletId, String currency) {
     if (_formKey.currentState!.validate()) {
-      final amount = double.parse(_amountController.text);
+      final amount = tryParseMoney(_amountController.text);
+      if (amount == null) return; // validated already; defensive
       final recipient = _recipientController.text;
 
       unawaited(

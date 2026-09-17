@@ -2,6 +2,7 @@
 import { onCustomEventPublished } from "firebase-functions/v2/eventarc";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
+import { formatMajor } from "./utils/money";
 import { FieldValue } from "@google-cloud/firestore";
 import { TransferEventType,  TransactionCompletedEvent,
   TransactionFailedEvent,
@@ -144,7 +145,7 @@ export const notifyOnTransferComplete = onCustomEventPublished(
                 titleKey: 'transfer_sent_success_title',
                 bodyKey: 'transfer_sent_success_body',
                 data: { 
-                    amount: payload.amount.toString(), 
+                    amount: formatMajor(payload.amount), 
                     currency: payload.currency 
                 }
             }
@@ -159,7 +160,7 @@ export const notifyOnTransferComplete = onCustomEventPublished(
                 titleKey: 'transfer_received_title',
                 bodyKey: 'transfer_received_body',
                 data: { 
-                    amount: payload.amount.toString(), 
+                    amount: formatMajor(payload.amount), 
                     currency: payload.currency 
                 }
             }
@@ -217,7 +218,7 @@ export const notifyOnPaymentRequest = onCustomEventPublished(
                 titleKey: 'payment_request_title',
                 bodyKey: 'payment_request_body',
                 data: {
-                    amount: payload.amount.toString(),
+                    amount: formatMajor(payload.amount),
                     currency: payload.currency,
                     requesterId: payload.requesterId
                 }

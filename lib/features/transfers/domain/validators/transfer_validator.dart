@@ -8,7 +8,7 @@ class TransferValidator {
   Either<Failure, void> validate({
     required WalletEntity fromWallet,
     required WalletEntity toWallet,
-    required double amount,
+    required int amount,
   }) {
     if (amount <= 0) {
       return const Left(ValidationFailure('Amount must be greater than zero'));

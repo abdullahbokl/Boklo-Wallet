@@ -13,7 +13,10 @@ service cloud.firestore {
 
     // --- Users Collection ---
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      // Exact own-profile reads only. List queries are denied so the user
+      // directory (emails) cannot be harvested.
+      allow get: if isOwner(userId);
+      allow list: if false;
       // Updates must go through backend for critical fields, allowing client to update trivial stuff?
       // Requirement: "Backend-authoritative profile update flow"
       // So we deny client writes to username/name directly ideally.
@@ -41,7 +44,9 @@ service cloud.firestore {
     
     // --- Usernames Registry ---
     match /usernames/{username} {
-        allow read: if isAuthenticated(); // Allow reading to check existence (though backend provides check, simple read is checking existence) OR resolving
+        // Exact lookups for identifier resolution; no list (enumeration).
+        allow get: if isAuthenticated();
+        allow list: if false;
         allow write: if false; // Backend only
     }
     
@@ -59,10 +64,20 @@ service cloud.firestore {
       allow update, delete: if false; // Backend only via Callable
     }
     
+    // --- Public Wallet Profiles ---
+    // Balance-free mirror written by Cloud Functions; the ONLY wallet-derived
+    // data visible to other users.
+    match /wallet_public/{walletId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Backend only
+    }
+
     // --- Wallets Collection ---
     match /wallets/{walletId} {
-      // 1. Read: Publicly readable for authenticated users (required for discovery)
-      allow read: if isAuthenticated();
+      // 1. Read: OWNER ONLY. Balances are private. Recipient flows must use
+      //    /wallet_public (functions mirror identity fields there).
+      allow get: if isOwner(walletId);
+      allow list: if isOwner(walletId);
       
       // 2. Create: Deny. Backend creates wallet on user signup.
       allow create: if false;
@@ -118,6 +133,7 @@ service cloud.firestore {
                       'fromWalletId',
                       'toWalletId',
                       'amount',
+                      'minorUnits',
                       'currency',
                       'status',
                       'createdAt',
@@ -125,7 +141,8 @@ service cloud.firestore {
                       'reasons',
                       'riskLevel',
                       'riskMode',
-                    ]);
+                    ])
+                    && request.resource.data.minorUnits == true;
 
       // 6. Read: Involved parties (Sender/Receiver)
       allow read: if isAuthenticated() && (
@@ -145,9 +162,11 @@ service cloud.firestore {
     }
     
     // --- Wallet Identifiers (O(1) Lookup Mappings) ---
-    // Used by client to resolve email/username to walletId
+    // Used by client to resolve email/username to walletId. Exact get only -
+    // list is denied so the identifier directory cannot be harvested.
     match /wallet_identifiers/{identifierId} {
-      allow read: if isAuthenticated(); // Client reads for discovery
+      allow get: if isAuthenticated();
+      allow list: if false;
       allow write: if false; // Backend only (created by Cloud Functions)
     }
 

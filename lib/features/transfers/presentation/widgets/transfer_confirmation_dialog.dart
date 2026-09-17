@@ -14,14 +14,14 @@ class TransferConfirmationDialog extends StatelessWidget {
     super.key,
   });
 
-  final double amount;
+  final int amount;
   final String currency;
   final String recipient;
   final VoidCallback onConfirm;
 
   static Future<void> show({
     required BuildContext context,
-    required double amount,
+    required int amount,
     required String currency,
     required String recipient,
     required VoidCallback onConfirm,

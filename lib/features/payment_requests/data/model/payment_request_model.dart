@@ -1,12 +1,13 @@
 // for generated code and Firestore timestamp JsonKey helpers; the annotation
 // target lint is not applicable here and is safe to ignore.
 
+import 'package:boklo/core/utils/json_converters.dart';
 import 'package:boklo/features/payment_requests/domain/entity/payment_request_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'payment_request_model.g.dart';
 part 'payment_request_model.freezed.dart';
+part 'payment_request_model.g.dart';
 
 @freezed
 abstract class PaymentRequestModel with _$PaymentRequestModel {
@@ -16,7 +17,7 @@ abstract class PaymentRequestModel with _$PaymentRequestModel {
     required String id,
     required String requesterId,
     required String payerId,
-    required double amount,
+    @MinorUnitsConverter() required int amount,
     required String currency,
     required String status,
     required DateTime createdAt,

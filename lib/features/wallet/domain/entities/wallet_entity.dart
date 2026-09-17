@@ -6,7 +6,7 @@ part 'wallet_entity.freezed.dart';
 abstract class WalletEntity with _$WalletEntity {
   const factory WalletEntity({
     required String id,
-    required double balance,
+    required int balance,
     required String currency,
     String? username,
     String? ownerName,

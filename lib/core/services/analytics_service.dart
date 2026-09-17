@@ -26,7 +26,7 @@ class AnalyticsService {
   }
 
   Future<void> logTransferSuccess({
-    required double amount,
+    required int amount,
     required String currency,
   }) async {
     await logEvent(
@@ -39,7 +39,7 @@ class AnalyticsService {
   }
 
   Future<void> logTransferInitiated({
-    required double amount,
+    required int amount,
     required String currency,
   }) async {
     await logEvent(

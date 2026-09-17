@@ -11,6 +11,7 @@ import {
 import { evaluateRisk, RISK_MODE, createRiskReview } from "./fraud.js";
 import { checkTransferRateLimit } from "./utils/rate_limiter";
 import { generateCorrelationId } from "./utils/correlation";
+import { currenciesAreCompatible, hasMinorUnitsFlag } from "./utils/money";
 
 // Helper to create event objects
 const createEventPayload = (
@@ -206,16 +207,23 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
         throw new Error("One or both wallets do not exist");
       }
 
+      // Money representation guard: balances are integer minor units.
+      // If either wallet has not been migrated (no marker), refusing is the
+      // only safe option - interpreting a major-unit balance as minor units
+      // would silently 100x it.
+      if (
+        !hasMinorUnitsFlag(fromWalletDoc.data()) ||
+        !hasMinorUnitsFlag(toWalletDoc.data())
+      ) {
+        throw new Error("wallet-not-migrated-to-minor-units");
+      }
+
       // Currency integrity: we never convert. The transfer currency, the
       // sender wallet currency, and the receiver wallet currency must match.
       const fromCurrency = fromWalletDoc.data()?.currency;
       const toCurrency = toWalletDoc.data()?.currency;
       const transferCurrency = transferData.currency;
-      if (
-        !transferCurrency ||
-        transferCurrency !== fromCurrency ||
-        transferCurrency !== toCurrency
-      ) {
+      if (!currenciesAreCompatible(transferCurrency, fromCurrency, toCurrency)) {
         throw new Error(
           `currency-mismatch: transfer=${transferCurrency} from=${fromCurrency} to=${toCurrency}`,
         );

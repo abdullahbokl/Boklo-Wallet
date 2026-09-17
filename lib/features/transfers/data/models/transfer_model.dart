@@ -42,7 +42,8 @@ class TransferModel {
   final String id;
   final String fromWalletId;
   final String toWalletId;
-  final double amount;
+  @MinorUnitsConverter()
+  final int amount;
   final String currency;
   final TransferStatus status;
   @TimestampConverter()
@@ -52,7 +53,11 @@ class TransferModel {
   final String? riskLevel;
   final String? riskMode;
 
-  Map<String, dynamic> toJson() => _$TransferModelToJson(this);
+  Map<String, dynamic> toJson() {
+    final json = _$TransferModelToJson(this)
+      ..['minorUnits'] = true; // money representation marker
+    return json;
+  }
 
   TransferEntity toEntity() {
     return TransferEntity(

@@ -5,7 +5,7 @@ import 'package:fpdart/fpdart.dart';
 abstract class PaymentRequestRepository {
   Future<Either<Failure, String>> createRequest({
     required String payerId,
-    required double amount,
+    required int amount,
     required String currency,
     String? note,
   });

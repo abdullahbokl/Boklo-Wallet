@@ -17,7 +17,7 @@ class PaymentRequestRepositoryImpl implements PaymentRequestRepository {
   @override
   Future<Either<Failure, String>> createRequest({
     required String payerId,
-    required double amount,
+    required int amount,
     required String currency,
     String? note,
   }) async {

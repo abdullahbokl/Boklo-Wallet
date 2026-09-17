@@ -34,7 +34,7 @@ class TransferCubit extends BaseCubit<TransferState> {
   Future<void> createTransfer({
     required String fromWalletId,
     required String recipient,
-    required double amount,
+    required int amount,
     required String currency,
   }) async {
     // 0. Rate Limit
@@ -119,7 +119,7 @@ class TransferCubit extends BaseCubit<TransferState> {
 
   Future<void> _waitForBackendResult(
     TransferEntity requestedTransfer,
-    double amount,
+    int amount,
     String currency,
   ) async {
     final transferId = requestedTransfer.id;

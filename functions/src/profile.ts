@@ -2,6 +2,7 @@ import { onCall } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { FieldValue } from "@google-cloud/firestore";
 import * as functions from "firebase-functions";
+import { syncWalletPublicInTxn } from "./utils/wallet_public";
 
 const db = admin.firestore();
 
@@ -120,7 +121,8 @@ export const setUserProfile = onCall<SetUserProfileData>(
         console.log(`Wallet for ${uid} missing. Creating.`);
         t.set(walletRef, {
             id: uid,
-            balance: 0,
+            balance: 0, // integer minor units (EGP piastres)
+            minorUnits: true,
             currency: "EGP",
             ownerId: uid,
             ownerEmail: request.auth?.token?.email || "",
@@ -141,6 +143,10 @@ export const setUserProfile = onCall<SetUserProfileData>(
         if (name) {
              t.set(walletRef, { ownerName: name }, { merge: true });
         }
+        syncWalletPublicInTxn(t, uid, {
+            ownerName: name || "",
+            username: usernameLower,
+        });
         return { success: true, username: usernameLower };
     }
 
@@ -184,6 +190,12 @@ export const setUserProfile = onCall<SetUserProfileData>(
         ...(name ? { ownerName: name } : {}),
         updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
+
+    // Keep the public, balance-free profile in sync
+    syncWalletPublicInTxn(t, uid, {
+        ownerName: name || (userData?.name as string) || "",
+        username: usernameLower,
+    });
 
     return { success: true, username: usernameLower };
   });
@@ -269,6 +281,8 @@ export const deleteAccount = onCall(
       const cleanupWrites: Array<Promise<unknown>> = [
         userRef.delete().catch((error: unknown) => _ignoreMissingDoc(error)),
         walletRef.delete().catch((error: unknown) => _ignoreMissingDoc(error)),
+        db.collection("wallet_public").doc(uid).delete()
+            .catch((error: unknown) => _ignoreMissingDoc(error)),
       ];
 
       if (email !== "") {

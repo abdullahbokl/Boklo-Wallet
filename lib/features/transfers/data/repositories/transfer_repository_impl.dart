@@ -99,6 +99,18 @@ class TransferRepositoryImpl implements TransferRepository {
   @override
   Future<Either<Failure, WalletEntity>> getWallet(String id) async {
     try {
+      final model = await _dataSource.getWallet(id);
+      return model == null
+          ? const Left(ValidationFailure('Wallet not found'))
+          : Right(model.toEntity());
+    } on Object catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, WalletEntity>> getPublicWallet(String id) async {
+    try {
       final model = await _resolveWallet(id);
       return model == null
           ? const Left(ValidationFailure('Wallet not found'))
@@ -108,12 +120,14 @@ class TransferRepositoryImpl implements TransferRepository {
     }
   }
 
+  /// Resolves any recipient identifier (id, email, alias) to a PUBLIC
+  /// wallet record. Never returns balances.
   Future<WalletModel?> _resolveWallet(String input) async {
     final cleaned = input.trim();
     if (cleaned.contains('@')) return _dataSource.getWalletByEmail(cleaned);
     if (cleaned.toUpperCase().startsWith('BOKLO-')) {
       return _dataSource.getWalletByAlias(cleaned.toUpperCase());
     }
-    return _dataSource.getWallet(cleaned);
+    return _dataSource.getPublicWallet(cleaned);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:boklo/core/utils/json_converters.dart';
 import 'package:boklo/features/ledger_debug/domain/entities/ledger_entry_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -21,9 +22,9 @@ class LedgerEntryModel {
       // Start with robust parsing for amount
       amount: () {
         final val = json['amount'];
-        if (val is num) return val.toDouble();
-        if (val is String) return double.tryParse(val) ?? 0.0;
-        return 0.0;
+        if (val is num) return val.round();
+        if (val is String) return int.tryParse(val) ?? 0;
+        return 0;
       }(),
       currency: json['currency'] as String? ?? 'USD',
       direction: json['direction'] as String? ?? 'UNKNOWN',
@@ -39,7 +40,8 @@ class LedgerEntryModel {
   final String id;
   final String transactionId;
   final String walletId;
-  final double amount;
+  @MinorUnitsConverter()
+  final int amount;
   final String currency;
   final String direction;
   final DateTime occurredAt;

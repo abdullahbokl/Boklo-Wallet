@@ -53,7 +53,7 @@ void main() {
         () => mockRepository.getWallet('1'),
       ).thenAnswer((_) async => right(tFromWallet));
       when(
-        () => mockRepository.getWallet('2'),
+        () => mockRepository.getPublicWallet('2'),
       ).thenAnswer((_) async => right(tToWallet));
 
       when(
@@ -91,7 +91,7 @@ void main() {
       () => mockRepository.getWallet('1'),
     ).thenAnswer((_) async => right(tFromWallet));
     when(
-      () => mockRepository.getWallet('2'),
+      () => mockRepository.getPublicWallet('2'),
     ).thenAnswer((_) async => right(tToWallet));
 
     const tError = ValidationFailure('Insufficient balance');

@@ -18,7 +18,7 @@ abstract class PaymentRequestEntity with _$PaymentRequestEntity {
     required String id,
     required String requesterId,
     required String payerId,
-    required double amount,
+    required int amount,
     required String currency,
     required PaymentRequestStatus status,
     required DateTime createdAt,

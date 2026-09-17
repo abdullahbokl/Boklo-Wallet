@@ -17,7 +17,8 @@ class BalanceCard extends StatelessWidget {
     super.key,
   });
 
-  final double balance;
+  /// Integer minor units.
+  final int balance;
   final String currency;
   final String? walletId;
   final String? username;

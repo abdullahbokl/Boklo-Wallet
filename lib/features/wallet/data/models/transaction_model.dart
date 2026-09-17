@@ -27,7 +27,8 @@ class TransactionModel {
     );
   }
   final String id;
-  final double amount;
+  @MinorUnitsConverter()
+  final int amount;
   final TransactionType type;
   @TimestampConverter()
   final DateTime timestamp;

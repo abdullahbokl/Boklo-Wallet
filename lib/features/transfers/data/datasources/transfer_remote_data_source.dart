@@ -6,10 +6,23 @@ import 'package:injectable/injectable.dart';
 
 abstract class TransferRemoteDataSource {
   Future<void> createTransfer(TransferModel transfer);
+
+  /// Reads the caller's OWN wallet document (full data, owner-only rules).
   Future<WalletModel?> getWallet(String id);
+
+  /// Reads another user's wallet data from the balance-free public
+  /// collection (the only wallet data other users may see).
+  Future<WalletModel?> getPublicWallet(String id);
+
+  /// Resolves an alias to a public wallet record.
   Future<WalletModel?> getWalletByAlias(String alias);
+
+  /// Resolves an email to a public wallet record (exact lookup only).
   Future<WalletModel?> getWalletByEmail(String email);
+
+  /// Resolves a username to a public wallet record.
   Future<WalletModel?> getWalletByUsername(String username);
+
   Stream<TransferModel?> observeTransfer(String id);
 }
 
@@ -57,9 +70,18 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
   }
 
   @override
+  Future<WalletModel?> getPublicWallet(String id) async {
+    final doc = await _firestore.collection('wallet_public').doc(id).get();
+    if (doc.exists) {
+      return WalletModel.fromPublicMap(doc.data()!);
+    }
+    return null;
+  }
+
+  @override
   Future<WalletModel?> getWalletByAlias(String alias) async {
     final query = await _firestore
-        .collection('wallets')
+        .collection('wallet_public')
         .where('alias', isEqualTo: alias)
         .limit(2)
         .get();
@@ -71,33 +93,26 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
     }
 
     if (query.docs.isNotEmpty) {
-      return WalletModel.fromJson(query.docs.first.data());
+      return WalletModel.fromPublicMap(query.docs.first.data());
     }
     return null;
   }
 
   @override
   Future<WalletModel?> getWalletByEmail(String email) async {
-    // Step 1: Find user by email (wallets don't store email, users do)
-    final userQuery = await _firestore
-        .collection('users')
-        .where('email', isEqualTo: email.toLowerCase())
-        .limit(1)
+    // Exact identifier lookup (list queries are denied by rules, so the
+    // user directory cannot be harvested).
+    final mappingDoc = await _firestore
+        .collection('wallet_identifiers')
+        .doc('email:${email.toLowerCase()}')
         .get();
 
-    if (userQuery.docs.isEmpty) {
+    final walletId = mappingDoc.data()?['walletId'] as String?;
+    if (walletId == null) {
       return null;
     }
 
-    // Step 2: Get wallet by user ID (wallet ID = user ID in 1:1 mapping)
-    final userId = userQuery.docs.first.id;
-    final walletDoc = await _firestore.collection('wallets').doc(userId).get();
-
-    if (!walletDoc.exists || walletDoc.data() == null) {
-      return null;
-    }
-
-    return WalletModel.fromJson(walletDoc.data()!);
+    return getPublicWallet(walletId);
   }
 
   @override
@@ -116,13 +131,7 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
       return null;
     }
 
-    final walletDoc = await _firestore.collection('wallets').doc(uid).get();
-
-    if (!walletDoc.exists || walletDoc.data() == null) {
-      return null;
-    }
-
-    return WalletModel.fromJson(walletDoc.data()!);
+    return getPublicWallet(uid);
   }
 
   @override

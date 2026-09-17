@@ -84,9 +84,9 @@ class LedgerDebugPage extends StatelessWidget {
 
   Widget _buildSummaryCard(
     BuildContext context,
-    double credits,
-    double debits,
-    double delta,
+    int credits,
+    int debits,
+    int delta,
     String currency,
   ) {
     final scheme = Theme.of(context).colorScheme;
@@ -132,7 +132,7 @@ class LedgerDebugPage extends StatelessWidget {
   Widget _statItem(
     BuildContext context,
     String label,
-    double value,
+    int value,
     Color color,
     String currency,
   ) {

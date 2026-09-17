@@ -2,6 +2,7 @@ import { onCall } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import { FieldValue } from "@google-cloud/firestore";
 import * as functions from "firebase-functions";
+import { syncWalletPublic } from "./utils/wallet_public";
 
 const db = admin.firestore();
 
@@ -46,7 +47,8 @@ export const provisionWallet = onCall(
       // Create wallet document
       await walletRef.set({
         id: uid,
-        balance: 0,
+        balance: 0, // integer minor units (EGP piastres)
+        minorUnits: true,
         currency: "EGP",
         ownerId: uid,
         ownerEmail: email,
@@ -54,6 +56,15 @@ export const provisionWallet = onCall(
         version: 0, // Optimistic concurrency control
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
+        isActive: true,
+      });
+
+      // Publish the public, balance-free profile for discovery/transfer flows.
+      await syncWalletPublic(uid, {
+        ownerName: displayName,
+        username: null,
+        alias: null,
+        currency: "EGP",
         isActive: true,
       });
 

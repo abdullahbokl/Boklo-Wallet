@@ -37,8 +37,8 @@ class LedgerCubit extends Cubit<LedgerState> {
                     if (entries.isEmpty) {
                       emit(const LedgerState.empty());
                     } else {
-                      double totalCredits = 0;
-                      double totalDebits = 0;
+                      var totalCredits = 0;
+                      var totalDebits = 0;
 
                       for (final e in entries) {
                         if (e.direction == 'CREDIT') {

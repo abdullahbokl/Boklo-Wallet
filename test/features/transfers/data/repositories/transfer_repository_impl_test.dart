@@ -32,7 +32,7 @@ void main() {
     email: 'alice@example.com',
   );
 
-  group('getWallet (Unified Resolution)', () {
+  group('getPublicWallet (Unified Resolution)', () {
     test('should resolve by Email when input contains @', () async {
       // Arrange
       when(
@@ -40,7 +40,7 @@ void main() {
       ).thenAnswer((_) async => tWalletModel);
 
       // Act
-      final result = await repository.getWallet('alice@example.com');
+      final result = await repository.getPublicWallet('alice@example.com');
 
       // Assert
       verify(
@@ -61,7 +61,7 @@ void main() {
       ).thenAnswer((_) async => tWalletModel);
 
       // Act
-      final result = await repository.getWallet('BOKLO-123');
+      final result = await repository.getPublicWallet('BOKLO-123');
 
       // Assert
       verify(() => mockDataSource.getWalletByAlias('BOKLO-123')).called(1);
@@ -91,7 +91,7 @@ void main() {
       ).thenAnswer((_) async => null);
 
       // Act
-      final result = await repository.getWallet('unknown@example.com');
+      final result = await repository.getPublicWallet('unknown@example.com');
 
       // Assert
       expect(result, isA<Left<Failure, WalletEntity>>());

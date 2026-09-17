@@ -148,7 +148,8 @@ export const acceptPaymentRequest = onCall(async (request) => {
             const transferData = {
                 fromWalletId: payerWalletId,
                 toWalletId: requesterWalletId,
-                amount: data.amount,
+                amount: data.amount, // integer minor units
+                minorUnits: true,
                 currency: data.currency,
                 description: data.note || 'Payment Request Accepted',
                 userId: uid, // The ACTOR (sender)

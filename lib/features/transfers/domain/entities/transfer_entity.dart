@@ -11,7 +11,7 @@ class TransferEntity extends Equatable {
     required this.id,
     required this.fromWalletId,
     required this.toWalletId,
-    required this.amount,
+    required this.amount, // integer minor units
     required this.currency,
     required this.status,
     required this.createdAt,
@@ -24,7 +24,7 @@ class TransferEntity extends Equatable {
   final String id;
   final String fromWalletId;
   final String toWalletId;
-  final double amount;
+  final int amount;
   final String currency;
   final TransferStatus status;
   final DateTime createdAt;
