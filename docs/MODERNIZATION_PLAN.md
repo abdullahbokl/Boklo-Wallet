@@ -13,12 +13,21 @@
 | 3 — Dependency rule restored, real TransferState, dead getTransfers chain removed | ✅ Done | `68a8061` |
 | 4 — Security hardening (storage/RTDB locked, admin-claim gates, fraud signal fix, currency assertion, notify export, transfer-create validation, doc overclaims corrected) | ✅ Done | `5fb998a` |
 | 5 — Money display via intl (MoneyFormatting extension); payment-request currency derived from requester wallet | ✅ Done | `34b138a` |
-| 6 — Responsive/adaptive shell + a11y pass | ⏳ Pending | — |
-| 7 — l10n extraction (~160 hardcoded strings) | ⏳ Pending | — |
-| 8 — Owner-decision items (backend minor units, balance read-split, project separation, iOS flavors, App Check, CI) | 🔒 Blocked on owner | — |
-| 9 — Test expansion (payment-request/contacts/notifications cubits, rules tests) | ⏳ Pending | — |
+| 8 (money) — **Integer minor-units migration** end-to-end: backend writers + fail-closed execution guard + idempotent admin migration callable + fraud limits in minor units + client int models/`tryParseMoney` + BigQuery INT64 + runbook `docs/MONEY_MIGRATION.md` | ✅ Done | `927e510` |
+| 8 (privacy) — **wallet_public read-split**: balance-free public mirror maintained by Functions, recipient/discovery flows moved off world-readable wallets, rules: wallets owner-only, users/wallet_identifiers/usernames get-only (no listing) | ✅ Done | `927e510` |
+| 9 (tests) — router redirect rule, money parsing/formatting, PaymentRequestCubit (currency derivation, resolution, accept/decline), Functions money-utils jest suite | ✅ Done | `046348a`, `927e510` |
+| 6 — Responsive/adaptive shell (StatefulShellRoute + NavigationBar/NavigationRail), payment-request state triad, dark-mode contrast, 48dp targets, tooltips, text-scale clamp, keyboard-safe dialogs, confirm-on-swipe | ✅ Done | `9e1219d` |
+| 7 — l10n: 107-key en ARB + `context.l10n` sweep across ~30 presentation files | ✅ Done | `84ab75d` |
+| 8 (prod) — GitHub Actions CI (Flutter analyze/test + Functions tsc/jest), App Check activation (debug dev / integrity prod), iOS Podfile + RunnerTests bundle id, docs corrections | ✅ Done | `41facfd` |
 
-Deviations from the original tables: `dio` and `internet_connection_checker_plus` were **removed** (zero callers) rather than upgraded; the `backendAuthoritativeTransfers` flag was deleted entirely (single idempotent path). The client-side `Money` minor-units type (§G) remains deferred with the backend migration to avoid client/backend format mismatch; intl-based display formatting shipped instead.
+### Remaining follow-ups (non-blocking, documented)
+
+1. **Run the money migration** after the next `firebase deploy --only functions` (admin callable; runbook: `docs/MONEY_MIGRATION.md`) — requires deployed backend access.
+2. **Localization of cubit-produced failure messages** (they mirror backend strings such as "Insufficient balance") — requires backend error codes localized at the UI layer.
+3. **Firebase project separation** (dev vs prod are the same `boklo-wallet` project) — requires Firebase console/account access; all code and flavor wiring is already separated, only the options files need regenerated values.
+4. **iOS flavor configurations/schemes** — Xcode project surgery best done with Xcode; Podfile is in place and `pod install` now works.
+5. **Firestore rules emulator test-suite** — needs `firebase-tools` (Java) in CI; the ownership matrix is specified in §G.
+6. Contacts/notifications cubit bloc tests (same pattern as the payment-request suite).
 
 ---
 
