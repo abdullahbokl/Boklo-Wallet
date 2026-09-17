@@ -474,3 +474,40 @@ Claims corrected by this audit (things a reader might assume from docs but that 
 - The offline cache serves stale-first-page data indefinitely on failure, with no freshness marker.
 - BigQuery/event publishing can silently drop rows; the replay admin job is the manual mitigation.
 - `logTransferSuccess` is defined with zero call sites.
+
+
+---
+
+## 12. Implementation Status (2026-09-18 execution pass)
+
+Implemented and verified this session (analyze 0 / 67 Flutter tests / Functions tsc + jest green):
+
+| Item | Backlog # | Commit |
+| --- | --- | --- |
+| Crash reporting + global error capture (FlutterError.onError, PlatformDispatcher.onError → Crashlytics) | 2 | `52039f4` |
+| Real Firebase Analytics (DI-backed service; login/sign-up/transfer success-initiated-failure/payment-request events; screen views; PII-free) | 3 | `52039f4` |
+| Password reset (enumeration-safe) + email verification banner with resend/refresh | 4 | `ded7469` |
+| Transaction detail screen (status, counterparty, description, copyable IDs, retry on failed) | 5 | `4a7dddf` |
+| Disputes: DisputeRepository + report-a-problem flow on every transaction | — | `4a7dddf` |
+| Search query + date-range + (UI-ready) status filter dimensions in WalletCubit; counterparty/description now modeled | — | `4a7dddf` |
+| Transfer receipt screen with share_plus; success journey lands on receipt | 6 | `aa2008a` |
+| Unread notification badge (app-wide UnreadNotificationsCubit → wallet bell) | 7 | `aa2008a` |
+| Notification deep links (backend payloads carry route/ids; client routes accordingly) | 13 | `aa2008a` |
+| Payment-request expiry (daily scheduled sweep marks >7d PENDING → EXPIRED; accept only honors PENDING) | 11 | `aa2008a` |
+| Offline staleness (cache fetch-time, WalletState.isOfflineData, 5-minute rule) | 12 | `aa2008a` |
+| getTransferLimits callable (single/daily/remaining from fraud Remote Config) | 14 | `aa2008a` |
+
+**Remaining manual/external steps (explicitly NOT complete):**
+
+1. **Deploy + run migration**: `firebase deploy --only functions`, then run `migrateMoneyToMinorUnits` with an admin ID token (`docs/MONEY_MIGRATION.md`). Requires Firebase deploy access.
+2. **Dev/prod Firebase project separation** — requires Firebase console access; regenerate `firebase_options_*.dart` + google-services files per project afterward.
+3. **App Check console enforcement** — client attestation is live; per-product enforcement is a console toggle after telemetry review.
+4. **iOS flavor configurations/schemes** — requires Xcode to safely edit the pbxproj; Podfile is in place.
+
+**Remaining code backlog (not yet implemented, in priority order):**
+
+- Limits UI on the transfer screen (callable shipped; small card pending).
+- Notification deep-link target for transactions requires backend to also send the wallet/currency for the detail page extra (route plumbing done).
+- App lock (local_auth), Arabic/RTL ARB, contact search/rename + favorites, help/support pages, QR pay-me, CSV export/insights, amount keypad, onboarding carousel, session management, event-publish retries + BQ dead-letter + reconciliation alerting, rate-limit Remote Config, admin-job validation, rules emulator tests in CI, scheduled transfers/FX/fees foundations.
+
+Each remains fully specified in §4–§11 above.
