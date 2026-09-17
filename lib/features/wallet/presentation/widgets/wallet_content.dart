@@ -8,6 +8,7 @@ import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/quick_actions_row.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_filters.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_list.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/molecules/app_section_header.dart';
 import 'package:boklo/shared/widgets/molecules/balance_card.dart';
 import 'package:flutter/material.dart';
@@ -71,14 +72,14 @@ class WalletContent extends StatelessWidget {
                   ),
                   const SizedBox(height: AppDimens.sectionGap),
                   AppSectionHeader(
-                    title: 'Recent activity',
-                    subtitle: 'Track completed and pending money movement.',
+                    title: context.l10n.recentActivity,
+                    subtitle: context.l10n.recentActivitySubtitle,
                     trailing: TextButton(
                       onPressed:
                           data.filterType != null || data.filterStatus != null
                           ? () => context.read<WalletCubit>().clearFilters()
                           : null,
-                      child: const Text('Clear filters'),
+                      child: Text(context.l10n.clearFilters),
                     ),
                   ),
                   const SizedBox(height: AppDimens.sm),

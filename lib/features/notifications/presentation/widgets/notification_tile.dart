@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/notifications/domain/entities/notification_entity.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -29,18 +30,16 @@ class NotificationTile extends StatelessWidget {
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: const Text('Delete notification'),
-            content: const Text(
-              'This notification will be permanently removed.',
-            ),
+            title: Text(context.l10n.deleteNotification),
+            content: Text(context.l10n.deleteNotificationBody),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
+                child: Text(context.l10n.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: const Text('Delete'),
+                child: Text(context.l10n.delete),
               ),
             ],
           ),

@@ -5,6 +5,7 @@ import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/notification_preferences/presentation/bloc/notification_preference_cubit.dart';
 import 'package:boklo/features/notification_preferences/presentation/bloc/notification_preference_state.dart';
 import 'package:boklo/features/notification_preferences/presentation/widgets/preference_item.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
@@ -24,7 +25,7 @@ class NotificationSettingsPage extends StatelessWidget {
         return cubit;
       },
       child: AppPageScaffold(
-        title: 'Notification settings',
+        title: context.l10n.notificationSettings,
         child:
             BlocConsumer<
               NotificationPreferenceCubit,
@@ -54,11 +55,9 @@ class NotificationSettingsPage extends StatelessWidget {
                     bottom: AppDimens.xxl,
                   ),
                   children: [
-                    const AppSectionHeader(
-                      title: 'Transfer alerts',
-                      subtitle:
-                          'Decide which money movement events should notify  '
-                          'you.',
+                    AppSectionHeader(
+                      title: context.l10n.transferAlerts,
+                      subtitle: context.l10n.transferAlertsSubtitle,
                     ),
                     const SizedBox(height: AppDimens.md),
                     AppCard(
@@ -66,8 +65,8 @@ class NotificationSettingsPage extends StatelessWidget {
                       child: Column(
                         children: [
                           PreferenceItem(
-                            title: 'Incoming transfers',
-                            subtitle: 'Notify me when money arrives',
+                            title: context.l10n.incomingTransfers,
+                            subtitle: context.l10n.incomingTransfersSubtitle,
                             value: prefs.enableIncoming,
                             onChanged: (v) => context
                                 .read<NotificationPreferenceCubit>()
@@ -79,8 +78,8 @@ class NotificationSettingsPage extends StatelessWidget {
                             color: Theme.of(context).colorScheme.outlineVariant,
                           ),
                           PreferenceItem(
-                            title: 'Outgoing transfers',
-                            subtitle: 'Notify me when money is sent',
+                            title: context.l10n.outgoingTransfers,
+                            subtitle: context.l10n.outgoingTransfersSubtitle,
                             value: prefs.enableOutgoing,
                             onChanged: (v) => context
                                 .read<NotificationPreferenceCubit>()

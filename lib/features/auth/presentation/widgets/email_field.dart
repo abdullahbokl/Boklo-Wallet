@@ -1,3 +1,4 @@
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,7 @@ class EmailField extends StatelessWidget {
     return AppTextField(
       enabled: enabled,
       controller: controller,
-      hintText: 'Email',
+      hintText: context.l10n.email,
       keyboardType: TextInputType.emailAddress,
       prefixIcon: const Icon(Icons.email_outlined),
       validator: (value) =>

@@ -4,6 +4,7 @@ import 'package:boklo/features/payment_requests/domain/entity/payment_request_en
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
 import 'package:boklo/features/payment_requests/presentation/widgets/payment_request_action_button.dart';
 import 'package:boklo/features/payment_requests/presentation/widgets/payment_request_status_chip.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,7 @@ class PaymentRequestItem extends StatelessWidget {
                 children: [
                   Expanded(
                     child: PaymentRequestActionButton(
-                      label: 'Decline',
+                      label: context.l10n.decline,
                       icon: Icons.close,
                       color: scheme.error,
                       onPressed: isLoading
@@ -89,7 +90,7 @@ class PaymentRequestItem extends StatelessWidget {
                   const SizedBox(width: AppDimens.md),
                   Expanded(
                     child: PaymentRequestActionButton(
-                      label: 'Accept',
+                      label: context.l10n.accept,
                       icon: Icons.check,
                       color: Colors.green.shade700,
                       isPrimary: true,

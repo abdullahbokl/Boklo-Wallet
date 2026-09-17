@@ -2,6 +2,7 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,13 +21,13 @@ class TransactionFilters extends StatelessWidget {
       child: Row(
         children: [
           _FilterPill(
-            label: 'All',
+            label: context.l10n.filterAll,
             selected: data.filterType == null,
             onTap: () => context.read<WalletCubit>().setFilterType(null),
           ),
           const SizedBox(width: AppDimens.sm),
           _FilterPill(
-            label: 'Income',
+            label: context.l10n.filterIncome,
             selected: data.filterType == TransactionType.credit,
             onTap: () => context.read<WalletCubit>().setFilterType(
               data.filterType == TransactionType.credit
@@ -36,7 +37,7 @@ class TransactionFilters extends StatelessWidget {
           ),
           const SizedBox(width: AppDimens.sm),
           _FilterPill(
-            label: 'Expense',
+            label: context.l10n.filterExpense,
             selected: data.filterType == TransactionType.debit,
             onTap: () => context.read<WalletCubit>().setFilterType(
               data.filterType == TransactionType.debit

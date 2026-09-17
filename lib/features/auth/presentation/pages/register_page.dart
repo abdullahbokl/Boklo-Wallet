@@ -9,6 +9,7 @@ import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/auth_background.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_header.dart';
 import 'package:boklo/features/auth/presentation/widgets/register_form.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,22 +53,22 @@ class RegisterPage extends StatelessWidget {
                 constraints: const BoxConstraints(
                   maxWidth: AppDimens.maxFormWidth,
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     LoginHeader(
-                      title: 'Create your Boklo account',
+                      title: context.l10n.createYourBokloAccount,
                       subtitle:
                           'Open a secure wallet and start sending or  '
                           'requesting money.',
                     ),
-                    SizedBox(height: AppDimens.xl),
-                    AppCard(
+                    const SizedBox(height: AppDimens.xl),
+                    const AppCard(
                       padding: EdgeInsets.all(AppDimens.xl),
                       child: RegisterForm(),
                     ),
-                    SizedBox(height: AppDimens.lg),
-                    _RegisterFooter(),
+                    const SizedBox(height: AppDimens.lg),
+                    const _RegisterFooter(),
                   ],
                 ),
               ),
@@ -97,7 +98,7 @@ class _RegisterFooter extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => getIt<NavigationService>().pop(),
-            child: const Text('Sign in'),
+            child: Text(context.l10n.signInLink),
           ),
         ],
       ),

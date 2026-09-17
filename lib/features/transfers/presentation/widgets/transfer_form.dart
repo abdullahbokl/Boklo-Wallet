@@ -11,6 +11,7 @@ import 'package:boklo/features/transfers/presentation/widgets/transfer_form_cont
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/wallet_error_view.dart';
@@ -119,7 +120,9 @@ class _TransferBlocHandler extends StatelessWidget {
       listener: (context, state) {
         state.whenOrNull(
           success: (_) {
-            getIt<SnackbarService>().showSuccess('Transfer successful');
+            getIt<SnackbarService>().showSuccess(
+              context.l10n.transferSuccessful,
+            );
             getIt<NavigationService>().go('/wallet');
           },
           error: (error) {

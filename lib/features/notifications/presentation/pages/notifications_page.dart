@@ -2,6 +2,7 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/notifications/presentation/bloc/notifications_cubit.dart';
 import 'package:boklo/features/notifications/presentation/widgets/notification_tile.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
@@ -27,7 +28,7 @@ class NotificationsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPageScaffold(
-      title: 'Notifications',
+      title: context.l10n.notifications,
       child: BlocBuilder<NotificationsCubit, NotificationsState>(
         builder: (context, state) {
           if (state is NotificationsLoading) {
@@ -44,8 +45,8 @@ class NotificationsView extends StatelessWidget {
 
           if (state is NotificationsLoaded) {
             if (state.notifications.isEmpty) {
-              return const AppEmptyState(
-                title: 'No notifications yet',
+              return AppEmptyState(
+                title: context.l10n.noNotificationsYet,
                 subtitle:
                     'Important account activity and transfer updates appear  '
                     'here.',

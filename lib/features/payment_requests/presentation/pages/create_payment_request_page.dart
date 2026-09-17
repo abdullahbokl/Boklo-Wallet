@@ -4,6 +4,7 @@ import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
 import 'package:boklo/features/payment_requests/presentation/widgets/create_payment_request_form.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class _CreatePaymentRequestPageState extends State<CreatePaymentRequestPage> {
     return BlocProvider(
       create: (_) => getIt<PaymentRequestCubit>(),
       child: AppPageScaffold(
-        title: 'New request',
+        title: context.l10n.newRequest,
         maxWidth: 500,
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(top: 16, bottom: 32),

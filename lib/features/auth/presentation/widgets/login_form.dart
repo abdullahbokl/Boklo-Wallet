@@ -7,6 +7,7 @@ import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/email_field.dart';
 import 'package:boklo/features/auth/presentation/widgets/password_field.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,7 +85,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
               const SizedBox(height: AppDimens.lg),
               AppButton(
-                text: 'Sign In',
+                text: context.l10n.signIn,
                 onPressed: _onLogin,
                 isLoading: isLoading,
                 width: double.infinity,

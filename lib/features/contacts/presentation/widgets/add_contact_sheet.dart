@@ -3,6 +3,7 @@ import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_cubit.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_state.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
 import 'package:flutter/material.dart';
@@ -78,14 +79,14 @@ class _AddContactSheetState extends State<AddContactSheet> {
                   const SizedBox(height: AppDimens.xxl),
                   AppTextField(
                     controller: _controller,
-                    label: 'Email or Username',
-                    hintText: 'user@example.com or @username',
+                    label: context.l10n.emailOrUsername,
+                    hintText: context.l10n.emailOrUsernameHint,
                     prefixIcon: const Icon(Icons.person_add_alt_outlined),
                     autofocus: true,
                   ),
                   const SizedBox(height: AppDimens.xl),
                   AppButton(
-                    text: 'Add Contact',
+                    text: context.l10n.addContact,
                     isLoading: isAdding,
                     onPressed: isAdding
                         ? null

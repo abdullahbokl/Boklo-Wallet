@@ -4,6 +4,7 @@ import 'package:boklo/features/transfers/presentation/widgets/transfer_amount_in
 import 'package:boklo/features/transfers/presentation/widgets/transfer_balance_display.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_recipient_input.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:boklo/shared/widgets/molecules/app_section_header.dart';
@@ -43,8 +44,8 @@ class TransferFormContent extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const AppSectionHeader(
-                    title: 'Transfer details',
+                  AppSectionHeader(
+                    title: context.l10n.transferDetails,
                     subtitle:
                         'Enter who should receive the money and how much.',
                   ),
@@ -69,7 +70,7 @@ class TransferFormContent extends StatelessWidget {
                   const SizedBox(height: AppDimens.xl),
                   AppButton(
                     onPressed: isLoading ? null : onSubmit,
-                    text: 'Review transfer',
+                    text: context.l10n.reviewTransfer,
                     isLoading: isLoading,
                     width: double.infinity,
                   ),

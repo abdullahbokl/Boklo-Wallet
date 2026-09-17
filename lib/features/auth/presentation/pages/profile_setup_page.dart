@@ -8,6 +8,7 @@ import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/auth_background.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_header.dart';
 import 'package:boklo/features/auth/presentation/widgets/profile_setup_form.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,17 +39,17 @@ class ProfileSetupPage extends StatelessWidget {
                 constraints: const BoxConstraints(
                   maxWidth: AppDimens.maxFormWidth,
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     LoginHeader(
-                      title: 'Set up your profile',
+                      title: context.l10n.setUpYourProfile,
                       subtitle:
                           'Choose a username others can use to find and pay  '
                           'you.',
                     ),
-                    SizedBox(height: AppDimens.xl),
-                    AppCard(
+                    const SizedBox(height: AppDimens.xl),
+                    const AppCard(
                       padding: EdgeInsets.all(AppDimens.xl),
                       child: ProfileSetupForm(),
                     ),

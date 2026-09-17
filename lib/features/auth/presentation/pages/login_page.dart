@@ -9,6 +9,7 @@ import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/auth_background.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_form.dart';
 import 'package:boklo/features/auth/presentation/widgets/login_header.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,12 +28,14 @@ class LoginPage extends StatelessWidget {
               if (user.username == null) {
                 getIt<NavigationService>().go('/profile-setup');
                 getIt<SnackbarService>().showSuccess(
-                  'Please complete your profile setup.',
+                  context.l10n.pleaseCompleteProfile,
                 );
               } else {
                 getIt<NavigationService>().go('/wallet');
                 getIt<SnackbarService>().showSuccess(
-                  'Welcome back, ${user.displayName ?? 'User'}.',
+                  context.l10n.welcomeBack(
+                    user.displayName ?? context.l10n.username,
+                  ),
                 );
               }
             }
@@ -48,22 +51,20 @@ class LoginPage extends StatelessWidget {
                 constraints: const BoxConstraints(
                   maxWidth: AppDimens.maxFormWidth,
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     LoginHeader(
-                      title: 'Sign in to Boklo',
-                      subtitle:
-                          'Secure access to your wallet, transfers, and  '
-                          'requests.',
+                      title: context.l10n.signInToBoklo,
+                      subtitle: context.l10n.signInSubtitle,
                     ),
-                    SizedBox(height: AppDimens.xl),
-                    AppCard(
+                    const SizedBox(height: AppDimens.xl),
+                    const AppCard(
                       padding: EdgeInsets.all(AppDimens.xl),
                       child: LoginForm(),
                     ),
-                    SizedBox(height: AppDimens.lg),
-                    _LoginFooter(),
+                    const SizedBox(height: AppDimens.lg),
+                    const _LoginFooter(),
                   ],
                 ),
               ),
@@ -86,14 +87,14 @@ class _LoginFooter extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Text(
-            'New to Boklo? ',
+            context.l10n.newToBoklo,
             style: AppTypography.bodyMedium.copyWith(
               color: scheme.onSurfaceVariant,
             ),
           ),
           TextButton(
             onPressed: () => getIt<NavigationService>().push('/register'),
-            child: const Text('Create account'),
+            child: Text(context.l10n.createAccount),
           ),
         ],
       ),

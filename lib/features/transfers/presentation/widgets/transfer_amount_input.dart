@@ -1,3 +1,4 @@
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
 import 'package:flutter/material.dart';
 
@@ -16,8 +17,8 @@ class TransferAmountInput extends StatelessWidget {
     return AppTextField(
       controller: controller,
       enabled: enabled,
-      label: 'Amount',
-      hintText: '0.00',
+      label: context.l10n.amount,
+      hintText: context.l10n.amountHint,
       prefixIcon: const Icon(Icons.attach_money),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       validator: (v) {

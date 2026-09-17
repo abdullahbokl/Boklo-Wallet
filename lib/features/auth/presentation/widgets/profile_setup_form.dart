@@ -5,6 +5,7 @@ import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
 import 'package:flutter/material.dart';
@@ -58,8 +59,8 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
           const SizedBox(height: AppDimens.xl),
           AppTextField(
             controller: _usernameController,
-            label: 'Username',
-            hintText: 'john_doe',
+            label: context.l10n.username,
+            hintText: context.l10n.usernameHint,
             prefixIcon: const Icon(Icons.alternate_email),
             inputFormatters: [
               FilteringTextInputFormatter.allow(_usernameRegex),
@@ -81,8 +82,8 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
           const SizedBox(height: AppDimens.lg),
           AppTextField(
             controller: _nameController,
-            label: 'Display Name (Optional)',
-            hintText: 'John Doe',
+            label: context.l10n.displayNameOptional,
+            hintText: context.l10n.displayNameHint,
             prefixIcon: const Icon(Icons.person_outline),
             inputFormatters: [
               LengthLimitingTextInputFormatter(50),
@@ -97,7 +98,7 @@ class _ProfileSetupFormState extends State<ProfileSetupForm> {
               );
 
               return AppButton(
-                text: 'Complete Setup',
+                text: context.l10n.completeSetup,
                 onPressed: _submit,
                 isLoading: isLoading,
                 width: double.infinity,

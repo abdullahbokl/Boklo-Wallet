@@ -7,6 +7,7 @@ import 'package:boklo/features/contacts/presentation/bloc/contact_cubit.dart';
 import 'package:boklo/features/contacts/presentation/bloc/contact_state.dart';
 import 'package:boklo/features/contacts/presentation/widgets/add_contact_sheet.dart';
 import 'package:boklo/features/contacts/presentation/widgets/contact_item.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
@@ -64,8 +65,8 @@ class _ContactListBody extends StatelessWidget {
         if (contacts.isEmpty) {
           return AppEmptyState(
             icon: Icons.people_outline_rounded,
-            title: 'No contacts yet',
-            subtitle: 'Add trusted contacts to send or request money faster.',
+            title: context.l10n.noContactsYet,
+            subtitle: context.l10n.noContactsYetSubtitle,
             actionLabel: 'Add contact',
             onAction: () => AddContactSheet.show(
               context,
@@ -81,7 +82,7 @@ class _ContactListBody extends StatelessWidget {
           ),
           children: [
             AppSectionHeader(
-              title: 'Your network',
+              title: context.l10n.yourNetwork,
               subtitle: isPickMode
                   ? 'Choose who should receive this action.'
                   : 'People you can pay or request money from.',

@@ -1,5 +1,6 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class QuickActionsRow extends StatelessWidget {
             Expanded(
               child: _QuickActionItem(
                 icon: Icons.arrow_upward_rounded,
-                label: 'Send',
+                label: context.l10n.quickActionSend,
                 tone: scheme.primary,
                 onTap: onSendTap,
               ),
@@ -38,7 +39,7 @@ class QuickActionsRow extends StatelessWidget {
             Expanded(
               child: _QuickActionItem(
                 icon: Icons.request_quote_rounded,
-                label: 'Request',
+                label: context.l10n.quickActionRequest,
                 tone: scheme.secondary,
                 onTap: onPaymentRequestsTap,
               ),
@@ -47,7 +48,7 @@ class QuickActionsRow extends StatelessWidget {
             Expanded(
               child: _QuickActionItem(
                 icon: Icons.people_alt_outlined,
-                label: 'Contacts',
+                label: context.l10n.quickActionContacts,
                 tone: scheme.primary,
                 onTap: onContactsTap,
               ),
@@ -56,7 +57,7 @@ class QuickActionsRow extends StatelessWidget {
             Expanded(
               child: _QuickActionItem(
                 icon: Icons.notifications_outlined,
-                label: 'Alerts',
+                label: context.l10n.quickActionAlerts,
                 tone: scheme.tertiary,
                 onTap: onNotificationsTap,
               ),

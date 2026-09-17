@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_decorations.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_shimmer.dart';
 import 'package:boklo/shared/widgets/molecules/balance_card_badge.dart';
@@ -49,14 +50,14 @@ class BalanceCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Available balance',
+                        context.l10n.availableBalance,
                         style: AppTypography.bodySmall.copyWith(
                           color: Colors.white.withValues(alpha: 0.76),
                         ),
                       ),
                       const SizedBox(height: AppDimens.xs4),
                       Text(
-                        'Funds ready to send or request',
+                        context.l10n.fundsReadyToSendOrRequest,
                         style: AppTypography.caption.copyWith(
                           color: Colors.white.withValues(alpha: 0.64),
                         ),

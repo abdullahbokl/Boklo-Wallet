@@ -1,5 +1,6 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:boklo/shared/widgets/molecules/summary_item.dart';
@@ -89,7 +90,7 @@ class TransferConfirmationDialog extends StatelessWidget {
             ),
             const SizedBox(height: AppDimens.xxl),
             AppButton(
-              text: 'Confirm & Send',
+              text: context.l10n.confirmAndSend,
               onPressed: () {
                 Navigator.pop(context);
                 onConfirm();

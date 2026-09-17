@@ -4,6 +4,7 @@ import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_form.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,7 +42,7 @@ class _TransferScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final transferPage = context.findAncestorWidgetOfExactType<TransferPage>();
     return AppPageScaffold(
-      title: 'Send money',
+      title: context.l10n.sendMoney,
       child: TransferForm(
         prefilledRecipient: transferPage?.prefilledRecipient,
       ),

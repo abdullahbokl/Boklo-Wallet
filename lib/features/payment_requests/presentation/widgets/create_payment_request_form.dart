@@ -6,6 +6,7 @@ import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
@@ -36,6 +37,7 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
 
   void _onSend(BuildContext context) {
     if (_formKey.currentState!.validate()) {
+      final message = context.l10n.requestSent;
       unawaited(
         context
             .read<PaymentRequestCubit>()
@@ -45,10 +47,9 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
               note: widget.noteController.text,
             )
             .then((_) {
-              if (mounted) {
-                getIt<NavigationService>().pop();
-                getIt<SnackbarService>().showSuccess('Request Sent');
-              }
+              if (!mounted) return;
+              getIt<NavigationService>().pop();
+              getIt<SnackbarService>().showSuccess(message);
             }),
       );
     }
@@ -63,8 +64,8 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
         children: [
           AppTextField(
             controller: widget.payerIdController,
-            label: 'Recipient',
-            hintText: 'user@example.com or @username',
+            label: context.l10n.recipient,
+            hintText: context.l10n.emailOrUsernameHint,
             prefixIcon: const Icon(Icons.person_outline),
             suffixIcon: IconButton(
               icon: const Icon(Icons.contacts),
@@ -84,8 +85,8 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
           const SizedBox(height: AppDimens.lg),
           AppTextField(
             controller: widget.amountController,
-            label: 'Amount',
-            hintText: '0.00',
+            label: context.l10n.amount,
+            hintText: context.l10n.amountHint,
             prefixIcon: const Icon(Icons.attach_money),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             validator: (v) =>
@@ -94,13 +95,13 @@ class _CreatePaymentRequestFormState extends State<CreatePaymentRequestForm> {
           const SizedBox(height: AppDimens.lg),
           AppTextField(
             controller: widget.noteController,
-            label: 'Note (Optional)',
-            hintText: 'What is this for?',
+            label: context.l10n.noteOptional,
+            hintText: context.l10n.noteHint,
             prefixIcon: const Icon(Icons.note_alt_outlined),
           ),
           const SizedBox(height: AppDimens.xxl),
           AppButton(
-            text: 'Send Request',
+            text: context.l10n.sendRequest,
             isLoading: widget.isCreating,
             onPressed: () => _onSend(context),
           ),

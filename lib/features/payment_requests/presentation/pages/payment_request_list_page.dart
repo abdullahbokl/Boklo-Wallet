@@ -6,6 +6,7 @@ import 'package:boklo/features/payment_requests/domain/entity/payment_request_en
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
 import 'package:boklo/features/payment_requests/presentation/widgets/payment_request_item.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
@@ -23,19 +24,19 @@ class PaymentRequestListPage extends StatelessWidget {
       child: DefaultTabController(
         length: 2,
         child: AppPageScaffold(
-          title: 'Payment requests',
+          title: context.l10n.paymentRequests,
           actions: [
             IconButton(
-              tooltip: 'Create payment request',
+              tooltip: context.l10n.createPaymentRequest,
               icon: const Icon(Icons.add_rounded),
               onPressed: () =>
                   getIt<NavigationService>().push('/payment-requests/create'),
             ),
           ],
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(text: 'Incoming'),
-              Tab(text: 'Outgoing'),
+              Tab(text: context.l10n.incoming),
+              Tab(text: context.l10n.outgoing),
             ],
           ),
           child:
@@ -95,7 +96,9 @@ class _RequestList extends StatelessWidget {
     if (requests.isEmpty) {
       return AppEmptyState(
         icon: isOutgoing ? Icons.outbox_outlined : Icons.move_to_inbox_outlined,
-        title: 'No ${isOutgoing ? 'outgoing' : 'incoming'} requests',
+        title: isOutgoing
+            ? context.l10n.noOutgoingRequests
+            : context.l10n.noIncomingRequests,
         subtitle: isOutgoing
             ? 'Requests you send will appear here.'
             : 'Requests sent to you will appear here.',

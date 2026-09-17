@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart'
     as domain;
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/atoms/status_chip.dart';
@@ -39,12 +40,12 @@ class TransactionList extends StatelessWidget {
     }
 
     if (transactions.isEmpty) {
-      return const SliverFillRemaining(
+      return SliverFillRemaining(
         hasScrollBody: false,
         child: AppEmptyState(
           icon: Icons.receipt_long_rounded,
-          title: 'No transactions yet',
-          subtitle: 'Your income and expenses will appear here.',
+          title: context.l10n.noTransactionsYet,
+          subtitle: context.l10n.noTransactionsYetSubtitle,
         ),
       );
     }
@@ -120,7 +121,7 @@ class _LoadMoreButton extends StatelessWidget {
               : TextButton.icon(
                   onPressed: onPressed,
                   icon: const Icon(Icons.expand_more_rounded),
-                  label: const Text('Load More'),
+                  label: Text(context.l10n.loadMore),
                 ),
         ),
       ),

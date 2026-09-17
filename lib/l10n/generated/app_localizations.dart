@@ -66,8 +66,8 @@ abstract class AppLocalizations {
 
   final String localeName;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
@@ -94,11 +94,653 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
-  /// Text shown in the AppBar of the Counter Page
+  /// No description provided for @signInToBoklo.
   ///
   /// In en, this message translates to:
-  /// **'Counter'**
-  String get counterAppBarTitle;
+  /// **'Sign in to Boklo'**
+  String get signInToBoklo;
+
+  /// No description provided for @signInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure access to your wallet, transfers, and requests.'**
+  String get signInSubtitle;
+
+  /// No description provided for @newToBoklo.
+  ///
+  /// In en, this message translates to:
+  /// **'New to Boklo?'**
+  String get newToBoklo;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get createAccount;
+
+  /// No description provided for @pleaseCompleteProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Please complete your profile setup.'**
+  String get pleaseCompleteProfile;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, {name}.'**
+  String welcomeBack(String name);
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get signIn;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirmPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @createYourBokloAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your Boklo account'**
+  String get createYourBokloAccount;
+
+  /// No description provided for @createAccountAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccountAction;
+
+  /// No description provided for @signInLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInLink;
+
+  /// No description provided for @setUpYourProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your profile'**
+  String get setUpYourProfile;
+
+  /// No description provided for @completeSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Setup'**
+  String get completeSetup;
+
+  /// No description provided for @username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get username;
+
+  /// No description provided for @usernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'john_doe'**
+  String get usernameHint;
+
+  /// No description provided for @displayNameOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Display Name (Optional)'**
+  String get displayNameOptional;
+
+  /// No description provided for @displayNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'John Doe'**
+  String get displayNameHint;
+
+  /// No description provided for @availableBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available balance'**
+  String get availableBalance;
+
+  /// No description provided for @fundsReadyToSendOrRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Funds ready to send or request'**
+  String get fundsReadyToSendOrRequest;
+
+  /// No description provided for @recentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get recentActivity;
+
+  /// No description provided for @recentActivitySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track completed and pending money movement.'**
+  String get recentActivitySubtitle;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get clearFilters;
+
+  /// No description provided for @noTransactionsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get noTransactionsYet;
+
+  /// No description provided for @noTransactionsYetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your income and expenses will appear here.'**
+  String get noTransactionsYetSubtitle;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load More'**
+  String get loadMore;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get filterIncome;
+
+  /// No description provided for @filterExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get filterExpense;
+
+  /// No description provided for @quickActionSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get quickActionSend;
+
+  /// No description provided for @quickActionRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get quickActionRequest;
+
+  /// No description provided for @quickActionContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get quickActionContacts;
+
+  /// No description provided for @quickActionAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get quickActionAlerts;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get navSend;
+
+  /// No description provided for @navRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get navRequests;
+
+  /// No description provided for @navContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get navContacts;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @sendMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Send money'**
+  String get sendMoney;
+
+  /// No description provided for @transferDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer details'**
+  String get transferDetails;
+
+  /// No description provided for @reviewTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Review transfer'**
+  String get reviewTransfer;
+
+  /// No description provided for @transferSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer successful'**
+  String get transferSuccessful;
+
+  /// No description provided for @recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get recipient;
+
+  /// No description provided for @recipientHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet ID, Alias, or Email'**
+  String get recipientHint;
+
+  /// No description provided for @amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amount;
+
+  /// No description provided for @amountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'0.00'**
+  String get amountHint;
+
+  /// No description provided for @confirmAndSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm & Send'**
+  String get confirmAndSend;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid amount'**
+  String get invalidAmount;
+
+  /// No description provided for @insufficientBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient balance'**
+  String get insufficientBalance;
+
+  /// No description provided for @paymentRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment requests'**
+  String get paymentRequests;
+
+  /// No description provided for @createPaymentRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Create payment request'**
+  String get createPaymentRequest;
+
+  /// No description provided for @newRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'New request'**
+  String get newRequest;
+
+  /// No description provided for @incoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming'**
+  String get incoming;
+
+  /// No description provided for @outgoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Outgoing'**
+  String get outgoing;
+
+  /// No description provided for @noIncomingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No incoming requests'**
+  String get noIncomingRequests;
+
+  /// No description provided for @noOutgoingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No outgoing requests'**
+  String get noOutgoingRequests;
+
+  /// No description provided for @sendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Request'**
+  String get sendRequest;
+
+  /// No description provided for @requestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Sent'**
+  String get requestSent;
+
+  /// No description provided for @noteOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (Optional)'**
+  String get noteOptional;
+
+  /// No description provided for @noteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What is this for?'**
+  String get noteHint;
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @decline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get decline;
+
+  /// No description provided for @contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get contacts;
+
+  /// No description provided for @yourNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Your network'**
+  String get yourNetwork;
+
+  /// No description provided for @noContactsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts yet'**
+  String get noContactsYet;
+
+  /// No description provided for @noContactsYetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add trusted contacts to send or request money faster.'**
+  String get noContactsYetSubtitle;
+
+  /// No description provided for @addContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Contact'**
+  String get addContact;
+
+  /// No description provided for @emailOrUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or Username'**
+  String get emailOrUsername;
+
+  /// No description provided for @emailOrUsernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'user@example.com or @username'**
+  String get emailOrUsernameHint;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @noNotificationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get noNotificationsYet;
+
+  /// No description provided for @notificationSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings'**
+  String get notificationSettings;
+
+  /// No description provided for @transferAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer alerts'**
+  String get transferAlerts;
+
+  /// No description provided for @incomingTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming transfers'**
+  String get incomingTransfers;
+
+  /// No description provided for @incomingTransfersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me when money arrives'**
+  String get incomingTransfersSubtitle;
+
+  /// No description provided for @outgoingTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Outgoing transfers'**
+  String get outgoingTransfers;
+
+  /// No description provided for @outgoingTransfersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me when money is sent'**
+  String get outgoingTransfersSubtitle;
+
+  /// No description provided for @deleteNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete notification'**
+  String get deleteNotification;
+
+  /// No description provided for @deleteNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This notification will be permanently removed.'**
+  String get deleteNotificationBody;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @pleaseSignInToViewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in to view profile.'**
+  String get pleaseSignInToViewProfile;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently removes your profile data. You can only delete the account when your balance is zero and there is no transfer or payment request history.'**
+  String get deleteAccountBody;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal information'**
+  String get personalInformation;
+
+  /// No description provided for @personalInformationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the details linked to your Boklo account.'**
+  String get personalInformationSubtitle;
+
+  /// No description provided for @notificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which alerts Boklo should send you.'**
+  String get notificationsSubtitle;
+
+  /// No description provided for @security.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get security;
+
+  /// No description provided for @securitySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Security tools and protections for your wallet.'**
+  String get securitySubtitle;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get copiedToClipboard;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @required.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get required;
+
+  /// No description provided for @enterValidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get enterValidEmail;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statusPending;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// No description provided for @statusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get statusFailed;
+
+  /// No description provided for @errorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {message}'**
+  String errorPrefix(String message);
+
+  /// No description provided for @ledger.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger'**
+  String get ledger;
+
+  /// No description provided for @noEntriesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries yet'**
+  String get noEntriesYet;
+
+  /// No description provided for @transferAlertsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Decide which money movement events should notify you.'**
+  String get transferAlertsSubtitle;
 }
 
 class _AppLocalizationsDelegate

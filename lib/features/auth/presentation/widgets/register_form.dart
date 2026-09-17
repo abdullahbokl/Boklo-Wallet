@@ -6,6 +6,7 @@ import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/widgets/email_field.dart';
 import 'package:boklo/features/auth/presentation/widgets/password_field.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,7 +35,7 @@ class _RegisterFormState extends State<RegisterForm> {
   Future<void> _onRegisterPressed() async {
     if (_formKey.currentState?.validate() ?? false) {
       if (_passwordController.text != _confirmPasswordController.text) {
-        getIt<SnackbarService>().showError('Passwords do not match');
+        getIt<SnackbarService>().showError(context.l10n.passwordsDoNotMatch);
         return;
       }
       await context.read<AuthCubit>().register(
@@ -71,12 +72,12 @@ class _RegisterFormState extends State<RegisterForm> {
               const SizedBox(height: AppDimens.md),
               PasswordField(
                 controller: _confirmPasswordController,
-                hintText: 'Confirm Password',
+                hintText: context.l10n.confirmPassword,
                 enabled: !isLoading,
               ),
               const SizedBox(height: AppDimens.xl),
               AppButton(
-                text: 'Create Account',
+                text: context.l10n.createAccountAction,
                 onPressed: _onRegisterPressed,
                 isLoading: isLoading,
                 width: double.infinity,

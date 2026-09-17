@@ -7,6 +7,7 @@ import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/features/ledger_debug/presentation/bloc/ledger_cubit.dart';
 import 'package:boklo/features/ledger_debug/presentation/bloc/ledger_state.dart';
 import 'package:boklo/features/ledger_debug/presentation/widgets/ledger_entry_tile.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/utils/money.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class LedgerDebugPage extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Ledger'),
+          title: Text(context.l10n.ledger),
         ),
         body: BlocBuilder<LedgerCubit, LedgerState>(
           builder: (context, state) {
@@ -76,7 +77,7 @@ class LedgerDebugPage extends StatelessWidget {
             color: scheme.onSurfaceVariant,
           ),
           const SizedBox(height: AppDimens.md),
-          Text('No transactions yet', style: AppTypography.title),
+          Text(context.l10n.noEntriesYet, style: AppTypography.title),
         ],
       ),
     );

@@ -9,6 +9,7 @@ import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/profile/presentation/widgets/account_details_card.dart';
 import 'package:boklo/features/profile/presentation/widgets/delete_account_dialog.dart';
 import 'package:boklo/features/profile/presentation/widgets/profile_header.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
@@ -22,7 +23,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPageScaffold(
-      title: 'Profile',
+      title: context.l10n.profile,
       child: BlocBuilder<AuthCubit, BaseState<User?>>(
         builder: (context, state) {
           return state.when(
@@ -34,8 +35,8 @@ class ProfilePage extends StatelessWidget {
             ),
             success: (user) {
               if (user == null) {
-                return const Center(
-                  child: Text('Please sign in to view profile.'),
+                return Center(
+                  child: Text(context.l10n.pleaseSignInToViewProfile),
                 );
               }
 
@@ -50,13 +51,13 @@ class ProfilePage extends StatelessWidget {
                   const AccountDetailsCard(),
                   const SizedBox(height: AppDimens.xl),
                   AppButton(
-                    text: 'Sign out',
+                    text: context.l10n.signOut,
                     variant: AppButtonVariant.secondary,
                     onPressed: () => _handleLogout(context),
                   ),
                   const SizedBox(height: AppDimens.md),
                   AppButton(
-                    text: 'Delete account',
+                    text: context.l10n.deleteAccount,
                     variant: AppButtonVariant.destructive,
                     onPressed: () => _showDeleteAccountDialog(context),
                   ),

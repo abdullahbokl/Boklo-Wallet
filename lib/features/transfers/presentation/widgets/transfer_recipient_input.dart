@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
 import 'package:flutter/material.dart';
 
@@ -39,8 +40,8 @@ class _TransferRecipientInputState extends State<TransferRecipientInput> {
     return AppTextField(
       controller: widget.controller,
       enabled: widget.enabled,
-      label: 'Recipient',
-      hintText: 'Wallet ID, Alias, or Email',
+      label: context.l10n.recipient,
+      hintText: context.l10n.recipientHint,
       prefixIcon: const Icon(Icons.person_outline),
       suffixIcon: IconButton(
         icon: const Icon(Icons.contacts),

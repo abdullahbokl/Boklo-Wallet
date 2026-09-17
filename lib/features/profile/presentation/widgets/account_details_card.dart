@@ -2,6 +2,7 @@ import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/settings/presentation/bloc/theme_cubit.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,15 +42,15 @@ class AccountDetailsCard extends StatelessWidget {
         children: [
           _SettingTile(
             icon: Icons.person_outline_rounded,
-            title: 'Personal information',
-            subtitle: 'Review the details linked to your Boklo account.',
+            title: context.l10n.personalInformation,
+            subtitle: context.l10n.personalInformationSubtitle,
             onTap: () {},
           ),
           Divider(height: 1, color: scheme.outlineVariant),
           _SettingTile(
             icon: Icons.notifications_none_outlined,
-            title: 'Notifications',
-            subtitle: 'Choose which alerts Boklo should send you.',
+            title: context.l10n.notifications,
+            subtitle: context.l10n.notificationsSubtitle,
             onTap: () => context.push('/notification-settings'),
           ),
           Divider(height: 1, color: scheme.outlineVariant),
@@ -57,8 +58,8 @@ class AccountDetailsCard extends StatelessWidget {
           Divider(height: 1, color: scheme.outlineVariant),
           _SettingTile(
             icon: Icons.security_outlined,
-            title: 'Security',
-            subtitle: 'Security tools and protections for your wallet.',
+            title: context.l10n.security,
+            subtitle: context.l10n.securitySubtitle,
             onTap: () {},
           ),
         ],
@@ -100,7 +101,10 @@ class _ThemeModeSection extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Appearance', style: AppTypography.subtitle),
+                        Text(
+                          context.l10n.appearance,
+                          style: AppTypography.subtitle,
+                        ),
                         const SizedBox(height: AppDimens.xs4),
                         Text(
                           'Pick the look you want for Boklo.',

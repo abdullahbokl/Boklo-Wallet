@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_decorations.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_button.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +55,7 @@ class WalletErrorView extends StatelessWidget {
             ),
             const SizedBox(height: AppDimens.lg),
             AppButton(
-              text: 'Retry',
+              text: context.l10n.retry,
               icon: Icons.refresh_rounded,
               onPressed: onRetry,
               variant: AppButtonVariant.tonal,
