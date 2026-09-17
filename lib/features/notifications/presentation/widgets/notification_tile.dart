@@ -25,6 +25,28 @@ class NotificationTile extends StatelessWidget {
 
     return Dismissible(
       key: Key(notification.id),
+      confirmDismiss: (_) async {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Delete notification'),
+            content: const Text(
+              'This notification will be permanently removed.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        );
+        return confirmed ?? false;
+      },
       direction: DismissDirection.endToStart,
       onDismissed: (_) => onDelete?.call(),
       background: Container(

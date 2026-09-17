@@ -19,30 +19,11 @@ import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/pages/wallet_page.dart';
+import 'package:boklo/shared/widgets/molecules/adaptive_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
-
-/// Bridges a Cubit's state stream to the [Listenable] interface that
-/// GoRouter's refreshListenable expects (bloc 9 cubits are pure Dart).
-class _CubitListenable extends ChangeNotifier {
-  _CubitListenable(Stream<dynamic> stream) {
-    _subscription = stream.listen(
-      (_) => notifyListeners(),
-      onError: (_) => notifyListeners(),
-      onDone: notifyListeners,
-    );
-  }
-
-  StreamSubscription<dynamic>? _subscription;
-
-  @override
-  void dispose() {
-    unawaited(_subscription?.cancel());
-    super.dispose();
-  }
-}
 
 @lazySingleton
 class AppRouter {
@@ -95,29 +76,82 @@ class AppRouter {
         path: '/profile-setup',
         builder: (context, state) => const ProfileSetupPage(),
       ),
-      GoRoute(
-        path: '/profile',
-        builder: (context, state) => const ProfilePage(),
+      // --- Adaptive tabbed shell (bottom bar / navigation rail) ---
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AdaptiveScaffold(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/wallet',
+                builder: (context, state) => BlocProvider(
+                  create: (context) {
+                    final cubit = getIt<WalletCubit>();
+                    unawaited(cubit.loadWallet());
+                    return cubit;
+                  },
+                  child: const WalletPage(),
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/transfer',
+                builder: (context, state) {
+                  // Extract contact email if passed from contacts page
+                  final contact = state.extra as ContactEntity?;
+                  return TransferPage(prefilledRecipient: contact?.email);
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/payment-requests',
+                builder: (context, state) => const PaymentRequestListPage(),
+                routes: [
+                  GoRoute(
+                    path: 'create',
+                    builder: (context, state) {
+                      // Extract contact UID if passed from contacts page
+                      final contact = state.extra as ContactEntity?;
+                      return CreatePaymentRequestPage(
+                        prefilledPayerId: contact?.uid,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/contacts',
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>?;
+                  return ContactListPage(
+                    isPickMode: (extra?['pickMode'] as bool?) ?? false,
+                  );
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) => const ProfilePage(),
+              ),
+            ],
+          ),
+        ],
       ),
-      GoRoute(
-        path: '/wallet',
-        builder: (context, state) => BlocProvider(
-          create: (context) {
-            final cubit = getIt<WalletCubit>();
-            unawaited(cubit.loadWallet());
-            return cubit;
-          },
-          child: const WalletPage(),
-        ),
-      ),
-      GoRoute(
-        path: '/transfer',
-        builder: (context, state) {
-          // Extract contact email if passed from contacts page
-          final contact = state.extra as ContactEntity?;
-          return TransferPage(prefilledRecipient: contact?.email);
-        },
-      ),
+      // --- Pushed detail routes (render above the shell) ---
       // Debug-only ledger view, gated behind a feature flag so it can
       // never be reached in production builds.
       if (_featureFlags.enableLedgerDebug)
@@ -125,29 +159,6 @@ class AppRouter {
           path: '/ledger',
           builder: (context, state) => const LedgerDebugPage(),
         ),
-      GoRoute(
-        path: '/payment-requests',
-        builder: (context, state) => const PaymentRequestListPage(),
-        routes: [
-          GoRoute(
-            path: 'create',
-            builder: (context, state) {
-              // Extract contact UID if passed from contacts page
-              final contact = state.extra as ContactEntity?;
-              return CreatePaymentRequestPage(prefilledPayerId: contact?.uid);
-            },
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/contacts',
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          return ContactListPage(
-            isPickMode: (extra?['pickMode'] as bool?) ?? false,
-          );
-        },
-      ),
       GoRoute(
         path: '/notification-settings',
         builder: (context, state) => const NotificationSettingsPage(),
@@ -158,4 +169,24 @@ class AppRouter {
       ),
     ],
   );
+}
+
+/// Bridges a Cubit's state stream to the [Listenable] interface that
+/// GoRouter's refreshListenable expects (bloc 9 cubits are pure Dart).
+class _CubitListenable extends ChangeNotifier {
+  _CubitListenable(Stream<dynamic> stream) {
+    _subscription = stream.listen(
+      (_) => notifyListeners(),
+      onError: (_) => notifyListeners(),
+      onDone: notifyListeners,
+    );
+  }
+
+  StreamSubscription<dynamic>? _subscription;
+
+  @override
+  void dispose() {
+    unawaited(_subscription?.cancel());
+    super.dispose();
+  }
 }

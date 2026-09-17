@@ -51,7 +51,9 @@ class TransferConfirmationDialog extends StatelessWidget {
           top: Radius.circular(AppDimens.radiusXl),
         ),
       ),
-      padding: const EdgeInsets.all(AppDimens.lg),
+      padding:
+          const EdgeInsets.all(AppDimens.lg) +
+          EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SafeArea(
         top: false,
         child: Column(

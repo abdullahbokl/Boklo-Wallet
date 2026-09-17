@@ -91,7 +91,7 @@ class NotificationService {
 
   void _navigateFromData(Map<String, dynamic> data) {
     log('Navigating based on notification data: $data');
-    unawaited(_navigationService.push('/wallet'));
+    _navigationService.go('/wallet');
   }
 
   void _setPendingRoute(RemoteMessage message) {

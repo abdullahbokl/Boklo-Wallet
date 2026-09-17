@@ -1,4 +1,3 @@
-import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +21,7 @@ class SummaryItem extends StatelessWidget {
         Text(
           label,
           style: AppTypography.bodySmall.copyWith(
-            color: AppColors.textSecondaryLight,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: AppDimens.xs),

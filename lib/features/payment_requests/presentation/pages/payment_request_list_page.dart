@@ -1,12 +1,15 @@
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
+import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/payment_requests/domain/entity/payment_request_entity.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_cubit.dart';
 import 'package:boklo/features/payment_requests/presentation/bloc/payment_request_state.dart';
 import 'package:boklo/features/payment_requests/presentation/widgets/payment_request_item.dart';
+import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
+import 'package:boklo/shared/widgets/molecules/wallet_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,6 +26,7 @@ class PaymentRequestListPage extends StatelessWidget {
           title: 'Payment requests',
           actions: [
             IconButton(
+              tooltip: 'Create payment request',
               icon: const Icon(Icons.add_rounded),
               onPressed: () =>
                   getIt<NavigationService>().push('/payment-requests/create'),
@@ -35,8 +39,25 @@ class PaymentRequestListPage extends StatelessWidget {
             ],
           ),
           child:
-              BlocBuilder<PaymentRequestCubit, BaseState<PaymentRequestState>>(
+              BlocConsumer<PaymentRequestCubit, BaseState<PaymentRequestState>>(
+                listener: (context, state) {
+                  state.whenOrNull(
+                    error: (failure) =>
+                        getIt<SnackbarService>().showError(failure.message),
+                  );
+                },
                 builder: (context, state) {
+                  if (state.isLoading) {
+                    return const AppLoadingIndicator();
+                  }
+                  if (state.isError &&
+                      state.data?.incomingRequests.isEmpty == true &&
+                      state.data?.outgoingRequests.isEmpty == true) {
+                    return WalletErrorView(
+                      title: state.error?.message ?? 'Something went wrong',
+                      onRetry: () => getIt<PaymentRequestCubit>().init(),
+                    );
+                  }
                   final data = state.data ?? const PaymentRequestState();
                   return TabBarView(
                     children: [

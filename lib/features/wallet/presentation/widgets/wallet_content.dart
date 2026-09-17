@@ -53,15 +53,13 @@ class WalletContent extends StatelessWidget {
                   const SizedBox(height: AppDimens.lg),
                   QuickActionsRow(
                     onSendTap: () {
-                      unawaited(getIt<NavigationService>().push('/transfer'));
+                      getIt<NavigationService>().go('/transfer');
                     },
                     onPaymentRequestsTap: () {
-                      unawaited(
-                        getIt<NavigationService>().push('/payment-requests'),
-                      );
+                      getIt<NavigationService>().go('/payment-requests');
                     },
                     onContactsTap: () {
-                      unawaited(getIt<NavigationService>().push('/contacts'));
+                      getIt<NavigationService>().go('/contacts');
                     },
                     onNotificationsTap: () {
                       unawaited(

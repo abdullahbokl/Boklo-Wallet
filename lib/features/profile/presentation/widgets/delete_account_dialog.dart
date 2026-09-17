@@ -28,28 +28,30 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
       title: const Text('Delete account'),
       content: SizedBox(
         width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'This permanently removes your profile data. '
-              'You can only delete the account when your balance is zero '
-              'and there is no transfer or payment request history.',
-              style: AppTypography.bodyMedium.copyWith(
-                color: scheme.onSurfaceVariant,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'This permanently removes your profile data. '
+                'You can only delete the account when your balance is zero '
+                'and there is no transfer or payment request history.',
+                style: AppTypography.bodyMedium.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
-            ),
-            const SizedBox(height: AppDimens.lg),
-            AppTextField(
-              controller: _passwordController,
-              label: 'Password',
-              hintText: 'Re-enter your password',
-              obscureText: true,
-              autofocus: true,
-              onSubmitted: (_) => _submit(),
-            ),
-          ],
+              const SizedBox(height: AppDimens.lg),
+              AppTextField(
+                controller: _passwordController,
+                label: 'Password',
+                hintText: 'Re-enter your password',
+                obscureText: true,
+                autofocus: true,
+                onSubmitted: (_) => _submit(),
+              ),
+            ],
+          ),
         ),
       ),
       actions: [

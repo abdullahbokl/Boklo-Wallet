@@ -36,8 +36,9 @@ class AppIconButton extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(AppDimens.radiusMd),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppDimens.sm),
+        child: SizedBox(
+          width: 48,
+          height: 48,
           child: Icon(icon, size: size, color: effectiveColor),
         ),
       ),

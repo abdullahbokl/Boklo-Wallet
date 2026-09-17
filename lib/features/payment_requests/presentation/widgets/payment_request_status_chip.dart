@@ -23,7 +23,7 @@ class PaymentRequestStatusChip extends StatelessWidget {
       case PaymentRequestStatus.declined:
         color = AppColors.error;
       case PaymentRequestStatus.invalid:
-        color = AppColors.textSecondaryLight;
+        color = Theme.of(context).colorScheme.onSurfaceVariant;
     }
 
     return Container(

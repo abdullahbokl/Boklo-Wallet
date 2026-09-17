@@ -25,6 +25,10 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
             title: 'Boklo',
+            builder: (context, child) => MediaQuery.withClampedTextScaling(
+              maxScaleFactor: 2,
+              child: child ?? const SizedBox.shrink(),
+            ),
             scaffoldMessengerKey: snackbarService.scaffoldMessengerKey,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -32,9 +36,6 @@ class MyApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeMode,
             routerConfig: appRouter.router,
-            builder: (context, child) {
-              return child ?? const SizedBox.shrink();
-            },
           );
         },
       ),
