@@ -9,6 +9,9 @@ abstract class WalletLocalDataSource {
   Future<WalletModel?> getLastWallet();
   Future<void> cacheTransactions(List<TransactionModel> transactions);
   Future<List<TransactionModel>?> getLastTransactions();
+
+  /// Epoch ms of the last successful remote wallet fetch; null if never.
+  Future<int?> lastWalletFetchMs();
 }
 
 @LazySingleton(as: WalletLocalDataSource)
@@ -18,12 +21,24 @@ class WalletLocalDataSourceImpl implements WalletLocalDataSource {
   final FlutterSecureStorage _storage;
 
   static const _walletKey = 'CACHED_WALLET';
+  static const _walletFetchTimeKey = 'CACHED_WALLET_FETCH_MS';
   static const _transactionsKey = 'CACHED_TRANSACTIONS';
 
   @override
   Future<void> cacheWallet(WalletModel wallet) async {
     final jsonString = json.encode(wallet.toJson());
     await _storage.write(key: _walletKey, value: jsonString);
+    await _storage.write(
+      key: _walletFetchTimeKey,
+      value: DateTime.now().millisecondsSinceEpoch.toString(),
+    );
+  }
+
+  @override
+  Future<int?> lastWalletFetchMs() async {
+    final raw = await _storage.read(key: _walletFetchTimeKey);
+    if (raw == null) return null;
+    return int.tryParse(raw);
   }
 
   @override

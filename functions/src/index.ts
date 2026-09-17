@@ -35,6 +35,8 @@ export { setUserProfile, deleteAccount } from "./profile";
 export { provisionWallet } from "./wallet";
 export { migrateWalletIdentifiers } from "./migration";
 export { migrateMoneyToMinorUnits } from "./money_migration";
+export { expirePaymentRequests } from "./request_expiry";
+export { getTransferLimits } from "./limits";
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected

@@ -417,4 +417,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sentMoney => 'Sent Money';
+
+  @override
+  String get searchTransactions => 'Search transactions';
+
+  @override
+  String get dateRange => 'Date range';
+
+  @override
+  String get clearDates => 'Clear dates';
+
+  @override
+  String get receiptTitle => 'Receipt';
+
+  @override
+  String get receiptRecipient => 'Recipient';
+
+  @override
+  String get receiptShare => 'Share receipt';
+
+  @override
+  String receiptShareText(String amount, String date, String transferId) {
+    return 'Payment of $amount on $date confirmed.\nTransfer ID: $transferId';
+  }
+
+  @override
+  String get receiptDone => 'Done';
+
+  @override
+  String get offlineBanner =>
+      'Showing saved data — amounts may be outdated. Reconnect to refresh.';
+
+  @override
+  String limitsRemaining(Object amount) {
+    return 'Daily limit remaining: $amount';
+  }
 }

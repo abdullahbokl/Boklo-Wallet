@@ -16,7 +16,9 @@ import 'package:boklo/features/notifications/presentation/pages/notifications_pa
 import 'package:boklo/features/payment_requests/presentation/pages/create_payment_request_page.dart';
 import 'package:boklo/features/payment_requests/presentation/pages/payment_request_list_page.dart';
 import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
+import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
+import 'package:boklo/features/transfers/presentation/pages/transfer_receipt_page.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/pages/transaction_detail_page.dart';
 import 'package:boklo/features/wallet/presentation/pages/wallet_page.dart';
@@ -76,6 +78,12 @@ class AppRouter {
       GoRoute(
         path: '/profile-setup',
         builder: (context, state) => const ProfileSetupPage(),
+      ),
+      GoRoute(
+        path: '/transfer-receipt',
+        builder: (context, state) => TransferReceiptPage(
+          transfer: state.extra! as TransferEntity,
+        ),
       ),
       GoRoute(
         path: '/transaction-detail',

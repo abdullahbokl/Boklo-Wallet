@@ -146,5 +146,25 @@
   "sentMoney": "Sent Money",
   "searchTransactions": "Search transactions",
   "dateRange": "Date range",
-  "clearDates": "Clear dates"
+  "clearDates": "Clear dates",
+  "receiptTitle": "Receipt",
+  "receiptRecipient": "Recipient",
+  "receiptShare": "Share receipt",
+  "receiptShareText": "Payment of {amount} on {date} confirmed.\nTransfer ID: {transferId}",
+  "receiptDone": "Done",
+  "offlineBanner": "Showing saved data — amounts may be outdated. Reconnect to refresh.",
+  "limitsRemaining": "Daily limit remaining: {amount}",
+  "@receiptShareText": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "transferId": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -4,6 +4,7 @@ import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
+import 'package:boklo/features/wallet/domain/usecases/get_wallet_cache_time_usecase.dart';
 import 'package:boklo/features/wallet/domain/usecases/load_more_transactions_usecase.dart';
 import 'package:boklo/features/wallet/domain/usecases/provision_wallet_usecase.dart';
 import 'package:boklo/features/wallet/domain/usecases/watch_wallet_usecase.dart';
@@ -24,6 +25,9 @@ class MockLoadMoreTransactionsUseCase extends Mock
 class MockProvisionWalletUseCase extends Mock
     implements ProvisionWalletUseCase {}
 
+class MockGetWalletCacheTimeUseCase extends Mock
+    implements GetWalletCacheTimeUseCase {}
+
 void main() {
   late WalletCubit cubit;
   late MockWatchWalletUseCase mockWatchWalletUseCase;
@@ -36,11 +40,15 @@ void main() {
     mockGetTransactionsUseCase = MockGetTransactionsUseCase();
     mockLoadMoreTransactionsUseCase = MockLoadMoreTransactionsUseCase();
     mockProvisionWalletUseCase = MockProvisionWalletUseCase();
+    final cacheTimeUseCase = MockGetWalletCacheTimeUseCase();
+    when(cacheTimeUseCase.call).thenAnswer((_) async => null);
+
     cubit = WalletCubit(
       mockWatchWalletUseCase,
       mockGetTransactionsUseCase,
       mockLoadMoreTransactionsUseCase,
       mockProvisionWalletUseCase,
+      cacheTimeUseCase,
     );
   });
 

@@ -6,6 +6,7 @@ import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_cubit.dart';
 import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
+import 'package:boklo/features/transfers/presentation/pages/transfer_receipt_page.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_confirmation_dialog.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_form_content.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
@@ -119,11 +120,21 @@ class _TransferBlocHandler extends StatelessWidget {
     return BlocListener<TransferCubit, BaseState<TransferState>>(
       listener: (context, state) {
         state.whenOrNull(
-          success: (_) {
-            getIt<SnackbarService>().showSuccess(
-              context.l10n.transferSuccessful,
-            );
-            getIt<NavigationService>().go('/wallet');
+          success: (transferState) {
+            final completed = transferState.completedTransfer;
+            if (completed != null) {
+              unawaited(
+                getIt<NavigationService>().push(
+                  TransferReceiptPage.routePath,
+                  extra: completed,
+                ),
+              );
+            } else {
+              getIt<SnackbarService>().showSuccess(
+                context.l10n.transferSuccessful,
+              );
+              getIt<NavigationService>().go('/wallet');
+            }
           },
           error: (error) {
             getIt<SnackbarService>().showError(error.message);

@@ -29,6 +29,9 @@ class WalletRepositoryImpl implements WalletRepository {
   bool _hasMore = true;
 
   @override
+  Future<int?> lastWalletFetchMs() => _localDataSource.lastWalletFetchMs();
+
+  @override
   Future<Either<Failure, void>> provisionWallet() async {
     try {
       await _remoteDataSource.provisionWallet();

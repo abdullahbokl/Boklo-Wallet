@@ -46,8 +46,10 @@ const shouldSendNotification = async (userId: string, type: NotificationType): P
 
         return true;
     } catch (e) {
+        // Fail closed for non-critical pushes; money-received is critical
+        // enough to notify even when preferences cannot be read.
         logger.warn(`Failed to read notification prefs for ${userId}`, { error: e });
-        return true; // Fail open
+        return type === NotificationType.TRANSFER_RECEIVED;
     }
 };
 
@@ -146,7 +148,9 @@ export const notifyOnTransferComplete = onCustomEventPublished(
                 bodyKey: 'transfer_sent_success_body',
                 data: { 
                     amount: formatMajor(payload.amount), 
-                    currency: payload.currency 
+                    currency: payload.currency,
+                    route: '/transaction-detail',
+                    transactionId: payload.transactionId
                 }
             }
         }, payload.transactionId, correlationId);
@@ -161,7 +165,9 @@ export const notifyOnTransferComplete = onCustomEventPublished(
                 bodyKey: 'transfer_received_body',
                 data: { 
                     amount: formatMajor(payload.amount), 
-                    currency: payload.currency 
+                    currency: payload.currency,
+                    route: '/transaction-detail',
+                    transactionId: payload.transactionId
                 }
             }
         }, payload.transactionId, correlationId);
@@ -220,7 +226,8 @@ export const notifyOnPaymentRequest = onCustomEventPublished(
                 data: {
                     amount: formatMajor(payload.amount),
                     currency: payload.currency,
-                    requesterId: payload.requesterId
+                    requesterId: payload.requesterId,
+                    route: '/payment-requests'
                 }
             }
         }, payload.requestId);

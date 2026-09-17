@@ -60,6 +60,7 @@ dependencies:
   fpdart: ^1.2.0
   firebase_app_check: ^0.4.8
   firebase_crashlytics: ^5.4.0
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:

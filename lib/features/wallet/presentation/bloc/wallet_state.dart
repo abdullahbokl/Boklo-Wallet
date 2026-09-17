@@ -16,5 +16,6 @@ abstract class WalletState with _$WalletState {
     @Default('') String searchQuery,
     @Default(true) bool hasMore,
     @Default(false) bool isLoadingMore,
+    @Default(false) bool isOfflineData,
   }) = _WalletState;
 }

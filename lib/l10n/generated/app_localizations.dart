@@ -879,6 +879,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sent Money'**
   String get sentMoney;
+
+  /// No description provided for @searchTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Search transactions'**
+  String get searchTransactions;
+
+  /// No description provided for @dateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Date range'**
+  String get dateRange;
+
+  /// No description provided for @clearDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear dates'**
+  String get clearDates;
+
+  /// No description provided for @receiptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get receiptTitle;
+
+  /// No description provided for @receiptRecipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get receiptRecipient;
+
+  /// No description provided for @receiptShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share receipt'**
+  String get receiptShare;
+
+  /// No description provided for @receiptShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment of {amount} on {date} confirmed.\nTransfer ID: {transferId}'**
+  String receiptShareText(String amount, String date, String transferId);
+
+  /// No description provided for @receiptDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get receiptDone;
+
+  /// No description provided for @offlineBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved data — amounts may be outdated. Reconnect to refresh.'**
+  String get offlineBanner;
+
+  /// No description provided for @limitsRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit remaining: {amount}'**
+  String limitsRemaining(Object amount);
 }
 
 class _AppLocalizationsDelegate

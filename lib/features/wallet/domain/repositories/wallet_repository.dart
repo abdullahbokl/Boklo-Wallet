@@ -11,4 +11,8 @@ abstract class WalletRepository {
   Future<Either<Failure, TransactionPage>> loadMoreTransactions();
   Stream<Either<Failure, List<TransactionEntity>>> watchTransactions();
   Stream<Either<Failure, WalletEntity>> watchWallet();
+
+  /// Epoch ms of the last successful remote fetch (for staleness UI);
+  /// null when no cached data exists.
+  Future<int?> lastWalletFetchMs();
 }

@@ -7,6 +7,7 @@ import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/domain/usecases/get_transactions_usecase.dart';
+import 'package:boklo/features/wallet/domain/usecases/get_wallet_cache_time_usecase.dart';
 import 'package:boklo/features/wallet/domain/usecases/load_more_transactions_usecase.dart';
 import 'package:boklo/features/wallet/domain/usecases/provision_wallet_usecase.dart';
 import 'package:boklo/features/wallet/domain/usecases/watch_wallet_usecase.dart';
@@ -21,12 +22,14 @@ class WalletCubit extends BaseCubit<WalletState> {
     this._getTransactionsUseCase,
     this._loadMoreTransactionsUseCase,
     this._provisionWalletUseCase,
+    this._getWalletCacheTimeUseCase,
   ) : super(const BaseState.initial());
 
   final WatchWalletUseCase _watchWalletUseCase;
   final GetTransactionsUseCase _getTransactionsUseCase;
   final LoadMoreTransactionsUseCase _loadMoreTransactionsUseCase;
   final ProvisionWalletUseCase _provisionWalletUseCase;
+  final GetWalletCacheTimeUseCase _getWalletCacheTimeUseCase;
 
   StreamSubscription<Either<Failure, WalletEntity>>? _walletSubscription;
   StreamSubscription<Either<Failure, List<TransactionEntity>>>? _txSubscription;
@@ -39,6 +42,7 @@ class WalletCubit extends BaseCubit<WalletState> {
   WalletEntity? _currentWallet;
   List<TransactionEntity> _lastTransactions = [];
   bool _hasMore = true;
+  int? _lastFetchMs;
 
   Future<void> loadWallet() async {
     emitLoading();
@@ -46,6 +50,9 @@ class WalletCubit extends BaseCubit<WalletState> {
     _walletReceived = false;
 
     log('🔄 WalletCubit: Starting wallet load...');
+    unawaited(
+      _getWalletCacheTimeUseCase.call().then((value) => _lastFetchMs = value),
+    );
 
     // 1. Start watching wallet stream
     unawaited(_walletSubscription?.cancel());
@@ -172,6 +179,7 @@ class WalletCubit extends BaseCubit<WalletState> {
 
   void _emitMergedState() {
     if (_currentWallet == null) return;
+    final offline = _isCacheStale();
 
     final currentType = state.data?.filterType;
     final currentStatus = state.data?.filterStatus;
@@ -190,8 +198,18 @@ class WalletCubit extends BaseCubit<WalletState> {
         filterStatus: currentStatus,
         hasMore: _hasMore,
         isLoadingMore: _isLoadingMore,
+        isOfflineData: offline,
       ),
     );
+  }
+
+  /// Data is considered stale when the last successful remote fetch is
+  /// older than 5 minutes (e.g. the offline fallback served the cache).
+  bool _isCacheStale() {
+    final fetchedMs = _lastFetchMs;
+    if (fetchedMs == null) return false;
+    final age = DateTime.now().millisecondsSinceEpoch - fetchedMs;
+    return age > const Duration(minutes: 5).inMilliseconds;
   }
 
   void setFilterType(TransactionType? type) {
