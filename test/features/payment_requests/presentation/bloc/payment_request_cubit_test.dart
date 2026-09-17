@@ -1,5 +1,6 @@
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/error/failures.dart';
+import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
 import 'package:boklo/features/payment_requests/domain/entity/payment_request_entity.dart';
@@ -22,6 +23,8 @@ class MockResolveWalletByUsernameUseCase extends Mock
 
 class MockGetWalletUseCase extends Mock implements GetWalletUseCase {}
 
+class MockAnalyticsService extends Mock implements AnalyticsService {}
+
 PaymentRequestEntity _request(String id) => PaymentRequestEntity(
   id: id,
   requesterId: 'requester-1',
@@ -38,6 +41,7 @@ void main() {
   late MockResolveWalletByEmailUseCase mockResolveByEmail;
   late MockResolveWalletByUsernameUseCase mockResolveByUsername;
   late MockGetWalletUseCase mockGetWallet;
+  late MockAnalyticsService mockAnalyticsService;
 
   setUpAll(() {
     registerFallbackValue(_request('fallback'));
@@ -48,6 +52,7 @@ void main() {
     mockResolveByEmail = MockResolveWalletByEmailUseCase();
     mockResolveByUsername = MockResolveWalletByUsernameUseCase();
     mockGetWallet = MockGetWalletUseCase();
+    mockAnalyticsService = MockAnalyticsService();
 
     // Default: watch streams stay quiet
     when(
@@ -56,12 +61,16 @@ void main() {
     when(
       () => mockRepository.watchOutgoingRequests(),
     ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockAnalyticsService.logPaymentRequestCreated(),
+    ).thenAnswer((_) async {});
 
     cubit = PaymentRequestCubit(
       mockRepository,
       mockResolveByEmail,
       mockResolveByUsername,
       mockGetWallet,
+      mockAnalyticsService,
     );
   });
 

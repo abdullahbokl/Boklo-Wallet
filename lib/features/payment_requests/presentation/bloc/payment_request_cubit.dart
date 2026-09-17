@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:boklo/core/base/base_cubit.dart';
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_email_usecase.dart';
 import 'package:boklo/features/discovery/domain/usecases/resolve_wallet_by_username_usecase.dart';
 import 'package:boklo/features/payment_requests/domain/repo/payment_request_repository.dart';
@@ -16,12 +17,14 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
     this._resolveWalletByEmailUseCase,
     this._resolveWalletByUsernameUseCase,
     this._getWalletUseCase,
+    this._analyticsService,
   ) : super(const BaseState.initial());
 
   final PaymentRequestRepository _repository;
   final ResolveWalletByEmailUseCase _resolveWalletByEmailUseCase;
   final ResolveWalletByUsernameUseCase _resolveWalletByUsernameUseCase;
   final GetWalletUseCase _getWalletUseCase;
+  final AnalyticsService _analyticsService;
   StreamSubscription<dynamic>? _incomingSub;
   StreamSubscription<dynamic>? _outgoingSub;
 
@@ -123,6 +126,7 @@ class PaymentRequestCubit extends BaseCubit<PaymentRequestState> {
     result.fold(
       emitError,
       (id) {
+        unawaited(_analyticsService.logPaymentRequestCreated());
         emitSuccess(currentState.copyWith(isCreating: false));
       },
     );

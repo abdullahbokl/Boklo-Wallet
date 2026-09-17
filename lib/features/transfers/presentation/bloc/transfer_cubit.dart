@@ -156,7 +156,7 @@ class TransferCubit extends BaseCubit<TransferState> {
         (transfer) {
           if (transfer?.status == TransferStatus.completed) {
             unawaited(
-              _analyticsService.logTransferInitiated(
+              _analyticsService.logTransferSuccess(
                 amount: amount,
                 currency: currency,
               ),

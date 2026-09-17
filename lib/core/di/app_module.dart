@@ -2,6 +2,7 @@ import 'package:boklo/core/config/app_config.dart' as app_config;
 import 'package:boklo/core/config/app_feature_flags.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -24,6 +25,9 @@ abstract class AppModule {
 
   @lazySingleton
   FirebaseMessaging get firebaseMessaging => FirebaseMessaging.instance;
+
+  @lazySingleton
+  FirebaseAnalytics get firebaseAnalytics => FirebaseAnalytics.instance;
 
   @singleton
   @Environment(Environment.dev)

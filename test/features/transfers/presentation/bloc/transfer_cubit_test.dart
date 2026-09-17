@@ -58,6 +58,18 @@ void main() {
         reason: any(named: 'reason'),
       ),
     ).thenAnswer((_) async {});
+    when(
+      () => mockAnalyticsService.logTransferSuccess(
+        amount: any(named: 'amount'),
+        currency: any(named: 'currency'),
+      ),
+    ).thenAnswer((_) async {});
+    when(
+      () => mockAnalyticsService.logTransferInitiated(
+        amount: any(named: 'amount'),
+        currency: any(named: 'currency'),
+      ),
+    ).thenAnswer((_) async {});
 
     // Default success for recipient resolution (assumes direct wallet ID by
     // default)

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:boklo/app.dart';
@@ -7,6 +8,8 @@ import 'package:boklo/core/services/notification_service.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AppBootstrap {
@@ -17,6 +20,19 @@ class AppBootstrap {
   }) async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(options: firebaseOptions);
+
+    // Global error capture: framework and platform errors route into
+    // Crashlytics (active in dev too, so test crashes are attributable).
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      unawaited(FirebaseCrashlytics.instance.recordFlutterFatalError(details));
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      unawaited(
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true),
+      );
+      return true;
+    };
     log(
       '🔥 Firebase project: ${Firebase.app().options.projectId} '
       '(env=$environment)',
