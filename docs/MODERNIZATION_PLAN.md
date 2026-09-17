@@ -3,6 +3,23 @@
 > Status: **ACTIVE** · Audit date: 2026-09-17 · Baseline commit: `be8d51c`
 > Every finding below was verified against the actual code (file:line references included), not against project documentation. Where docs and code disagree, the discrepancy is called out explicitly (§7.9, §K).
 
+## Progress tracker (updated 2026-09-17)
+
+| Phase | Status | Commit(s) |
+| --- | --- | --- |
+| Audit + this plan | ✅ Done | `7052d79` |
+| 1 — Build stabilization (Flutter 3.41.6/Dart 3.11.4, freezed 3, injectable 3, dep majors, dead code, zero analyzer issues) | ✅ Done | `f89a80e`, `cd65ef6` |
+| 2 — Client P0s (router auth guard, ledger gate, timestamp integrity, stream errors, legacy transfer path removal) | ✅ Done | `46ff96a` |
+| 3 — Dependency rule restored, real TransferState, dead getTransfers chain removed | ✅ Done | `68a8061` |
+| 4 — Security hardening (storage/RTDB locked, admin-claim gates, fraud signal fix, currency assertion, notify export, transfer-create validation, doc overclaims corrected) | ✅ Done | `5fb998a` |
+| 5 — Money display via intl (MoneyFormatting extension); payment-request currency derived from requester wallet | ✅ Done | `34b138a` |
+| 6 — Responsive/adaptive shell + a11y pass | ⏳ Pending | — |
+| 7 — l10n extraction (~160 hardcoded strings) | ⏳ Pending | — |
+| 8 — Owner-decision items (backend minor units, balance read-split, project separation, iOS flavors, App Check, CI) | 🔒 Blocked on owner | — |
+| 9 — Test expansion (payment-request/contacts/notifications cubits, rules tests) | ⏳ Pending | — |
+
+Deviations from the original tables: `dio` and `internet_connection_checker_plus` were **removed** (zero callers) rather than upgraded; the `backendAuthoritativeTransfers` flag was deleted entirely (single idempotent path). The client-side `Money` minor-units type (§G) remains deferred with the backend migration to avoid client/backend format mismatch; intl-based display formatting shipped instead.
+
 ---
 
 ## A. Executive Summary
