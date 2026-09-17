@@ -4,7 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'payment_request_state.freezed.dart';
 
 @freezed
-class PaymentRequestState with _$PaymentRequestState {
+abstract class PaymentRequestState with _$PaymentRequestState {
   const factory PaymentRequestState({
     @Default([]) List<PaymentRequestEntity> incomingRequests,
     @Default([]) List<PaymentRequestEntity> outgoingRequests,

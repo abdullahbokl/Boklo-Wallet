@@ -57,7 +57,7 @@ class NotificationService {
   void _registerForegroundHandler() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       log('Got a message whilst in the foreground!');
-      _localNotifications.show(message);
+      unawaited(_localNotifications.show(message));
     });
   }
 

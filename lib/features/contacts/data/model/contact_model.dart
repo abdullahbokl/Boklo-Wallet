@@ -8,7 +8,7 @@ part 'contact_model.freezed.dart';
 part 'contact_model.g.dart';
 
 @freezed
-class ContactModel with _$ContactModel {
+abstract class ContactModel with _$ContactModel {
 
   const factory ContactModel({
     required String uid,

@@ -14,7 +14,7 @@ enum TransactionStatus {
 }
 
 @freezed
-class TransactionEntity with _$TransactionEntity {
+abstract class TransactionEntity with _$TransactionEntity {
   const factory TransactionEntity({
     required String id,
     required double amount,

@@ -12,7 +12,7 @@ enum PaymentRequestStatus {
 }
 
 @freezed
-class PaymentRequestEntity with _$PaymentRequestEntity {
+abstract class PaymentRequestEntity with _$PaymentRequestEntity {
   const factory PaymentRequestEntity({
     required String id,
     required String requesterId,

@@ -4,7 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'notification_preference_state.freezed.dart';
 
 @freezed
-class NotificationPreferenceState with _$NotificationPreferenceState {
+abstract class NotificationPreferenceState with _$NotificationPreferenceState {
   const factory NotificationPreferenceState({
     @Default(NotificationPreferenceEntity())
     NotificationPreferenceEntity preferences,

@@ -77,6 +77,8 @@ void main() {
       build: () {
         when(() => mockWatchWalletUseCase.call())
             .thenAnswer((_) => Stream.value(right(tWallet)));
+        when(() => mockGetTransactionsUseCase.call())
+            .thenAnswer((_) async => right(tTransactions));
         when(() => mockGetTransactionsUseCase.watch())
             .thenAnswer((_) => Stream.value(right(tTransactions)));
         return cubit;
@@ -105,6 +107,8 @@ void main() {
       build: () {
         when(() => mockWatchWalletUseCase.call())
             .thenAnswer((_) => Stream.value(left(tError)));
+        when(() => mockGetTransactionsUseCase.call())
+            .thenAnswer((_) async => right(const []));
         when(() => mockGetTransactionsUseCase.watch())
             .thenAnswer((_) => const Stream.empty());
         return cubit;
@@ -126,6 +130,8 @@ void main() {
         // Wallet stream never emits, simulating missing wallet
         when(() => mockWatchWalletUseCase.call())
             .thenAnswer((_) => const Stream.empty());
+        when(() => mockGetTransactionsUseCase.call())
+            .thenAnswer((_) async => right(const []));
         when(() => mockGetTransactionsUseCase.watch())
             .thenAnswer((_) => const Stream.empty());
         when(() => mockProvisionWalletUseCase.call())
@@ -161,6 +167,8 @@ void main() {
           }
             return Stream.value(right(tWallet));
         });
+        when(() => mockGetTransactionsUseCase.call())
+            .thenAnswer((_) async => right(const []));
         when(() => mockGetTransactionsUseCase.watch())
             .thenAnswer((_) => const Stream.empty());
         when(() => mockProvisionWalletUseCase.call())

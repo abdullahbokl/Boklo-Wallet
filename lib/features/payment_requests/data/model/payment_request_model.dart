@@ -10,7 +10,7 @@ part 'payment_request_model.g.dart';
 part 'payment_request_model.freezed.dart';
 
 @freezed
-class PaymentRequestModel with _$PaymentRequestModel {
+abstract class PaymentRequestModel with _$PaymentRequestModel {
   // Ignore extra fields for firestore compatibility if needed, using generic json logic
   const factory PaymentRequestModel({
     required String id,

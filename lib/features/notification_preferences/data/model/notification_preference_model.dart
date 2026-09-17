@@ -5,7 +5,7 @@ part 'notification_preference_model.freezed.dart';
 part 'notification_preference_model.g.dart';
 
 @freezed
-class NotificationPreferenceModel with _$NotificationPreferenceModel {
+abstract class NotificationPreferenceModel with _$NotificationPreferenceModel {
 
   const factory NotificationPreferenceModel({
     @Default(true) bool enableIncoming,
