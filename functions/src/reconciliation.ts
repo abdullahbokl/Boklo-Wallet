@@ -144,10 +144,26 @@ export const reconcileWallets = onSchedule("every day 00:00", async (event) => {
  * HTTP Trigger: Manual Run (DEV/Admin Only)
  */
 export const triggerReconciliationNow = onRequest(async (req, res) => {
-    // Basic security check: Only allow if explicitly enabled or mostly for dev
-    // In production, you'd check req.auth or specialized header/token.
-    // For this task, we assume the caller has IAM permission to invoke the function.
-    
+    // Security: callers must present a Firebase ID token carrying the
+    // `admin` custom claim (Authorization: Bearer <idToken>). This blocks
+    // unauthenticated and non-admin invocations.
+    const header = req.headers.authorization ?? "";
+    const idToken = header.startsWith("Bearer ") ? header.slice(7) : null;
+    if (!idToken) {
+        res.status(403).json({ error: "Missing Authorization bearer token" });
+        return;
+    }
+    try {
+        const decoded = await admin.auth().verifyIdToken(idToken);
+        if (decoded.admin !== true) {
+            res.status(403).json({ error: "Admin privileges required" });
+            return;
+        }
+    } catch {
+        res.status(403).json({ error: "Invalid or expired token" });
+        return;
+    }
+
     try {
         const report = await runReconciliationLogic();
         res.status(200).json({ 

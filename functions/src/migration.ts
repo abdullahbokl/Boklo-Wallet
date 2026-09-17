@@ -13,9 +13,14 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 export const migrateWalletIdentifiers = onCall(
   { region: "us-central1" },
   async (request) => {
-    // Only allow admin users (add custom claims check if needed)
-    if (!request.auth) {
-      throw new HttpsError("unauthenticated", "Must be authenticated");
+    // Admin-only: this job scans all users and writes identifier mappings.
+    // Callers must carry the `admin` custom claim
+    // (set via: admin.auth().setCustomUserClaims(uid, { admin: true })).
+    if (!request.auth || request.auth.token.admin !== true) {
+      throw new HttpsError(
+        "permission-denied",
+        "Only admins can run this migration",
+      );
     }
 
     const db = admin.firestore();

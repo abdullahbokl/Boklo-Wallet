@@ -10,15 +10,21 @@ REGION="us-central1"
 FUNCTION_NAME="triggerReconciliationNow"
 
 echo "Triggering Reconciliation Report (HTTP)..."
-# In a real authenticated scenario, you would need an ID token here.
-# For now, assuming public or IAM-authorized invocation via gcloud or direct curl if public.
-# Using 'gcloud functions call' is easiest for IAM auth.
+# The endpoint now REQUIRES a Firebase ID token carrying the `admin`
+# custom claim (Authorization: Bearer <idToken>). Obtain one for an
+# admin user (e.g. via the client app or a custom minting script) and
+# export it as ADMIN_ID_TOKEN before running this script.
 
 # Generate URL
 URL="https://$REGION-$PROJECT_ID.cloudfunctions.net/$FUNCTION_NAME"
 
 # Store response
-RESPONSE=$(curl -s -X POST "$URL" -H "Content-Type: application/json")
+if [ -z "${ADMIN_ID_TOKEN:-}" ]; then
+  echo "ERROR: ADMIN_ID_TOKEN env var is required (admin-claimed Firebase ID token)."
+  exit 1
+fi
+
+RESPONSE=$(curl -s -X POST "$URL" -H "Content-Type: application/json" -H "Authorization: Bearer $ADMIN_ID_TOKEN")
 echo "Response: $RESPONSE"
 
 if echo "$RESPONSE" | grep -q '"message":"Reconciliation triggered successfully"'; then

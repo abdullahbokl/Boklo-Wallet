@@ -20,7 +20,7 @@ export { recordLedgerEntry } from "./ledger";
 export { onTransferCreated } from "./transfers";
 export { onEventCreated } from "./events_publisher";
 export { onTransactionCompletedLog } from "./smoke_test";
-export { notifyOnTransferComplete, notifyOnTransferFailed, onNotificationQueued } from "./notifications";
+export { notifyOnTransferComplete, notifyOnTransferFailed, onNotificationQueued, notifyOnPaymentRequest } from "./notifications";
 export { 
     onPaymentRequestCreated, 
     acceptPaymentRequest, 

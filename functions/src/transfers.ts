@@ -206,6 +206,21 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
         throw new Error("One or both wallets do not exist");
       }
 
+      // Currency integrity: we never convert. The transfer currency, the
+      // sender wallet currency, and the receiver wallet currency must match.
+      const fromCurrency = fromWalletDoc.data()?.currency;
+      const toCurrency = toWalletDoc.data()?.currency;
+      const transferCurrency = transferData.currency;
+      if (
+        !transferCurrency ||
+        transferCurrency !== fromCurrency ||
+        transferCurrency !== toCurrency
+      ) {
+        throw new Error(
+          `currency-mismatch: transfer=${transferCurrency} from=${fromCurrency} to=${toCurrency}`,
+        );
+      }
+
       const fromBalance = fromWalletDoc.data()?.balance || 0;
       if (fromBalance < amount) {
         throw new Error("Insufficient balance");

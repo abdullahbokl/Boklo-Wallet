@@ -107,12 +107,29 @@ service cloud.firestore {
       allow create: if isAuthenticated()
                     && request.resource.data.fromWalletId == request.auth.uid
                     && request.resource.data.status == 'pending'
-                    && request.resource.data.amount > 0;
+                    && request.resource.data.amount is number
+                    && request.resource.data.amount > 0
+                    && request.resource.data.toWalletId is string
+                    && request.resource.data.currency is string
+                    && request.resource.data.id is string
+                    && request.resource.data.createdAt is number
+                    && request.resource.data.keys().hasOnly([
+                      'id',
+                      'fromWalletId',
+                      'toWalletId',
+                      'amount',
+                      'currency',
+                      'status',
+                      'createdAt',
+                      'failureReason',
+                      'reasons',
+                      'riskLevel',
+                      'riskMode',
+                    ]);
 
-      // 6. Read: Involved parties (Sender/Receiver) OR if checking existence of new ID
+      // 6. Read: Involved parties (Sender/Receiver)
       allow read: if isAuthenticated() && (
-        resource == null ||
-        request.auth.uid == resource.data.fromWalletId || 
+        request.auth.uid == resource.data.fromWalletId ||
         request.auth.uid == resource.data.toWalletId
       );
       

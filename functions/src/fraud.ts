@@ -233,7 +233,7 @@ async function getFailedTransferCount(
 ): Promise<number> {
     const snapshot = await db.collection('transfers')
         .where('fromWalletId', '==', walletId)
-        .where('status', '==', 'FAILED')
+        .where('status', '==', 'failed')
         .where('createdAt', '>=', since)
         .count()
         .get();

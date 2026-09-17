@@ -1,6 +1,7 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+    // The app does not use Realtime Database. Keep fully locked.
+    ".read": false,
+    ".write": false
   }
 }
