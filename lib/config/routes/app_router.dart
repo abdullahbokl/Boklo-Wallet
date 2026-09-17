@@ -59,9 +59,17 @@ class AppRouter {
 
   /// Central auth guard: deep links to protected routes while logged out
   /// are redirected to /login, and a logged-in user never lands on /login.
-  String? _redirect(BuildContext context, GoRouterState state) {
-    final loggedIn = _authCubit.state.data != null;
-    final location = state.matchedLocation;
+  String? _redirect(BuildContext context, GoRouterState state) =>
+      resolveRedirect(
+        loggedIn: _authCubit.state.data != null,
+        location: state.matchedLocation,
+      );
+
+  /// Pure redirect rule (unit-testable).
+  static String? resolveRedirect({
+    required bool loggedIn,
+    required String location,
+  }) {
     final isPublic = _publicPaths.contains(location);
 
     if (!loggedIn && !isPublic) return '/login';
