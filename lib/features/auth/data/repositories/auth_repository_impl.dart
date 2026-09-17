@@ -82,6 +82,24 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, void>> setUserProfile({
+    required String username,
+    String? name,
+  }) async {
+    try {
+      await userRemoteDataSource.setUserProfile(
+        username: username,
+        name: name,
+      );
+      return const Right(null);
+    } on Failure catch (e) {
+      return Left(e);
+    } on Object catch (e) {
+      return Left(UnknownFailure('Failed to set profile: $e'));
+    }
+  }
+
+  @override
   Future<Either<Failure, User?>> getCurrentUser() async {
     try {
       final userModel = await remoteDataSource.getCurrentUser();

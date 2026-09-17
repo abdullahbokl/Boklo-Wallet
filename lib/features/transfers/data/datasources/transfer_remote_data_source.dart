@@ -6,7 +6,6 @@ import 'package:injectable/injectable.dart';
 
 abstract class TransferRemoteDataSource {
   Future<void> createTransfer(TransferModel transfer);
-  Future<List<TransferModel>> getTransfers();
   Future<WalletModel?> getWallet(String id);
   Future<WalletModel?> getWalletByAlias(String alias);
   Future<WalletModel?> getWalletByEmail(String email);
@@ -46,12 +45,6 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
         transaction.set(transferRef, transfer.toJson());
       });
     });
-  }
-
-  @override
-  Future<List<TransferModel>> getTransfers() async {
-    // Implementation placeholder
-    return [];
   }
 
   @override

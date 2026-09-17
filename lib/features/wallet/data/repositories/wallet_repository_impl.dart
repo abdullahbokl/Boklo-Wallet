@@ -29,6 +29,18 @@ class WalletRepositoryImpl implements WalletRepository {
   bool _hasMore = true;
 
   @override
+  Future<Either<Failure, void>> provisionWallet() async {
+    try {
+      await _remoteDataSource.provisionWallet();
+      return const Right(null);
+    } on Failure catch (e) {
+      return Left(e);
+    } on Object catch (e) {
+      return Left(UnknownFailure('Failed to provision wallet: $e'));
+    }
+  }
+
+  @override
   Future<Either<Failure, WalletEntity>> getWallet() async {
     try {
       final remoteWallet = await _remoteDataSource.getWallet();

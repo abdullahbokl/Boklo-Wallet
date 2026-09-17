@@ -5,6 +5,7 @@ import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:fpdart/fpdart.dart';
 
 abstract class WalletRepository {
+  Future<Either<Failure, void>> provisionWallet();
   Future<Either<Failure, WalletEntity>> getWallet();
   Future<Either<Failure, List<TransactionEntity>>> getTransactions();
   Future<Either<Failure, TransactionPage>> loadMoreTransactions();

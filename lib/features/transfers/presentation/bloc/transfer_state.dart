@@ -1,8 +1,13 @@
-import 'package:equatable/equatable.dart';
+import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class TransferState extends Equatable {
-  const TransferState();
+part 'transfer_state.freezed.dart';
 
-  @override
-  List<Object?> get props => [];
+@freezed
+abstract class TransferState with _$TransferState {
+  const factory TransferState({
+    /// Set once the backend confirms the transfer reached the terminal
+    /// [TransferStatus.completed] state.
+    TransferEntity? completedTransfer,
+  }) = _TransferState;
 }

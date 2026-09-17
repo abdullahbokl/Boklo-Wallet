@@ -76,16 +76,6 @@ class TransferRepositoryImpl implements TransferRepository {
   }
 
   @override
-  Future<Either<Failure, List<TransferEntity>>> getTransfers() async {
-    try {
-      final models = await _dataSource.getTransfers();
-      return Right(models.map((e) => e.toEntity()).toList());
-    } on Object catch (e) {
-      return Left(UnknownFailure(e.toString()));
-    }
-  }
-
-  @override
   Stream<Either<Failure, TransferEntity?>> observeTransfer(
     String transferId,
   ) async* {

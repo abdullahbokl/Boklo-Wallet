@@ -106,7 +106,7 @@ class TransferCubit extends BaseCubit<TransferState> {
             },
             (_) async {
               // 3. Wait for Backend Completion
-              await _waitForBackendResult(transfer.id, amount, currency);
+              await _waitForBackendResult(transfer, amount, currency);
             },
           );
         },
@@ -118,10 +118,11 @@ class TransferCubit extends BaseCubit<TransferState> {
   }
 
   Future<void> _waitForBackendResult(
-    String transferId,
+    TransferEntity requestedTransfer,
     double amount,
     String currency,
   ) async {
+    final transferId = requestedTransfer.id;
     try {
       final transferOrFailure = await _observeTransferStatusUseCase(transferId)
           .firstWhere(
@@ -160,7 +161,7 @@ class TransferCubit extends BaseCubit<TransferState> {
                 currency: currency,
               ),
             );
-            emitSuccess(const TransferState());
+            emitSuccess(TransferState(completedTransfer: transfer));
           } else {
             // Check for risk enforcement reasons first
             var reason = 'Transfer failed';
