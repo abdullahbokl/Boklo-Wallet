@@ -34,7 +34,7 @@ abstract class AppModule {
     featureFlags: AppFeatureFlags(
       enableBiometrics: true,
       enableBetaFeatures: true,
-      backendAuthoritativeTransfers: true,
+      enableLedgerDebug: true,
     ),
   );
 
@@ -46,7 +46,6 @@ abstract class AppModule {
     firebaseProjectId: 'boklo-prod',
     featureFlags: AppFeatureFlags(
       enableBiometrics: true,
-      backendAuthoritativeTransfers: true,
     ),
   );
 

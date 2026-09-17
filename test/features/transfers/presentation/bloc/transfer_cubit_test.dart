@@ -1,4 +1,4 @@
-import 'package:boklo/core/config/app_feature_flags.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/core/services/analytics_service.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/usecases/create_transfer_usecase.dart';
@@ -23,7 +23,20 @@ class MockObserveTransferStatusUseCase extends Mock
 
 class MockAnalyticsService extends Mock implements AnalyticsService {}
 
-class MockFeatureFlags extends Mock implements AppFeatureFlags {}
+TransferEntity _transfer({
+  required String id,
+  required TransferStatus status,
+}) {
+  return TransferEntity(
+    id: id,
+    fromWalletId: 'wallet1',
+    toWalletId: '1234567890123456789012345678',
+    amount: 100,
+    currency: 'SAR',
+    status: status,
+    createdAt: DateTime(2023),
+  );
+}
 
 void main() {
   late TransferCubit cubit;
@@ -32,7 +45,6 @@ void main() {
   late MockResolveRecipientUseCase mockResolveRecipientUseCase;
   late MockObserveTransferStatusUseCase mockObserveTransferStatusUseCase;
   late MockAnalyticsService mockAnalyticsService;
-  late MockFeatureFlags mockFeatureFlags;
 
   setUp(() {
     mockCreateTransferUseCase = MockCreateTransferUseCase();
@@ -40,7 +52,6 @@ void main() {
     mockResolveRecipientUseCase = MockResolveRecipientUseCase();
     mockObserveTransferStatusUseCase = MockObserveTransferStatusUseCase();
     mockAnalyticsService = MockAnalyticsService();
-    mockFeatureFlags = MockFeatureFlags();
 
     when(
       () => mockAnalyticsService.logTransferFailure(
@@ -58,15 +69,7 @@ void main() {
     });
 
     registerFallbackValue(
-      TransferEntity(
-        id: 'fallback',
-        fromWalletId: '1',
-        toWalletId: '2',
-        amount: 10,
-        currency: 'SAR',
-        status: TransferStatus.pending,
-        createdAt: DateTime(2023),
-      ),
+      _transfer(id: 'fallback', status: TransferStatus.pending),
     );
 
     cubit = TransferCubit(
@@ -75,7 +78,6 @@ void main() {
       mockResolveRecipientUseCase,
       mockObserveTransferStatusUseCase,
       mockAnalyticsService,
-      mockFeatureFlags,
     );
   });
 
@@ -88,63 +90,12 @@ void main() {
 
   group('createTransfer', () {
     test(
-      'should call CreateTransferUseCase manually when the feature flag '
-      'is DISABLED',
+      'requests transfer, persists it, then waits for backend completion',
       () async {
         // Arrange
-        when(
-          () => mockFeatureFlags.backendAuthoritativeTransfers,
-        ).thenReturn(false);
-        when(
-          () => mockCreateTransferUseCase.call(any()),
-        ).thenAnswer((_) async => right(null));
-        when(
-          () => mockAnalyticsService.logTransferInitiated(
-            amount: any(named: 'amount'),
-            currency: any(named: 'currency'),
-          ),
-        ).thenAnswer((_) async {});
-
-        // Act
-        await cubit.createTransfer(
-          fromWalletId: tFromId,
-          recipient: tToId,
-          amount: tAmount,
-          currency: tCurrency,
-        );
-
-        // Assert
-        verify(
-          () =>
-              mockCreateTransferUseCase.call(any(that: isA<TransferEntity>())),
-        ).called(1);
-        verifyNever(
-          () => mockRequestTransferUseCase.call(
-            fromWalletId: any(named: 'fromWalletId'),
-            toWalletId: any(named: 'toWalletId'),
-            amount: any(named: 'amount'),
-          ),
-        );
-      },
-    );
-
-    test(
-      'should call RequestTransferUseCase then CreateTransferUseCase '
-      'when the feature flag is ENABLED',
-      () async {
-        // Arrange
-        when(
-          () => mockFeatureFlags.backendAuthoritativeTransfers,
-        ).thenReturn(true);
-
-        final tTransfer = TransferEntity(
+        final transfer = _transfer(
           id: 'new_id',
-          fromWalletId: tFromId,
-          toWalletId: tToId,
-          amount: tAmount,
-          currency: tCurrency,
           status: TransferStatus.pending,
-          createdAt: DateTime.now(),
         );
 
         when(
@@ -153,7 +104,7 @@ void main() {
             toWalletId: any(named: 'toWalletId'),
             amount: any(named: 'amount'),
           ),
-        ).thenAnswer((_) async => right(tTransfer));
+        ).thenAnswer((_) async => right(transfer));
 
         when(
           () => mockCreateTransferUseCase.call(any()),
@@ -166,31 +117,10 @@ void main() {
           ),
         ).thenAnswer((_) async {});
 
-        // Mock Observation Stream
         when(() => mockObserveTransferStatusUseCase.call(any())).thenAnswer(
           (_) => Stream.fromIterable([
-            right(
-              TransferEntity(
-                id: 'new_id',
-                fromWalletId: tFromId,
-                toWalletId: tToId,
-                amount: tAmount,
-                currency: tCurrency,
-                status: TransferStatus.pending,
-                createdAt: DateTime.now(),
-              ),
-            ),
-            right(
-              TransferEntity(
-                id: 'new_id',
-                fromWalletId: tFromId,
-                toWalletId: tToId,
-                amount: tAmount,
-                currency: tCurrency,
-                status: TransferStatus.completed,
-                createdAt: DateTime.now(),
-              ),
-            ),
+            right(_transfer(id: 'new_id', status: TransferStatus.pending)),
+            right(_transfer(id: 'new_id', status: TransferStatus.completed)),
           ]),
         );
 
@@ -211,11 +141,42 @@ void main() {
           ),
         ).called(1);
 
-        verify(() => mockCreateTransferUseCase.call(tTransfer)).called(1);
+        verify(() => mockCreateTransferUseCase.call(transfer)).called(1);
 
         // Verify we waited for completion
         verify(() => mockObserveTransferStatusUseCase.call('new_id')).called(1);
+        verifyNever(
+          () => mockAnalyticsService.logTransferFailure(
+            reason: any(named: 'reason'),
+          ),
+        );
       },
     );
+
+    test('emits error and skips persistence when request fails', () async {
+      // Arrange
+      when(
+        () => mockRequestTransferUseCase.call(
+          fromWalletId: any(named: 'fromWalletId'),
+          toWalletId: any(named: 'toWalletId'),
+          amount: any(named: 'amount'),
+        ),
+      ).thenAnswer((_) async => left(const ValidationFailure('insufficient')));
+
+      // Act
+      await cubit.createTransfer(
+        fromWalletId: tFromId,
+        recipient: tToId,
+        amount: tAmount,
+        currency: tCurrency,
+      );
+
+      // Assert
+      verifyNever(() => mockCreateTransferUseCase.call(any()));
+      verifyNever(() => mockObserveTransferStatusUseCase.call(any()));
+      verify(
+        () => mockAnalyticsService.logTransferFailure(reason: 'insufficient'),
+      ).called(1);
+    });
   });
 }

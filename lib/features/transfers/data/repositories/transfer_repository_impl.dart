@@ -86,16 +86,24 @@ class TransferRepositoryImpl implements TransferRepository {
   }
 
   @override
-  Stream<Either<Failure, TransferEntity?>> observeTransfer(String transferId) {
-    return _dataSource
-        .observeTransfer(transferId)
-        .map<Either<Failure, TransferEntity?>>(
-          (data) => Right(data?.toEntity()),
-        )
-        .handleError(
-          (Object error) =>
-              Left<Failure, TransferEntity?>(UnknownFailure(error.toString())),
-        );
+  Stream<Either<Failure, TransferEntity?>> observeTransfer(
+    String transferId,
+  ) async* {
+    // Stream.handleError cannot emit values, so converting errors with it
+    // silently kills the stream and the caller hangs until its timeout.
+    // Mapping both event conversion and upstream stream errors into Left
+    // values guarantees the cubit always receives a terminal result.
+    try {
+      await for (final data in _dataSource.observeTransfer(transferId)) {
+        try {
+          yield Right(data?.toEntity());
+        } on Object catch (e) {
+          yield Left(UnknownFailure(e.toString()));
+        }
+      }
+    } on Object catch (e) {
+      yield Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override

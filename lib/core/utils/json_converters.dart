@@ -13,7 +13,9 @@ class TimestampConverter implements JsonConverter<DateTime, Object> {
     } else if (json is int) {
       return DateTime.fromMillisecondsSinceEpoch(json);
     }
-    return DateTime.now(); // Fallback
+    // Never fabricate a financial timestamp: surface malformed data as a
+    // mapping failure instead.
+    throw FormatException('Unsupported timestamp value: $json');
   }
 
   @override

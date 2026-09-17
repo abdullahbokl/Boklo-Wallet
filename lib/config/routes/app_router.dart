@@ -1,7 +1,10 @@
 import 'dart:async';
 
+import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/core/config/app_feature_flags.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/navigation_service.dart';
+import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/pages/login_page.dart';
 import 'package:boklo/features/auth/presentation/pages/profile_setup_page.dart';
 import 'package:boklo/features/auth/presentation/pages/register_page.dart';
@@ -16,21 +19,61 @@ import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/pages/wallet_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
+/// Bridges a Cubit's state stream to the [Listenable] interface that
+/// GoRouter's refreshListenable expects (bloc 9 cubits are pure Dart).
+class _CubitListenable extends ChangeNotifier {
+  _CubitListenable(Stream<dynamic> stream) {
+    _subscription = stream.listen(
+      (_) => notifyListeners(),
+      onError: (_) => notifyListeners(),
+      onDone: notifyListeners,
+    );
+  }
+
+  StreamSubscription<dynamic>? _subscription;
+
+  @override
+  void dispose() {
+    unawaited(_subscription?.cancel());
+    super.dispose();
+  }
+}
+
 @lazySingleton
 class AppRouter {
-  AppRouter(this._navigationService);
+  AppRouter(this._navigationService, this._authCubit, this._featureFlags);
 
   final NavigationService _navigationService;
+  final AuthCubit _authCubit;
+  final AppFeatureFlags _featureFlags;
 
-  String initialLocation = '/login';
+  late final Listenable _authListenable = _CubitListenable(_authCubit.stream);
+
+  /// Routes reachable without an authenticated session.
+  static const _publicPaths = {'/login', '/register'};
+
+  /// Central auth guard: deep links to protected routes while logged out
+  /// are redirected to /login, and a logged-in user never lands on /login.
+  String? _redirect(BuildContext context, GoRouterState state) {
+    final loggedIn = _authCubit.state.data != null;
+    final location = state.matchedLocation;
+    final isPublic = _publicPaths.contains(location);
+
+    if (!loggedIn && !isPublic) return '/login';
+    if (loggedIn && location == '/login') return '/wallet';
+    return null;
+  }
 
   late final GoRouter router = GoRouter(
     navigatorKey: _navigationService.navigatorKey,
-    initialLocation: initialLocation,
+    initialLocation: '/login',
+    refreshListenable: _authListenable,
+    redirect: _redirect,
     routes: [
       GoRoute(
         path: '/login',
@@ -67,10 +110,13 @@ class AppRouter {
           return TransferPage(prefilledRecipient: contact?.email);
         },
       ),
-      GoRoute(
-        path: '/ledger',
-        builder: (context, state) => const LedgerDebugPage(),
-      ),
+      // Debug-only ledger view, gated behind a feature flag so it can
+      // never be reached in production builds.
+      if (_featureFlags.enableLedgerDebug)
+        GoRoute(
+          path: '/ledger',
+          builder: (context, state) => const LedgerDebugPage(),
+        ),
       GoRoute(
         path: '/payment-requests',
         builder: (context, state) => const PaymentRequestListPage(),

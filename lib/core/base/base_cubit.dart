@@ -1,6 +1,6 @@
-import 'package:bloc/bloc.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/error/failures.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart';
 
 /// A generic base class for Cubits that adhere to Clean Architecture.
