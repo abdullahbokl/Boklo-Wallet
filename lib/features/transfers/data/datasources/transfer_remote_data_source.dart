@@ -1,4 +1,5 @@
 import 'package:boklo/core/network/retry_executor.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:boklo/features/transfers/data/models/transfer_model.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +25,10 @@ abstract class TransferRemoteDataSource {
   Future<WalletModel?> getWalletByUsername(String username);
 
   Stream<TransferModel?> observeTransfer(String id);
+
+  /// Fetches the caller's transfer limits (single/daily/remaining) from
+  /// the backend, sourced from the fraud Remote Config values.
+  Future<Map<String, dynamic>> getTransferLimits();
 }
 
 @LazySingleton(as: TransferRemoteDataSource)
@@ -132,6 +137,15 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
     }
 
     return getPublicWallet(uid);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getTransferLimits() async {
+    final callable = FirebaseFunctions.instanceFor(
+      region: 'us-central1',
+    ).httpsCallable('getTransferLimits');
+    final result = await callable.call<Map<String, dynamic>>();
+    return result.data;
   }
 
   @override

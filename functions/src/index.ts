@@ -34,7 +34,7 @@ export { onUserCreated } from "./users";
 export { setUserProfile, deleteAccount } from "./profile";
 export { provisionWallet } from "./wallet";
 export { migrateWalletIdentifiers } from "./migration";
-export { migrateMoneyToMinorUnits } from "./money_migration";
+export { migrateMoneyToMinorUnits, migrateMoneyToMinorUnitsHttp } from "./money_migration";
 export { expirePaymentRequests } from "./request_expiry";
 export { getTransferLimits } from "./limits";
 

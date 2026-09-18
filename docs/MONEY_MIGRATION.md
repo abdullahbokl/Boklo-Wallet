@@ -29,7 +29,20 @@ EGP: `105000` = EGP 1,050.00). Every document carrying money is stamped with
 3. **New writes are already minor** — client transfer creation
    (`TransferModel.toJson`) and all server writers set the marker.
 
-## Deploy order
+## ✅ STATUS: EXECUTED (2026-09-18)
+
+Executed against the `boklo-wallet` project via the secret-gated
+`migrateMoneyToMinorUnitsHttp` endpoint (MIGRATION_TOKEN secret):
+
+- Run 1 converted: 6 wallets, 5 transfers, 2 payment_requests,
+  12 events, 10 transactions, 10 ledger entries (45 docs).
+- Run 2 (idempotency verification): all counts 0.
+
+All production money is now integer minor units. The HTTP endpoint
+remains available (token-gated) for verification re-runs; it can be
+removed once the admin-claim callable flow is in active use.
+
+## Deploy order (historical)
 
 ```bash
 # 1. Deploy the backend (includes the migration callable and the

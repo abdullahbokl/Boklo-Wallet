@@ -4,11 +4,13 @@ import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/features/transfers/data/datasources/transfer_remote_data_source.dart';
 import 'package:boklo/features/transfers/data/models/transfer_model.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
+import 'package:boklo/features/transfers/domain/entities/transfer_limits.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/domain/validators/transfer_validator.dart';
 import 'package:boklo/features/wallet/data/models/wallet_model.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
@@ -93,6 +95,25 @@ class TransferRepositoryImpl implements TransferRepository {
       }
     } on Object catch (e) {
       yield Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, TransferLimits>> getTransferLimits() async {
+    try {
+      final data = await _dataSource.getTransferLimits();
+      return Right(
+        TransferLimits(
+          singleLimitMinor: (data['singleLimitMinor'] as num).toInt(),
+          dailyLimitMinor: (data['dailyLimitMinor'] as num).toInt(),
+          sentTodayMinor: (data['sentTodayMinor'] as num).toInt(),
+          remainingTodayMinor: (data['remainingTodayMinor'] as num).toInt(),
+        ),
+      );
+    } on FirebaseFunctionsException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Failed to fetch limits'));
+    } on Object catch (e) {
+      return Left(UnknownFailure(e.toString()));
     }
   }
 
