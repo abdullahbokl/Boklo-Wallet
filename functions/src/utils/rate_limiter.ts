@@ -1,7 +1,22 @@
 import * as admin from "firebase-admin";
 
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_TRANSFERS_PER_WINDOW = 10;
+const DEFAULT_MAX_TRANSFERS_PER_WINDOW = 10;
+
+/** Remote-Config-tunable per-minute cap; falls back to the default. */
+async function getMaxTransfersPerWindow(): Promise<number> {
+  try {
+    const template = await admin.remoteConfig().getTemplate();
+    const raw = template.parameters["rate_limit_max_per_minute"]?.defaultValue;
+    const value =
+      raw && "value" in raw ? Number(raw.value) : NaN;
+    return Number.isFinite(value) && value > 0
+      ? value
+      : DEFAULT_MAX_TRANSFERS_PER_WINDOW;
+  } catch {
+    return DEFAULT_MAX_TRANSFERS_PER_WINDOW;
+  }
+}
 
 /**
  * Checks if the wallet has exceeded the transaction creation rate limit.
@@ -26,7 +41,8 @@ export async function checkTransferRateLimit(walletId: string): Promise<void> {
   const snapshot = await query.count().get();
   const count = snapshot.data().count;
 
-  if (count >= MAX_TRANSFERS_PER_WINDOW) {
-    throw new Error(`Rate limit exceeded: Max ${MAX_TRANSFERS_PER_WINDOW} transfers per minute.`);
+  const maxPerWindow = await getMaxTransfersPerWindow();
+  if (count >= maxPerWindow) {
+    throw new Error(`Rate limit exceeded: Max ${maxPerWindow} transfers per minute.`);
   }
 }

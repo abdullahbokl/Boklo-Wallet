@@ -3,6 +3,8 @@ import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 import { extractCorrelationId } from "./utils/correlation";
 
+const db = admin.firestore();
+
 export const onEventCreated = onDocumentCreated("events/{eventId}", async (event) => {
   const snapshot = event.data;
   if (!snapshot) {
@@ -40,7 +42,7 @@ export const onEventCreated = onDocumentCreated("events/{eventId}", async (event
   const isEmulator = process.env.FUNCTIONS_EMULATOR === "true";
   const eventTime = eventData.occurredAt || new Date().toISOString();
 
-  try {
+  const publishEvent = async (): Promise<void> => {
     const token = await admin.credential.applicationDefault().getAccessToken();
     
     // The emulator expects camelCase (specVersion, textData, ceString)
@@ -86,6 +88,10 @@ export const onEventCreated = onDocumentCreated("events/{eventId}", async (event
       const text = await response.text();
       throw new Error(`HTTP ${response.status}: ${text}`);
     }
+  };
+
+  try {
+    await publishEvent();
 
     logger.info("Event published successfully", {
       event: "EVENT_PUBLISH",
@@ -96,14 +102,66 @@ export const onEventCreated = onDocumentCreated("events/{eventId}", async (event
       durationMs: Date.now() - startTime
     });
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
     logger.error("Event publishing failed", {
       event: "EVENT_PUBLISH",
       status: "FAILED",
       eventId: eventId,
       eventType: eventData.eventType,
       transactionId: eventData.transactionId,
-      error: error instanceof Error ? error.message : JSON.stringify(error),
+      error: errorMessage,
       durationMs: Date.now() - startTime
+    });
+
+    // Reliability: bounded retry with exponential backoff, then a
+    // persisted dead-letter alert (never silently lost).
+    const MAX_ATTEMPTS = 3;
+    const eventRef = db.collection("events").doc(eventId);
+    let attempts = 0;
+    let lastError = errorMessage;
+
+    while (attempts < MAX_ATTEMPTS) {
+      attempts++;
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempts));
+      try {
+        await publishEvent();
+        logger.info("Event published on retry", {
+          event: "EVENT_PUBLISH_RETRY_OK",
+          eventId,
+          attempt: attempts,
+        });
+        return;
+      } catch (retryError) {
+        lastError =
+          retryError instanceof Error
+            ? retryError.message
+            : JSON.stringify(retryError);
+      }
+    }
+
+    await eventRef.set(
+      {
+        publishFailed: true,
+        publishAttempts: attempts,
+        publishLastError: lastError,
+      },
+      { merge: true },
+    );
+    await db.collection("ops_alerts").doc(`event_publish_${eventId}`).set({
+      type: "EVENT_PUBLISH_DEAD_LETTER",
+      eventId,
+      eventType: eventData.eventType,
+      transactionId: eventData.transactionId,
+      attempts,
+      lastError,
+      status: "OPEN",
+      createdAt: new Date(),
+    });
+    logger.error("Event dead-lettered after retries", {
+      event: "EVENT_PUBLISH_DEAD_LETTER",
+      eventId,
+      attempts,
     });
   }
 });

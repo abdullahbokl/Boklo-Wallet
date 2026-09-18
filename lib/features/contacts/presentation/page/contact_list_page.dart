@@ -9,6 +9,7 @@ import 'package:boklo/features/contacts/presentation/widgets/add_contact_sheet.d
 import 'package:boklo/features/contacts/presentation/widgets/contact_item.dart';
 import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_loading_indicator.dart';
+import 'package:boklo/shared/widgets/atoms/app_text_field.dart';
 import 'package:boklo/shared/widgets/molecules/app_empty_state.dart';
 import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
 import 'package:boklo/shared/widgets/molecules/app_section_header.dart';
@@ -28,8 +29,9 @@ class ContactListPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => getIt<ContactCubit>()..init(),
       child: AppPageScaffold(
-        title: isPickMode ? 'Select contact' : 'Contacts',
+        title: isPickMode ? context.l10n.selectContact : context.l10n.contacts,
         floatingActionButton: FloatingActionButton(
+          tooltip: context.l10n.addContact,
           onPressed: () => AddContactSheet.show(
             context,
             context.read<ContactCubit>(),
@@ -42,10 +44,32 @@ class ContactListPage extends StatelessWidget {
   }
 }
 
-class _ContactListBody extends StatelessWidget {
+class _ContactListBody extends StatefulWidget {
   const _ContactListBody({required this.isPickMode});
 
   final bool isPickMode;
+
+  @override
+  State<_ContactListBody> createState() => _ContactListBodyState();
+}
+
+class _ContactListBodyState extends State<_ContactListBody> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() => _searchQuery = _searchController.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,18 +80,28 @@ class _ContactListBody extends StatelessWidget {
         );
       },
       builder: (context, state) {
-        final contacts = state.data?.contacts ?? [];
+        final allContacts = state.data?.contacts ?? [];
+        final query = _searchQuery.trim().toLowerCase();
+        final contacts = query.isEmpty
+            ? allContacts
+            : allContacts
+                  .where(
+                    (c) =>
+                        c.displayName.toLowerCase().contains(query) ||
+                        c.email.toLowerCase().contains(query),
+                  )
+                  .toList();
 
-        if (state.isLoading && contacts.isEmpty) {
+        if (state.isLoading && allContacts.isEmpty) {
           return const AppLoadingIndicator();
         }
 
-        if (contacts.isEmpty) {
+        if (allContacts.isEmpty) {
           return AppEmptyState(
             icon: Icons.people_outline_rounded,
             title: context.l10n.noContactsYet,
             subtitle: context.l10n.noContactsYetSubtitle,
-            actionLabel: 'Add contact',
+            actionLabel: context.l10n.addContact,
             onAction: () => AddContactSheet.show(
               context,
               context.read<ContactCubit>(),
@@ -75,40 +109,55 @@ class _ContactListBody extends StatelessWidget {
           );
         }
 
-        return ListView(
-          padding: const EdgeInsets.only(
-            top: AppDimens.md,
-            bottom: AppDimens.xxl,
-          ),
-          children: [
-            AppSectionHeader(
-              title: context.l10n.yourNetwork,
-              subtitle: isPickMode
-                  ? 'Choose who should receive this action.'
-                  : 'People you can pay or request money from.',
+        return RefreshIndicator(
+          onRefresh: () async => context.read<ContactCubit>().init(),
+          child: ListView(
+            padding: const EdgeInsets.only(
+              top: AppDimens.md,
+              bottom: AppDimens.xxl,
             ),
-            const SizedBox(height: AppDimens.md),
-            ...contacts.map(
-              (contact) => ContactItem(
-                contact: contact,
-                isPickMode: isPickMode,
-                onTap: isPickMode
-                    ? () => getIt<NavigationService>().pop(contact)
-                    : null,
-                onSendMoney: () => getIt<NavigationService>().push(
-                  '/transfer',
-                  extra: contact,
-                ),
-                onRequestMoney: () => getIt<NavigationService>().push(
-                  '/payment-requests/create',
-                  extra: contact,
-                ),
-                onRemove: () => context.read<ContactCubit>().removeContact(
-                  contact.uid,
+            children: [
+              AppSectionHeader(
+                title: context.l10n.yourNetwork,
+                subtitle: widget.isPickMode
+                    ? context.l10n.chooseRecipient
+                    : context.l10n.peopleYouCanPay,
+              ),
+              const SizedBox(height: AppDimens.md),
+              AppTextField(
+                controller: _searchController,
+                label: context.l10n.searchContacts,
+                hintText: context.l10n.searchContacts,
+                prefixIcon: const Icon(Icons.search_rounded),
+              ),
+              const SizedBox(height: AppDimens.sm),
+              ...contacts.map(
+                (contact) => ContactItem(
+                  contact: contact,
+                  isPickMode: widget.isPickMode,
+                  onTap: widget.isPickMode
+                      ? () => getIt<NavigationService>().pop(contact)
+                      : null,
+                  onSendMoney: () => getIt<NavigationService>().push(
+                    '/transfer',
+                    extra: contact,
+                  ),
+                  onRequestMoney: () => getIt<NavigationService>().push(
+                    '/payment-requests/create',
+                    extra: contact,
+                  ),
+                  onRemove: () => context.read<ContactCubit>().removeContact(
+                    contact.uid,
+                  ),
                 ),
               ),
-            ),
-          ],
+              if (contacts.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppDimens.lg),
+                  child: Center(child: Text(context.l10n.searchContacts)),
+                ),
+            ],
+          ),
         );
       },
     );

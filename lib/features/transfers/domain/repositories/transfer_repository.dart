@@ -1,6 +1,6 @@
 import 'package:boklo/core/error/failures.dart';
-import 'package:boklo/features/transfers/domain/entities/transfer_limits.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
+import 'package:boklo/features/transfers/domain/entities/transfer_limits.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:fpdart/fpdart.dart';
 

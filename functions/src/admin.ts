@@ -5,6 +5,29 @@ import * as logger from "firebase-functions/logger";
 
 const db = admin.firestore();
 
+/** Minimal runtime validation for admin_jobs documents. */
+function validateJob(type: unknown, jobData: unknown): string | null {
+  if (typeof type !== "string" || type.length === 0) {
+    return "admin_jobs.type must be a non-empty string";
+  }
+  if (typeof jobData !== "object" || jobData === null) {
+    return "admin_jobs.data must be an object";
+  }
+  if (type === "REPLAY_TRANSACTION_EVENTS") {
+    const data = jobData as { fromDate?: unknown; toDate?: unknown; dryRun?: unknown };
+    if (typeof data.fromDate !== "string" || typeof data.toDate !== "string") {
+      return "REPLAY_TRANSACTION_EVENTS requires fromDate and toDate (ISO strings)";
+    }
+    if (data.dryRun !== undefined && typeof data.dryRun !== "boolean") {
+      return "dryRun must be a boolean";
+    }
+  }
+  if (type === "MIGRATE_WALLET_IDENTIFIERS" && typeof jobData !== "object") {
+    return "MIGRATE_WALLET_IDENTIFIERS requires an (possibly empty) object";
+  }
+  return null;
+}
+
 /**
  * Triggered when a document is created in 'admin_jobs' collection.
  * Supports:
@@ -16,6 +39,16 @@ export const onAdminJobCreated = onDocumentCreated("admin_jobs/{jobId}", async (
 
     const jobData = snapshot.data();
     const jobId = event.params.jobId;
+
+    const validationError = validateJob(jobData.type, jobData);
+    if (validationError) {
+        logger.error(`Invalid admin job ${jobId}`, { error: validationError });
+        await db.collection("admin_jobs").doc(jobId).update({
+            status: "FAILED",
+            error: validationError,
+        });
+        return;
+    }
 
     // Handle MIGRATE_WALLET_IDENTIFIERS job
     if (jobData.type === "MIGRATE_WALLET_IDENTIFIERS") {

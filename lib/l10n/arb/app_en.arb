@@ -166,5 +166,17 @@
         "type": "String"
       }
     }
-  }
+  },
+  "searchContacts": "Search contacts",
+  "chooseRecipient": "Choose who should receive this action.",
+  "peopleYouCanPay": "People you can pay or request money from.",
+  "helpTitle": "Help & support",
+  "helpFaqTitle": "Frequently asked questions",
+  "helpFaqTransfers": "Transfers execute once the backend validates them. You can retry a failed transfer from its details.",
+  "helpFaqLimits": "Daily and single-transfer limits protect your account; the remaining daily headroom is shown on the send screen.",
+  "helpFaqVerification": "Verify your email from the banner at the top of your wallet to secure your account.",
+  "helpContact": "Contact support",
+  "helpContactEmail": "support@boklo.app",
+  "selectContact": "Select contact",
+  "notFound": "This item could not be found."
 }

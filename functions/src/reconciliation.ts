@@ -70,6 +70,17 @@ async function runReconciliationLogic() {
                 
                 if (diff > 0.001) {
                     mismatchCount++;
+                    // Persist an ops alert so discrepancies are actionable
+                    // (queryable collection) instead of log-only.
+                    await db.collection("ops_alerts").doc(`recon_${walletId}_${Date.now()}`).set({
+                        type: "RECONCILIATION_MISMATCH",
+                        walletId,
+                        storedBalanceMinor: currentBalance,
+                        calculatedBalanceMinor: calculatedBalance,
+                        differenceMinor: currentBalance - calculatedBalance,
+                        status: "OPEN",
+                        createdAt: new Date(),
+                    });
                     logger.error(`Balance mismatch detected`, {
                         event: "RECONCILIATION_MISMATCH",
                         walletId,

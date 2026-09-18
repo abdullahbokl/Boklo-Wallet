@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/core/config/app_feature_flags.dart';
 import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/error/failures.dart';
 import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/auth/presentation/pages/login_page.dart';
@@ -17,14 +18,21 @@ import 'package:boklo/features/payment_requests/presentation/pages/create_paymen
 import 'package:boklo/features/payment_requests/presentation/pages/payment_request_list_page.dart';
 import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
+import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_receipt_page.dart';
+import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/pages/transaction_detail_page.dart';
 import 'package:boklo/features/wallet/presentation/pages/wallet_page.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/molecules/adaptive_scaffold.dart';
+import 'package:boklo/shared/widgets/molecules/app_page_scaffold.dart';
+import 'package:boklo/shared/widgets/molecules/wallet_error_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart' hide State;
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
@@ -87,9 +95,16 @@ class AppRouter {
       ),
       GoRoute(
         path: '/transaction-detail',
-        builder: (context, state) => TransactionDetailPage.fromExtra(
-          state.extra! as Map<String, dynamic>,
-        ),
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is String) {
+            // Deep-linked from a notification: load the transfer by id.
+            return _TransferDetailLoader(transferId: extra);
+          }
+          return TransactionDetailPage.fromExtra(
+            extra! as Map<String, dynamic>,
+          );
+        },
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -189,6 +204,91 @@ class AppRouter {
       ),
     ],
   );
+}
+
+/// Loads a transfer by id (party-readable per Firestore rules) and renders
+/// its detail page; used when deep-linked from a push notification.
+class _TransferDetailLoader extends StatefulWidget {
+  const _TransferDetailLoader({required this.transferId});
+
+  final String transferId;
+
+  @override
+  State<_TransferDetailLoader> createState() => _TransferDetailLoaderState();
+}
+
+class _TransferDetailLoaderState extends State<_TransferDetailLoader> {
+  late final Future<Either<Failure, TransferEntity?>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = getIt<TransferRepository>()
+        .observeTransfer(widget.transferId)
+        .firstWhere((either) => either.isRight());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Either<Failure, TransferEntity?>>(
+      future: _future,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final result = snapshot.data;
+        if (result == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return result.fold(
+          (failure) => AppPageScaffold(
+            title: context.l10n.transactionDetailTitle,
+            child: WalletErrorView(
+              title: failure.message,
+              onRetry: () => getIt<NavigationService>().go('/wallet'),
+            ),
+          ),
+          (transfer) {
+            if (transfer == null) {
+              return AppPageScaffold(
+                title: context.l10n.transactionDetailTitle,
+                child: WalletErrorView(
+                  title: context.l10n.notFound,
+                  onRetry: () => getIt<NavigationService>().go('/wallet'),
+                ),
+              );
+            }
+            final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+            return TransactionDetailPage(
+              transaction: TransactionEntity(
+                id: transfer.id,
+                amount: transfer.amount,
+                type: transfer.fromWalletId == uid
+                    ? TransactionType.debit
+                    : TransactionType.credit,
+                timestamp: transfer.createdAt,
+                status: switch (transfer.status) {
+                  TransferStatus.pending => TransactionStatus.pending,
+                  TransferStatus.completed => TransactionStatus.completed,
+                  TransferStatus.failed => TransactionStatus.failed,
+                },
+                counterpartyId: transfer.fromWalletId == uid
+                    ? transfer.toWalletId
+                    : transfer.fromWalletId,
+                description: transfer.failureReason,
+              ),
+              currency: transfer.currency,
+              walletId: uid,
+            );
+          },
+        );
+      },
+    );
+  }
 }
 
 /// Bridges a Cubit's state stream to the [Listenable] interface that

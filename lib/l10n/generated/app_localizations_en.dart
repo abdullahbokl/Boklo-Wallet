@@ -452,4 +452,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String limitsRemaining(Object amount) {
     return 'Daily limit remaining: $amount';
   }
+
+  @override
+  String get searchContacts => 'Search contacts';
+
+  @override
+  String get chooseRecipient => 'Choose who should receive this action.';
+
+  @override
+  String get peopleYouCanPay => 'People you can pay or request money from.';
+
+  @override
+  String get helpTitle => 'Help & support';
+
+  @override
+  String get helpFaqTitle => 'Frequently asked questions';
+
+  @override
+  String get helpFaqTransfers =>
+      'Transfers execute once the backend validates them. You can retry a failed transfer from its details.';
+
+  @override
+  String get helpFaqLimits =>
+      'Daily and single-transfer limits protect your account; the remaining daily headroom is shown on the send screen.';
+
+  @override
+  String get helpFaqVerification =>
+      'Verify your email from the banner at the top of your wallet to secure your account.';
+
+  @override
+  String get helpContact => 'Contact support';
+
+  @override
+  String get helpContactEmail => 'support@boklo.app';
+
+  @override
+  String get selectContact => 'Select contact';
+
+  @override
+  String get notFound => 'This item could not be found.';
 }

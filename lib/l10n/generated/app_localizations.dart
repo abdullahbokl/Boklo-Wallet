@@ -939,6 +939,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily limit remaining: {amount}'**
   String limitsRemaining(Object amount);
+
+  /// No description provided for @searchContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Search contacts'**
+  String get searchContacts;
+
+  /// No description provided for @chooseRecipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who should receive this action.'**
+  String get chooseRecipient;
+
+  /// No description provided for @peopleYouCanPay.
+  ///
+  /// In en, this message translates to:
+  /// **'People you can pay or request money from.'**
+  String get peopleYouCanPay;
+
+  /// No description provided for @helpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & support'**
+  String get helpTitle;
+
+  /// No description provided for @helpFaqTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequently asked questions'**
+  String get helpFaqTitle;
+
+  /// No description provided for @helpFaqTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers execute once the backend validates them. You can retry a failed transfer from its details.'**
+  String get helpFaqTransfers;
+
+  /// No description provided for @helpFaqLimits.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily and single-transfer limits protect your account; the remaining daily headroom is shown on the send screen.'**
+  String get helpFaqLimits;
+
+  /// No description provided for @helpFaqVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email from the banner at the top of your wallet to secure your account.'**
+  String get helpFaqVerification;
+
+  /// No description provided for @helpContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support'**
+  String get helpContact;
+
+  /// No description provided for @helpContactEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'support@boklo.app'**
+  String get helpContactEmail;
+
+  /// No description provided for @selectContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Select contact'**
+  String get selectContact;
+
+  /// No description provided for @notFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This item could not be found.'**
+  String get notFound;
 }
 
 class _AppLocalizationsDelegate

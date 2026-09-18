@@ -1,4 +1,5 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import * as admin from 'firebase-admin';
 import * as logger from "firebase-functions/logger";
 import { BigQuery } from "@google-cloud/bigquery";
 
@@ -15,12 +16,27 @@ async function insertRows(tableId: string, rows: any[]) {
             .insert(rows);
         logger.info(`BigQuery insert success: ${tableId}`, { count: rows.length });
     } catch (err: any) {
-        if (err.name === 'PartialFailureError') {
-            logger.error(`BigQuery partial insert error for table ${tableId}`, err.errors);
-        } else {
-            logger.error(`BigQuery insert failed for table ${tableId}`, { error: err });
+        // Analytical failures must not retry the trigger, but rows are
+        // dead-lettered to Firestore so nothing is silently lost.
+        const failedRows: Array<Record<string, unknown>> =
+            err.name === 'PartialFailureError'
+                ? err.errors?.map((e: { row?: unknown; reason?: string }) => ({
+                    table: tableId,
+                    reason: e.reason ?? 'partial_failure',
+                    row: e.row,
+                    failedAt: new Date(),
+                })) ?? []
+                : rows.map((row) => ({
+                    table: tableId,
+                    reason: String(err),
+                    row,
+                    failedAt: new Date(),
+                }));
+        const db = admin.firestore();
+        for (const failed of failedRows) {
+            await db.collection('bigquery_dead_letter').add(failed);
         }
-        // Swallow error to prevent function retries for analytical failures
+        logger.error(`BigQuery insert failed; dead-lettered ${failedRows.length} row(s) for table ${tableId}`);
     }
 }
 
