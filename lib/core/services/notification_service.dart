@@ -91,6 +91,19 @@ class NotificationService {
 
   void _navigateFromData(Map<String, dynamic> data) {
     log('Navigating based on notification data: $data');
+    final route = data['route'] as String?;
+    if (route != null && route.startsWith('/')) {
+      final transactionId = data['transactionId'] as String?;
+      if (route == '/transaction-detail' && transactionId != null) {
+        // Deep-link carries the id; the route builder loads the transfer.
+        unawaited(
+          _navigationService.push('/transaction-detail', extra: transactionId),
+        );
+        return;
+      }
+      _navigationService.go(route);
+      return;
+    }
     _navigationService.go('/wallet');
   }
 

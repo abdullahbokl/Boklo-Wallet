@@ -511,3 +511,37 @@ Implemented and verified this session (analyze 0 / 67 Flutter tests / Functions 
 - App lock (local_auth), Arabic/RTL ARB, contact search/rename + favorites, help/support pages, QR pay-me, CSV export/insights, amount keypad, onboarding carousel, session management, event-publish retries + BQ dead-letter + reconciliation alerting, rate-limit Remote Config, admin-job validation, rules emulator tests in CI, scheduled transfers/FX/fees foundations.
 
 Each remains fully specified in §4–§11 above.
+
+
+---
+
+## 13. Execution Status — session 2 (Firebase-CLI-enabled, 2026-09-18)
+
+**Production operations performed** (via authenticated Firebase CLI on `boklo-wallet`):
+
+1. **All Cloud Functions deployed** (two deploys): fraud fix, currency assertion, minor-unit guards, expiry sweep (`expirePaymentRequests`), `getTransferLimits`, `notifyOnPaymentRequest`, reconciliation admin-auth, money migration callables, reliability rework.
+2. **Money migration EXECUTED on production** via the new `MIGRATION_TOKEN`-secret-gated `migrateMoneyToMinorUnitsHttp`: run 1 converted **45 documents** (6 wallets, 5 transfers, 2 payment_requests, 12 events, 10 transactions, 10 ledger entries); run 2 returned **all zeros**, proving idempotency. Runbook updated with results.
+3. Remote Config verified empty → fraud/limits use the correct minor-unit code defaults.
+
+**Newly implemented code** (analyze 0 / 67 tests / tsc+jest green):
+
+| Item | Commit |
+| --- | --- |
+| Transfer limits UI end-to-end (entity, use case, repository, callable datasource, remaining-headroom note on the send screen) | `2892e64` |
+| Reconciliation mismatch alerting → persisted `ops_alerts` records (was log-only) | `a9c9d12` |
+| Event publishing: real bounded retry (3 attempts, backoff) + dead-letter to `ops_alerts` (was silently dropped) | `a9c9d12` |
+| BigQuery failed-row dead-letter → `bigquery_dead_letter` collection (was swallowed) | `a9c9d12` |
+| Per-minute rate limit tunable via Remote Config (`rate_limit_max_per_minute`, default 10) | `a9c9d12` |
+| `admin_jobs` runtime validation → FAILED status on malformed input | `a9c9d12` |
+| Notification deep links fully working: payloads carry route+transactionId; handler passes the id; `/transaction-detail` loads party-scoped transfers by id when deep-linked | `a9c9d12` |
+| Contacts: live search (name/email), pull-to-refresh, localized pick-mode copy | `a9c9d12` |
+
+### Remaining manual steps (owner-only, exact)
+
+1. **App Check enforcement** — Firebase Console → App Check → toggle enforcement per product after telemetry review. CLI cannot do this.
+2. **Dev/prod Firebase project separation** — Console/GCP billing decision; then regenerate `firebase_options_*.dart` + `google-services.json` per project.
+3. **iOS flavor schemes** — requires Xcode (safe pbxproj editing + scheme creation); Podfile already in place.
+
+### Remaining code backlog (specified in §4–§11, not yet implemented)
+
+Arabic/RTL ARB (+ localized backend error codes); app lock (local_auth); help/support pages; favorites; QR pay-me; CSV statements; spending insights; onboarding carousel; amount keypad; session management; scheduled transfers / FX / fees frameworks; Firestore rules emulator tests in CI.
