@@ -6,6 +6,7 @@ import 'package:boklo/core/config/emulator_config.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/notification_service.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:boklo/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -45,6 +46,7 @@ class AppBootstrap {
 
     // Resolve the persisted auth session BEFORE the first frame so the
     // router's redirect guard immediately lands on the correct screen.
+    await OnboardingPage.loadFlag();
     await getIt<AuthCubit>().checkAuthStatus();
 
     await _initializeServices();

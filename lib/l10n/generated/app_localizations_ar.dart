@@ -676,4 +676,33 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get helpDisputeHint =>
       'للإبلاغ عن مشكلة في معاملة معينة، افتح المعاملة واستخدم \"الإبلاغ عن مشكلة\" — يراجع فريقنا كل نزاع.';
+
+  @override
+  String get onboardingNext => 'التالي';
+
+  @override
+  String get onboardingSkip => 'تخطي';
+
+  @override
+  String get onboardingGetStarted => 'ابدأ الآن';
+
+  @override
+  String get onboarding1Title => 'مرحبًا بك في بوكلو';
+
+  @override
+  String get onboarding1Body => 'محفظة سريعة وآمنة لإرسال الأموال وطلبها.';
+
+  @override
+  String get onboarding2Title => 'أرسل في ثوانٍ';
+
+  @override
+  String get onboarding2Body =>
+      'ادفع باسم المستخدم أو البريد الإلكتروني أو المفضلة أو بمسح رمز QR لصديقك.';
+
+  @override
+  String get onboarding3Title => 'ابقَ متحكمًا';
+
+  @override
+  String get onboarding3Body =>
+      'تابع نشاطك، وصدّر كشوف الحساب، واستفد من حدود يومية تحميك.';
 }

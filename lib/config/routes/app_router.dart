@@ -14,6 +14,7 @@ import 'package:boklo/features/contacts/presentation/page/contact_list_page.dart
 import 'package:boklo/features/ledger_debug/presentation/pages/ledger_debug_page.dart';
 import 'package:boklo/features/notification_preferences/presentation/page/notification_settings_page.dart';
 import 'package:boklo/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:boklo/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:boklo/features/payment_requests/presentation/pages/create_payment_request_page.dart';
 import 'package:boklo/features/payment_requests/presentation/pages/payment_request_list_page.dart';
 import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
@@ -54,11 +55,18 @@ class AppRouter {
 
   /// Central auth guard: deep links to protected routes while logged out
   /// are redirected to /login, and a logged-in user never lands on /login.
-  String? _redirect(BuildContext context, GoRouterState state) =>
-      resolveRedirect(
-        loggedIn: _authCubit.state.data != null,
-        location: state.matchedLocation,
-      );
+  /// First-launch sessions are routed through the onboarding carousel once.
+  String? _redirect(BuildContext context, GoRouterState state) {
+    final loggedIn = _authCubit.state.data != null;
+    final location = state.matchedLocation;
+    if (loggedIn && !OnboardingPage.hasCompleted && location != '/onboarding') {
+      return '/onboarding';
+    }
+    return resolveRedirect(
+      loggedIn: loggedIn,
+      location: location,
+    );
+  }
 
   /// Pure redirect rule (unit-testable).
   static String? resolveRedirect({
@@ -197,6 +205,10 @@ class AppRouter {
           path: '/ledger',
           builder: (context, state) => const LedgerDebugPage(),
         ),
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingPage(),
+      ),
       GoRoute(
         path: '/help',
         builder: (context, state) => const HelpPage(),

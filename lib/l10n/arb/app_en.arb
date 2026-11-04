@@ -244,5 +244,14 @@
   "insightsMoneyOut": "Money out",
   "insightsNoActivity": "No activity this month yet.",
   "helpFaqLimitsTitle": "What are my transfer limits?",
-  "helpDisputeHint": "To report a problem with a specific transaction, open the transaction and use \"Report a problem\" — our team reviews every dispute."
+  "helpDisputeHint": "To report a problem with a specific transaction, open the transaction and use \"Report a problem\" — our team reviews every dispute.",
+  "onboardingNext": "Next",
+  "onboardingSkip": "Skip",
+  "onboardingGetStarted": "Get started",
+  "onboarding1Title": "Welcome to Boklo",
+  "onboarding1Body": "A fast, secure wallet for sending and requesting money.",
+  "onboarding2Title": "Send in seconds",
+  "onboarding2Body": "Pay by username, email, favorites, or scan a friend's QR code.",
+  "onboarding3Title": "Stay in control",
+  "onboarding3Body": "Track activity, export statements, and set daily limits that protect you."
 }

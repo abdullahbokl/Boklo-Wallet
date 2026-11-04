@@ -19,6 +19,7 @@ class AppTextField extends StatelessWidget {
     this.inputFormatters,
     this.autofocus = false,
     this.helperText,
+    this.readOnly = false,
   });
 
   final TextEditingController controller;
@@ -34,6 +35,10 @@ class AppTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final bool autofocus;
   final String? helperText;
+
+  /// When true the field renders its text but ignores keyboard input
+  /// (paired with custom input widgets such as the amount keypad).
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +59,7 @@ class AppTextField extends StatelessWidget {
         TextFormField(
           controller: controller,
           enabled: enabled,
+          readOnly: readOnly,
           obscureText: obscureText,
           keyboardType: keyboardType,
           validator: validator,

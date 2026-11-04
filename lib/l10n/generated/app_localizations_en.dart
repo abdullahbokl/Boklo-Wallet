@@ -683,4 +683,34 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpDisputeHint =>
       'To report a problem with a specific transaction, open the transaction and use \"Report a problem\" — our team reviews every dispute.';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingGetStarted => 'Get started';
+
+  @override
+  String get onboarding1Title => 'Welcome to Boklo';
+
+  @override
+  String get onboarding1Body =>
+      'A fast, secure wallet for sending and requesting money.';
+
+  @override
+  String get onboarding2Title => 'Send in seconds';
+
+  @override
+  String get onboarding2Body =>
+      'Pay by username, email, favorites, or scan a friend\'s QR code.';
+
+  @override
+  String get onboarding3Title => 'Stay in control';
+
+  @override
+  String get onboarding3Body =>
+      'Track activity, export statements, and set daily limits that protect you.';
 }
