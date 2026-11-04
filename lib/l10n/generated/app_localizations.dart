@@ -1471,6 +1471,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All sessions revoked.'**
   String get sessionsRevoked;
+
+  /// No description provided for @feeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer fee: {amount}'**
+  String feeLine(String amount);
+
+  /// No description provided for @feeIncludedInTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'The fee is deducted from your balance in addition to the transfer amount.'**
+  String get feeIncludedInTotal;
 }
 
 class _AppLocalizationsDelegate

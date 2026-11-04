@@ -3,6 +3,7 @@ import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_amount_input.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_balance_display.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_favorites_row.dart';
+import 'package:boklo/features/transfers/presentation/widgets/transfer_fee_note.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_recipient_input.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/shared/extensions/l10n.dart';
@@ -64,6 +65,10 @@ class TransferFormContent extends StatelessWidget {
                   TransferAmountInput(
                     controller: amountController,
                     enabled: !isLoading,
+                  ),
+                  TransferFeeNote(
+                    amountController: amountController,
+                    currency: wallet.currency,
                   ),
                   const SizedBox(height: AppDimens.lg),
                   Text(

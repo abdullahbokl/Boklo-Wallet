@@ -741,4 +741,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionsRevoked => 'All sessions revoked.';
+
+  @override
+  String feeLine(String amount) {
+    return 'Transfer fee: $amount';
+  }
+
+  @override
+  String get feeIncludedInTotal =>
+      'The fee is deducted from your balance in addition to the transfer amount.';
 }

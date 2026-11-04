@@ -268,5 +268,14 @@
   },
   "signOutEverywhere": "Sign out everywhere",
   "signOutEverywhereBody": "Every signed-in session will be revoked and you will be signed out on this device too. Continue?",
-  "sessionsRevoked": "All sessions revoked."
+  "sessionsRevoked": "All sessions revoked.",
+  "feeLine": "Transfer fee: {amount}",
+  "feeIncludedInTotal": "The fee is deducted from your balance in addition to the transfer amount.",
+  "@feeLine": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

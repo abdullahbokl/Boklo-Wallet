@@ -733,4 +733,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sessionsRevoked => 'تم إلغاء جميع الجلسات.';
+
+  @override
+  String feeLine(String amount) {
+    return 'رسوم التحويل: $amount';
+  }
+
+  @override
+  String get feeIncludedInTotal =>
+      'تُخصم الرسوم من رصيدك بالإضافة إلى مبلغ التحويل.';
 }

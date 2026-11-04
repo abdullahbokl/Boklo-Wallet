@@ -10,6 +10,11 @@ import {
 } from "./domain/events/transfer_events";
 import { evaluateRisk, RISK_MODE, createRiskReview } from "./fraud.js";
 import { checkTransferRateLimit } from "./utils/rate_limiter";
+import {
+  appendFeeEntries,
+  computeFeeMinor,
+  getFeeSchedule,
+} from "./fees";
 import { generateCorrelationId } from "./utils/correlation";
 import { currenciesAreCompatible, hasMinorUnitsFlag } from "./utils/money";
 
@@ -186,6 +191,10 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
   // -----------------------------------------
 
 
+  // Fee schedule is fetched once per execution (Remote Config backed);
+  // with the default schedule (0 bps) the fee path is inert.
+  const feeSchedule = await getFeeSchedule();
+
   try {
     await db.runTransaction(async (t) => {
       const transferRef = db.collection("transfers").doc(transferId);
@@ -229,11 +238,17 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
         );
       }
 
+      const feeMinor = computeFeeMinor(
+        amount,
+        feeSchedule.feeBps,
+        feeSchedule.freeBelowMinor,
+      );
       const fromBalance = fromWalletDoc.data()?.balance || 0;
-      if (fromBalance < amount) {
+      if (fromBalance < amount + feeMinor) {
         throw new Error("Insufficient balance");
       }
 
+      const timestamp = FieldValue.serverTimestamp();
       // 1. Deduct from Sender
       t.update(fromWalletRef, {
         balance: FieldValue.increment(-amount),
@@ -246,8 +261,19 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
         version: FieldValue.increment(1),
       });
 
+      // 2b. Fee (only when the schedule charges one): debited from the
+      // sender, recorded as its own transaction + platform ledger entry.
+      if (feeMinor > 0) {
+        appendFeeEntries(t, {
+          transferId,
+          fromWalletRef,
+          feeMinor,
+          currency: transferCurrency,
+          timestamp,
+        });
+      }
+
       // 3. Create Transaction Records (Subcollection)
-      const timestamp = FieldValue.serverTimestamp();
       const fromTransactionRef = fromWalletRef.collection("transactions").doc();
       const toTransactionRef = toWalletRef.collection("transactions").doc();
 
@@ -273,10 +299,11 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
         description: `Transfer from ${fromWalletDoc.data()?.alias || fromWalletId}`,
       });
 
-      // 4. Update Transfer Status
+      // 4. Update Transfer Status (+ fee record for receipts)
       t.update(transferRef, {
         status: "completed",
         completedAt: timestamp,
+        feeMinor,
       });
 
       // 5. EMIT: transaction.completed

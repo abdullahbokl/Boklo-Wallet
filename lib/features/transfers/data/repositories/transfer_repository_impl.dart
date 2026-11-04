@@ -118,6 +118,18 @@ class TransferRepositoryImpl implements TransferRepository {
   }
 
   @override
+  Future<Either<Failure, int>> estimateTransferFee(int amountMinor) async {
+    try {
+      final data = await _dataSource.estimateTransferFee(amountMinor);
+      return Right((data['feeMinor'] as num).toInt());
+    } on FirebaseFunctionsException catch (e) {
+      return Left(ServerFailure(e.message ?? 'Failed to quote fee'));
+    } on Object catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, WalletEntity>> getWallet(String id) async {
     try {
       final model = await _dataSource.getWallet(id);

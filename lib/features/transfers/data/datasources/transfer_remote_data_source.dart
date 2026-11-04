@@ -29,6 +29,9 @@ abstract class TransferRemoteDataSource {
   /// Fetches the caller's transfer limits (single/daily/remaining) from
   /// the backend, sourced from the fraud Remote Config values.
   Future<Map<String, dynamic>> getTransferLimits();
+
+  /// Quotes the server-side fee for a prospective amount (minor units).
+  Future<Map<String, dynamic>> estimateTransferFee(int amountMinor);
 }
 
 @LazySingleton(as: TransferRemoteDataSource)
@@ -145,6 +148,17 @@ class TransferRemoteDataSourceImpl implements TransferRemoteDataSource {
       region: 'us-central1',
     ).httpsCallable('getTransferLimits');
     final result = await callable.call<Map<String, dynamic>>();
+    return result.data;
+  }
+
+  @override
+  Future<Map<String, dynamic>> estimateTransferFee(int amountMinor) async {
+    final callable = FirebaseFunctions.instanceFor(
+      region: 'us-central1',
+    ).httpsCallable('estimateTransferFee');
+    final result = await callable.call<Map<String, dynamic>>({
+      'amountMinor': amountMinor,
+    });
     return result.data;
   }
 

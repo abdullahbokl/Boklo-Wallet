@@ -227,5 +227,7 @@
   "devicesOtherLabel": "جهاز ({platform})",
   "signOutEverywhere": "تسجيل الخروج من كل الأجهزة",
   "signOutEverywhereBody": "سيتم إلغاء كل الجلسات المسجلة وسيتم تسجيل خروجك من هذا الجهاز أيضًا. هل تريد المتابعة؟",
-  "sessionsRevoked": "تم إلغاء جميع الجلسات."
+  "sessionsRevoked": "تم إلغاء جميع الجلسات.",
+  "feeLine": "رسوم التحويل: {amount}",
+  "feeIncludedInTotal": "تُخصم الرسوم من رصيدك بالإضافة إلى مبلغ التحويل."
 }

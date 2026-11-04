@@ -8,6 +8,9 @@ abstract class TransferRepository {
   Future<Either<Failure, void>> createTransfer(TransferEntity transfer);
   Future<Either<Failure, WalletEntity>> getWallet(String id);
   Future<Either<Failure, TransferLimits>> getTransferLimits();
+
+  /// Server-side fee quote in minor units for a prospective amount.
+  Future<Either<Failure, int>> estimateTransferFee(int amountMinor);
   Future<Either<Failure, WalletEntity>> getPublicWallet(String id);
   Stream<Either<Failure, TransferEntity?>> observeTransfer(String transferId);
 }
