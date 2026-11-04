@@ -253,5 +253,20 @@
   "onboarding2Title": "Send in seconds",
   "onboarding2Body": "Pay by username, email, favorites, or scan a friend's QR code.",
   "onboarding3Title": "Stay in control",
-  "onboarding3Body": "Track activity, export statements, and set daily limits that protect you."
+  "onboarding3Body": "Track activity, export statements, and set daily limits that protect you.",
+  "devicesTitle": "Devices & sessions",
+  "devicesSubtitle": "Devices that receive your Boklo notifications. Signing out everywhere revokes every session and requires all devices to sign in again.",
+  "devicesEmpty": "No other devices are connected.",
+  "devicesThisDevice": "This device",
+  "devicesOtherLabel": "Device ({platform})",
+  "@devicesOtherLabel": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "signOutEverywhere": "Sign out everywhere",
+  "signOutEverywhereBody": "Every signed-in session will be revoked and you will be signed out on this device too. Continue?",
+  "sessionsRevoked": "All sessions revoked."
 }

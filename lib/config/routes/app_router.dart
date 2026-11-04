@@ -18,6 +18,7 @@ import 'package:boklo/features/onboarding/presentation/pages/onboarding_page.dar
 import 'package:boklo/features/payment_requests/presentation/pages/create_payment_request_page.dart';
 import 'package:boklo/features/payment_requests/presentation/pages/payment_request_list_page.dart';
 import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
+import 'package:boklo/features/settings/presentation/pages/devices_page.dart';
 import 'package:boklo/features/settings/presentation/pages/help_page.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
@@ -208,6 +209,10 @@ class AppRouter {
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: '/devices',
+        builder: (context, state) => const DevicesPage(),
       ),
       GoRoute(
         path: '/help',

@@ -1423,6 +1423,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Track activity, export statements, and set daily limits that protect you.'**
   String get onboarding3Body;
+
+  /// No description provided for @devicesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices & sessions'**
+  String get devicesTitle;
+
+  /// No description provided for @devicesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Devices that receive your Boklo notifications. Signing out everywhere revokes every session and requires all devices to sign in again.'**
+  String get devicesSubtitle;
+
+  /// No description provided for @devicesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No other devices are connected.'**
+  String get devicesEmpty;
+
+  /// No description provided for @devicesThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get devicesThisDevice;
+
+  /// No description provided for @devicesOtherLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Device ({platform})'**
+  String devicesOtherLabel(String platform);
+
+  /// No description provided for @signOutEverywhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out everywhere'**
+  String get signOutEverywhere;
+
+  /// No description provided for @signOutEverywhereBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every signed-in session will be revoked and you will be signed out on this device too. Continue?'**
+  String get signOutEverywhereBody;
+
+  /// No description provided for @sessionsRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'All sessions revoked.'**
+  String get sessionsRevoked;
 }
 
 class _AppLocalizationsDelegate

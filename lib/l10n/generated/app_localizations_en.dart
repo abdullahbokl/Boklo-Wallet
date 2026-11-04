@@ -713,4 +713,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboarding3Body =>
       'Track activity, export statements, and set daily limits that protect you.';
+
+  @override
+  String get devicesTitle => 'Devices & sessions';
+
+  @override
+  String get devicesSubtitle =>
+      'Devices that receive your Boklo notifications. Signing out everywhere revokes every session and requires all devices to sign in again.';
+
+  @override
+  String get devicesEmpty => 'No other devices are connected.';
+
+  @override
+  String get devicesThisDevice => 'This device';
+
+  @override
+  String devicesOtherLabel(String platform) {
+    return 'Device ($platform)';
+  }
+
+  @override
+  String get signOutEverywhere => 'Sign out everywhere';
+
+  @override
+  String get signOutEverywhereBody =>
+      'Every signed-in session will be revoked and you will be signed out on this device too. Continue?';
+
+  @override
+  String get sessionsRevoked => 'All sessions revoked.';
 }

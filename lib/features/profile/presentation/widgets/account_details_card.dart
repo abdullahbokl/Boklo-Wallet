@@ -82,6 +82,13 @@ class AccountDetailsCard extends StatelessWidget {
             onTap: () => context.push('/help'),
           ),
           Divider(height: 1, color: scheme.outlineVariant),
+          _SettingTile(
+            icon: Icons.devices_other_rounded,
+            title: context.l10n.devicesTitle,
+            subtitle: context.l10n.devicesSubtitle,
+            onTap: () => context.push('/devices'),
+          ),
+          Divider(height: 1, color: scheme.outlineVariant),
           const _AppLockSection(),
         ],
       ),

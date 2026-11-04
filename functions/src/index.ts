@@ -37,6 +37,7 @@ export { migrateWalletIdentifiers } from "./migration";
 export { migrateMoneyToMinorUnits, migrateMoneyToMinorUnitsHttp } from "./money_migration";
 export { expirePaymentRequests } from "./request_expiry";
 export { getTransferLimits } from "./limits";
+export { listDevices, revokeAllSessions } from "./sessions";
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected

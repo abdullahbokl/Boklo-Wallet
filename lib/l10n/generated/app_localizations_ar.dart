@@ -705,4 +705,32 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get onboarding3Body =>
       'تابع نشاطك، وصدّر كشوف الحساب، واستفد من حدود يومية تحميك.';
+
+  @override
+  String get devicesTitle => 'الأجهزة والجلسات';
+
+  @override
+  String get devicesSubtitle =>
+      'الأجهزة التي تستقبل إشعارات بوكلو الخاصة بك. يؤدي تسجيل الخروج من كل الأجهزة إلى إلغاء جميع الجلسات ويتطلب من جميع الأجهزة تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get devicesEmpty => 'لا توجد أجهزة أخرى متصلة.';
+
+  @override
+  String get devicesThisDevice => 'هذا الجهاز';
+
+  @override
+  String devicesOtherLabel(String platform) {
+    return 'جهاز ($platform)';
+  }
+
+  @override
+  String get signOutEverywhere => 'تسجيل الخروج من كل الأجهزة';
+
+  @override
+  String get signOutEverywhereBody =>
+      'سيتم إلغاء كل الجلسات المسجلة وسيتم تسجيل خروجك من هذا الجهاز أيضًا. هل تريد المتابعة؟';
+
+  @override
+  String get sessionsRevoked => 'تم إلغاء جميع الجلسات.';
 }
