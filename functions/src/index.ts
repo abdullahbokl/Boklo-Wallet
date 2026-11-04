@@ -39,6 +39,11 @@ export { expirePaymentRequests } from "./request_expiry";
 export { getTransferLimits } from "./limits";
 export { listDevices, revokeAllSessions } from "./sessions";
 export { estimateTransferFee } from "./fees";
+export {
+  createScheduledTransfer,
+  cancelScheduledTransfer,
+  processScheduledTransfers,
+} from "./scheduled_transfers";
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected

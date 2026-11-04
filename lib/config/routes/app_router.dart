@@ -23,6 +23,7 @@ import 'package:boklo/features/settings/presentation/pages/help_page.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/presentation/pages/scan_recipient_page.dart';
+import 'package:boklo/features/transfers/presentation/pages/scheduled_transfers_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_receipt_page.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
@@ -209,6 +210,10 @@ class AppRouter {
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: '/scheduled-transfers',
+        builder: (context, state) => const ScheduledTransfersPage(),
       ),
       GoRoute(
         path: '/devices',

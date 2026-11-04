@@ -277,5 +277,17 @@
         "type": "String"
       }
     }
-  }
+  },
+  "scheduledTitle": "Scheduled transfers",
+  "scheduledEmpty": "No recurring transfers yet. Create one from the send screen.",
+  "scheduledDaily": "Every day",
+  "scheduledWeekly": "Every week",
+  "scheduledMonthly": "Every month",
+  "scheduledCancel": "Cancel schedule",
+  "scheduledCancelBody": "This recurring transfer will be stopped. Transfers already sent are not affected.",
+  "scheduledCancelled": "Schedule cancelled.",
+  "scheduleTransfer": "Make recurring",
+  "scheduleFrequencyPrompt": "How often should this transfer repeat?",
+  "scheduleCreated": "Recurring transfer created.",
+  "scheduleCreateFailed": "Could not create the recurring transfer."
 }

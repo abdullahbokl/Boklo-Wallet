@@ -83,6 +83,13 @@ class AccountDetailsCard extends StatelessWidget {
           ),
           Divider(height: 1, color: scheme.outlineVariant),
           _SettingTile(
+            icon: Icons.event_repeat_rounded,
+            title: context.l10n.scheduledTitle,
+            subtitle: context.l10n.scheduledEmpty,
+            onTap: () => context.push('/scheduled-transfers'),
+          ),
+          Divider(height: 1, color: scheme.outlineVariant),
+          _SettingTile(
             icon: Icons.devices_other_rounded,
             title: context.l10n.devicesTitle,
             subtitle: context.l10n.devicesSubtitle,

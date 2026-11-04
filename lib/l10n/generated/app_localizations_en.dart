@@ -750,4 +750,43 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get feeIncludedInTotal =>
       'The fee is deducted from your balance in addition to the transfer amount.';
+
+  @override
+  String get scheduledTitle => 'Scheduled transfers';
+
+  @override
+  String get scheduledEmpty =>
+      'No recurring transfers yet. Create one from the send screen.';
+
+  @override
+  String get scheduledDaily => 'Every day';
+
+  @override
+  String get scheduledWeekly => 'Every week';
+
+  @override
+  String get scheduledMonthly => 'Every month';
+
+  @override
+  String get scheduledCancel => 'Cancel schedule';
+
+  @override
+  String get scheduledCancelBody =>
+      'This recurring transfer will be stopped. Transfers already sent are not affected.';
+
+  @override
+  String get scheduledCancelled => 'Schedule cancelled.';
+
+  @override
+  String get scheduleTransfer => 'Make recurring';
+
+  @override
+  String get scheduleFrequencyPrompt =>
+      'How often should this transfer repeat?';
+
+  @override
+  String get scheduleCreated => 'Recurring transfer created.';
+
+  @override
+  String get scheduleCreateFailed => 'Could not create the recurring transfer.';
 }

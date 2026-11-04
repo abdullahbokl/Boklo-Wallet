@@ -1483,6 +1483,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The fee is deducted from your balance in addition to the transfer amount.'**
   String get feeIncludedInTotal;
+
+  /// No description provided for @scheduledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled transfers'**
+  String get scheduledTitle;
+
+  /// No description provided for @scheduledEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No recurring transfers yet. Create one from the send screen.'**
+  String get scheduledEmpty;
+
+  /// No description provided for @scheduledDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get scheduledDaily;
+
+  /// No description provided for @scheduledWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get scheduledWeekly;
+
+  /// No description provided for @scheduledMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month'**
+  String get scheduledMonthly;
+
+  /// No description provided for @scheduledCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel schedule'**
+  String get scheduledCancel;
+
+  /// No description provided for @scheduledCancelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This recurring transfer will be stopped. Transfers already sent are not affected.'**
+  String get scheduledCancelBody;
+
+  /// No description provided for @scheduledCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule cancelled.'**
+  String get scheduledCancelled;
+
+  /// No description provided for @scheduleTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Make recurring'**
+  String get scheduleTransfer;
+
+  /// No description provided for @scheduleFrequencyPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'How often should this transfer repeat?'**
+  String get scheduleFrequencyPrompt;
+
+  /// No description provided for @scheduleCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring transfer created.'**
+  String get scheduleCreated;
+
+  /// No description provided for @scheduleCreateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the recurring transfer.'**
+  String get scheduleCreateFailed;
 }
 
 class _AppLocalizationsDelegate

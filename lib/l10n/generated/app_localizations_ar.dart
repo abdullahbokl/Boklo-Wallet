@@ -742,4 +742,42 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get feeIncludedInTotal =>
       'تُخصم الرسوم من رصيدك بالإضافة إلى مبلغ التحويل.';
+
+  @override
+  String get scheduledTitle => 'التحويلات المجدولة';
+
+  @override
+  String get scheduledEmpty =>
+      'لا توجد تحويلات متكررة بعد. أنشئ واحدة من شاشة الإرسال.';
+
+  @override
+  String get scheduledDaily => 'كل يوم';
+
+  @override
+  String get scheduledWeekly => 'كل أسبوع';
+
+  @override
+  String get scheduledMonthly => 'كل شهر';
+
+  @override
+  String get scheduledCancel => 'إلغاء الجدولة';
+
+  @override
+  String get scheduledCancelBody =>
+      'سيتم إيقاف هذا التحويل المتكرر. التحويلات المرسلة مسبقًا لن تتأثر.';
+
+  @override
+  String get scheduledCancelled => 'تم إلغاء الجدولة.';
+
+  @override
+  String get scheduleTransfer => 'جعله متكررًا';
+
+  @override
+  String get scheduleFrequencyPrompt => 'كم مرة يجب أن يتكرر هذا التحويل؟';
+
+  @override
+  String get scheduleCreated => 'تم إنشاء التحويل المتكرر.';
+
+  @override
+  String get scheduleCreateFailed => 'تعذّر إنشاء التحويل المتكرر.';
 }

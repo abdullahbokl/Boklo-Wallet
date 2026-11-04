@@ -36,12 +36,23 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
       }
 
+
       // Preferences Subcollection
       match /preferences/{prefId} {
         allow read, write: if isOwner(userId);
       }
     }
     
+    // --- Scheduled Transfers (top-level collection) ---
+    // Owner-readable; creation/cancellation go through validated Cloud
+    // Functions callables, so client writes are denied to keep scheduling
+    // rules server-authoritative.
+    match /scheduled_transfers/{scheduleId} {
+      allow read: if request.auth != null &&
+        resource.data.fromWalletId == request.auth.uid;
+      allow write: if false;
+    }
+
     // --- Usernames Registry ---
     match /usernames/{username} {
         // Exact lookups for identifier resolution; no list (enumeration).

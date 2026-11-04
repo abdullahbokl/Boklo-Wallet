@@ -229,5 +229,17 @@
   "signOutEverywhereBody": "سيتم إلغاء كل الجلسات المسجلة وسيتم تسجيل خروجك من هذا الجهاز أيضًا. هل تريد المتابعة؟",
   "sessionsRevoked": "تم إلغاء جميع الجلسات.",
   "feeLine": "رسوم التحويل: {amount}",
-  "feeIncludedInTotal": "تُخصم الرسوم من رصيدك بالإضافة إلى مبلغ التحويل."
+  "feeIncludedInTotal": "تُخصم الرسوم من رصيدك بالإضافة إلى مبلغ التحويل.",
+  "scheduledTitle": "التحويلات المجدولة",
+  "scheduledEmpty": "لا توجد تحويلات متكررة بعد. أنشئ واحدة من شاشة الإرسال.",
+  "scheduledDaily": "كل يوم",
+  "scheduledWeekly": "كل أسبوع",
+  "scheduledMonthly": "كل شهر",
+  "scheduledCancel": "إلغاء الجدولة",
+  "scheduledCancelBody": "سيتم إيقاف هذا التحويل المتكرر. التحويلات المرسلة مسبقًا لن تتأثر.",
+  "scheduledCancelled": "تم إلغاء الجدولة.",
+  "scheduleTransfer": "جعله متكررًا",
+  "scheduleFrequencyPrompt": "كم مرة يجب أن يتكرر هذا التحويل؟",
+  "scheduleCreated": "تم إنشاء التحويل المتكرر.",
+  "scheduleCreateFailed": "تعذّر إنشاء التحويل المتكرر."
 }
