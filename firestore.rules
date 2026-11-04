@@ -53,6 +53,14 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // --- FX Rates (public reference data) ---
+    // Rates are published by ops tooling (admin/backend writes only);
+    // all authenticated clients may read them.
+    match /fx_rates/{pairId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
     // --- Usernames Registry ---
     match /usernames/{username} {
         // Exact lookups for identifier resolution; no list (enumeration).

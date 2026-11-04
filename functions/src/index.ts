@@ -44,6 +44,7 @@ export {
   cancelScheduledTransfer,
   processScheduledTransfers,
 } from "./scheduled_transfers";
+export { getFxQuote } from "./fx";
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
