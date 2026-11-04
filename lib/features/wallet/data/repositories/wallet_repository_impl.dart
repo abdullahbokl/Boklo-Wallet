@@ -94,6 +94,16 @@ class WalletRepositoryImpl implements WalletRepository {
   }
 
   @override
+  Future<Either<Failure, List<TransactionEntity>>> getAllTransactions() async {
+    try {
+      final models = await _remoteDataSource.getAllTransactions();
+      return Right(models.map((e) => e.toEntity()).toList());
+    } on Object catch (e) {
+      return Left(ServerFailure('Failed to fetch all transactions: $e'));
+    }
+  }
+
+  @override
   Future<Either<Failure, TransactionPage>> loadMoreTransactions() async {
     if (!_hasMore) {
       return const Right(

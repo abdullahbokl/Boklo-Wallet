@@ -617,4 +617,56 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get qrTorch => 'تشغيل/إيقاف المصباح';
+
+  @override
+  String get statementExport => 'تصدير كشف الحساب';
+
+  @override
+  String get statementExportHint => 'تنزيل كشف حساب CSV لمعاملاتك.';
+
+  @override
+  String get statementPreparing => 'جارٍ إعداد كشف حسابك…';
+
+  @override
+  String get statementShared => 'كشف الحساب جاهز للمشاركة.';
+
+  @override
+  String get statementExportFailed =>
+      'تعذّر إنشاء كشف الحساب. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get csvHeaderDate => 'التاريخ';
+
+  @override
+  String get csvHeaderType => 'النوع';
+
+  @override
+  String get csvHeaderStatus => 'الحالة';
+
+  @override
+  String get csvHeaderAmount => 'المبلغ';
+
+  @override
+  String get csvHeaderCurrency => 'العملة';
+
+  @override
+  String get csvHeaderCounterparty => 'الطرف الآخر';
+
+  @override
+  String get csvHeaderDescription => 'الوصف';
+
+  @override
+  String get csvHeaderTransactionId => 'معرّف المعاملة';
+
+  @override
+  String get insightsThisMonth => 'هذا الشهر';
+
+  @override
+  String get insightsMoneyIn => 'الوارد';
+
+  @override
+  String get insightsMoneyOut => 'الصادر';
+
+  @override
+  String get insightsNoActivity => 'لا يوجد نشاط هذا الشهر حتى الآن.';
 }

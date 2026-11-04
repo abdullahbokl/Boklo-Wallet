@@ -225,5 +225,22 @@
   "qrScanHint": "Point the camera at a Boklo pay-me QR code.",
   "qrInvalidCode": "This is not a Boklo pay-me code.",
   "qrNoHandle": "Set up your username in your profile to get a pay-me QR code.",
-  "qrTorch": "Toggle flashlight"
+  "qrTorch": "Toggle flashlight",
+  "statementExport": "Export statement",
+  "statementExportHint": "Download a CSV statement of your transactions.",
+  "statementPreparing": "Preparing your statement…",
+  "statementShared": "Statement ready to share.",
+  "statementExportFailed": "Could not create the statement. Please try again.",
+  "csvHeaderDate": "Date",
+  "csvHeaderType": "Type",
+  "csvHeaderStatus": "Status",
+  "csvHeaderAmount": "Amount",
+  "csvHeaderCurrency": "Currency",
+  "csvHeaderCounterparty": "Counterparty",
+  "csvHeaderDescription": "Description",
+  "csvHeaderTransactionId": "Transaction ID",
+  "insightsThisMonth": "This month",
+  "insightsMoneyIn": "Money in",
+  "insightsMoneyOut": "Money out",
+  "insightsNoActivity": "No activity this month yet."
 }

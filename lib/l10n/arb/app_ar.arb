@@ -191,5 +191,22 @@
   "qrScanHint": "وجّه الكاميرا نحو رمز الدفع عبر QR الخاص ببوكلو.",
   "qrInvalidCode": "هذا ليس رمز دفع تابعًا لبوكلو.",
   "qrNoHandle": "اضبط اسم المستخدم في ملفك الشخصي للحصول على رمز QR للدفع.",
-  "qrTorch": "تشغيل/إيقاف المصباح"
+  "qrTorch": "تشغيل/إيقاف المصباح",
+  "statementExport": "تصدير كشف الحساب",
+  "statementExportHint": "تنزيل كشف حساب CSV لمعاملاتك.",
+  "statementPreparing": "جارٍ إعداد كشف حسابك…",
+  "statementShared": "كشف الحساب جاهز للمشاركة.",
+  "statementExportFailed": "تعذّر إنشاء كشف الحساب. يرجى المحاولة مرة أخرى.",
+  "csvHeaderDate": "التاريخ",
+  "csvHeaderType": "النوع",
+  "csvHeaderStatus": "الحالة",
+  "csvHeaderAmount": "المبلغ",
+  "csvHeaderCurrency": "العملة",
+  "csvHeaderCounterparty": "الطرف الآخر",
+  "csvHeaderDescription": "الوصف",
+  "csvHeaderTransactionId": "معرّف المعاملة",
+  "insightsThisMonth": "هذا الشهر",
+  "insightsMoneyIn": "الوارد",
+  "insightsMoneyOut": "الصادر",
+  "insightsNoActivity": "لا يوجد نشاط هذا الشهر حتى الآن."
 }

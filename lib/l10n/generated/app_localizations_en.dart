@@ -623,4 +623,57 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrTorch => 'Toggle flashlight';
+
+  @override
+  String get statementExport => 'Export statement';
+
+  @override
+  String get statementExportHint =>
+      'Download a CSV statement of your transactions.';
+
+  @override
+  String get statementPreparing => 'Preparing your statement…';
+
+  @override
+  String get statementShared => 'Statement ready to share.';
+
+  @override
+  String get statementExportFailed =>
+      'Could not create the statement. Please try again.';
+
+  @override
+  String get csvHeaderDate => 'Date';
+
+  @override
+  String get csvHeaderType => 'Type';
+
+  @override
+  String get csvHeaderStatus => 'Status';
+
+  @override
+  String get csvHeaderAmount => 'Amount';
+
+  @override
+  String get csvHeaderCurrency => 'Currency';
+
+  @override
+  String get csvHeaderCounterparty => 'Counterparty';
+
+  @override
+  String get csvHeaderDescription => 'Description';
+
+  @override
+  String get csvHeaderTransactionId => 'Transaction ID';
+
+  @override
+  String get insightsThisMonth => 'This month';
+
+  @override
+  String get insightsMoneyIn => 'Money in';
+
+  @override
+  String get insightsMoneyOut => 'Money out';
+
+  @override
+  String get insightsNoActivity => 'No activity this month yet.';
 }

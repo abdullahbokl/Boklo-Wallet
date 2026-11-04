@@ -25,6 +25,10 @@ class PaginatedTransactionResult {
 abstract class WalletRemoteDataSource {
   Future<WalletModel> getWallet();
   Future<List<TransactionModel>> getTransactions();
+
+  /// Fetches the complete transaction history by paging through the
+  /// collection (used by statement export and insights).
+  Future<List<TransactionModel>> getAllTransactions();
   Future<PaginatedTransactionResult> getTransactionsPaginated({
     DocumentSnapshot? startAfter,
     int limit = 20,
@@ -112,6 +116,39 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
     return query.docs
         .map((doc) => TransactionModel.fromJson(doc.data()))
         .toList();
+  }
+
+  @override
+  Future<List<TransactionModel>> getAllTransactions() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) throw Exception('User not logged in');
+
+    const pageSize = 500;
+    final all = <TransactionModel>[];
+    DocumentSnapshot? cursor;
+
+    while (true) {
+      var query = _firestore
+          .collection('wallets')
+          .doc(userId)
+          .collection('transactions')
+          .orderBy('timestamp', descending: true)
+          .limit(pageSize);
+      if (cursor != null) {
+        query = query.startAfterDocument(cursor);
+      }
+      final snapshot = await query.get();
+      if (snapshot.docs.isEmpty) break;
+
+      all.addAll(
+        snapshot.docs
+            .map((doc) => TransactionModel.fromJson(doc.data()))
+            .toList(),
+      );
+      cursor = snapshot.docs.last;
+      if (snapshot.docs.length < pageSize) break;
+    }
+    return all;
   }
 
   @override

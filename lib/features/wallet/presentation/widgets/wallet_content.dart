@@ -6,6 +6,7 @@ import 'package:boklo/core/services/navigation_service.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
 import 'package:boklo/features/wallet/presentation/widgets/quick_actions_row.dart';
+import 'package:boklo/features/wallet/presentation/widgets/spending_insights_card.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_filters.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_list.dart';
 import 'package:boklo/shared/extensions/l10n.dart';
@@ -70,6 +71,8 @@ class WalletContent extends StatelessWidget {
                       );
                     },
                   ),
+                  const SizedBox(height: AppDimens.sectionGap),
+                  SpendingInsightsCard(currency: data.wallet.currency),
                   const SizedBox(height: AppDimens.sectionGap),
                   AppSectionHeader(
                     title: context.l10n.recentActivity,

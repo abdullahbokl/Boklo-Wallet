@@ -8,6 +8,9 @@ abstract class WalletRepository {
   Future<Either<Failure, void>> provisionWallet();
   Future<Either<Failure, WalletEntity>> getWallet();
   Future<Either<Failure, List<TransactionEntity>>> getTransactions();
+
+  /// Full history (no pagination cap) for statements and insights.
+  Future<Either<Failure, List<TransactionEntity>>> getAllTransactions();
   Future<Either<Failure, TransactionPage>> loadMoreTransactions();
   Stream<Either<Failure, List<TransactionEntity>>> watchTransactions();
   Stream<Either<Failure, WalletEntity>> watchWallet();

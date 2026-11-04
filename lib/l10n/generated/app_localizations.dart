@@ -1255,6 +1255,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Toggle flashlight'**
   String get qrTorch;
+
+  /// No description provided for @statementExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export statement'**
+  String get statementExport;
+
+  /// No description provided for @statementExportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Download a CSV statement of your transactions.'**
+  String get statementExportHint;
+
+  /// No description provided for @statementPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your statement…'**
+  String get statementPreparing;
+
+  /// No description provided for @statementShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Statement ready to share.'**
+  String get statementShared;
+
+  /// No description provided for @statementExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the statement. Please try again.'**
+  String get statementExportFailed;
+
+  /// No description provided for @csvHeaderDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get csvHeaderDate;
+
+  /// No description provided for @csvHeaderType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get csvHeaderType;
+
+  /// No description provided for @csvHeaderStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get csvHeaderStatus;
+
+  /// No description provided for @csvHeaderAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get csvHeaderAmount;
+
+  /// No description provided for @csvHeaderCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get csvHeaderCurrency;
+
+  /// No description provided for @csvHeaderCounterparty.
+  ///
+  /// In en, this message translates to:
+  /// **'Counterparty'**
+  String get csvHeaderCounterparty;
+
+  /// No description provided for @csvHeaderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get csvHeaderDescription;
+
+  /// No description provided for @csvHeaderTransactionId.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction ID'**
+  String get csvHeaderTransactionId;
+
+  /// No description provided for @insightsThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get insightsThisMonth;
+
+  /// No description provided for @insightsMoneyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in'**
+  String get insightsMoneyIn;
+
+  /// No description provided for @insightsMoneyOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out'**
+  String get insightsMoneyOut;
+
+  /// No description provided for @insightsNoActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity this month yet.'**
+  String get insightsNoActivity;
 }
 
 class _AppLocalizationsDelegate
