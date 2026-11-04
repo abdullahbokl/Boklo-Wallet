@@ -583,4 +583,38 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get transferBackendNote =>
       'يتم تأكيد التحويلات على الخادم قبل تحديث الأرصدة.';
+
+  @override
+  String get qrTitle => 'رمز QR الخاص بي';
+
+  @override
+  String get qrSubtitle =>
+      'يمكن للآخرين مسح هذا الرمز الضوئي باستخدام بوكلو لإرسال الأموال إليك فورًا.';
+
+  @override
+  String get qrYourHandle => 'معرّف بوكلو الخاص بك';
+
+  @override
+  String get qrShare => 'مشاركة الرمز';
+
+  @override
+  String qrShareText(String handle) {
+    return 'ادفع لي عبر بوكلو! امسح هذا الرمز أو استخدم معرّفي: $handle';
+  }
+
+  @override
+  String get qrScan => 'مسح رمز QR';
+
+  @override
+  String get qrScanHint => 'وجّه الكاميرا نحو رمز الدفع عبر QR الخاص ببوكلو.';
+
+  @override
+  String get qrInvalidCode => 'هذا ليس رمز دفع تابعًا لبوكلو.';
+
+  @override
+  String get qrNoHandle =>
+      'اضبط اسم المستخدم في ملفك الشخصي للحصول على رمز QR للدفع.';
+
+  @override
+  String get qrTorch => 'تشغيل/إيقاف المصباح';
 }

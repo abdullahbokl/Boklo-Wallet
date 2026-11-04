@@ -58,6 +58,13 @@ class AccountDetailsCard extends StatelessWidget {
           ),
           Divider(height: 1, color: scheme.outlineVariant),
           _SettingTile(
+            icon: Icons.qr_code_2_rounded,
+            title: context.l10n.qrTitle,
+            subtitle: context.l10n.qrSubtitle,
+            onTap: () => context.push('/qr'),
+          ),
+          Divider(height: 1, color: scheme.outlineVariant),
+          _SettingTile(
             icon: Icons.notifications_none_outlined,
             title: context.l10n.notifications,
             subtitle: context.l10n.notificationsSubtitle,

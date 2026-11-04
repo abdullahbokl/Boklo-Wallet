@@ -589,4 +589,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get transferBackendNote =>
       'Transfers are confirmed by the backend before balances update.';
+
+  @override
+  String get qrTitle => 'My QR code';
+
+  @override
+  String get qrSubtitle =>
+      'Others can scan this code with Boklo to send you money instantly.';
+
+  @override
+  String get qrYourHandle => 'Your Boklo handle';
+
+  @override
+  String get qrShare => 'Share my code';
+
+  @override
+  String qrShareText(String handle) {
+    return 'Pay me on Boklo! Scan this code or use my handle: $handle';
+  }
+
+  @override
+  String get qrScan => 'Scan QR code';
+
+  @override
+  String get qrScanHint => 'Point the camera at a Boklo pay-me QR code.';
+
+  @override
+  String get qrInvalidCode => 'This is not a Boklo pay-me code.';
+
+  @override
+  String get qrNoHandle =>
+      'Set up your username in your profile to get a pay-me QR code.';
+
+  @override
+  String get qrTorch => 'Toggle flashlight';
 }

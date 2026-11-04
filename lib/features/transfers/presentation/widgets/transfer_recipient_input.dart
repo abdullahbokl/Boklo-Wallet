@@ -22,6 +22,17 @@ class TransferRecipientInput extends StatefulWidget {
 }
 
 class _TransferRecipientInputState extends State<TransferRecipientInput> {
+  Future<void> _scanQr() async {
+    final recipient = await getIt<NavigationService>().push<String>(
+      '/scan-recipient',
+    );
+    if (recipient != null && mounted) {
+      setState(() {
+        widget.controller.text = recipient;
+      });
+    }
+  }
+
   Future<void> _pickContact() async {
     final contact = await getIt<NavigationService>().push<ContactEntity>(
       '/contacts',
@@ -43,9 +54,19 @@ class _TransferRecipientInputState extends State<TransferRecipientInput> {
       label: context.l10n.recipient,
       hintText: context.l10n.recipientHint,
       prefixIcon: const Icon(Icons.person_outline),
-      suffixIcon: IconButton(
-        icon: const Icon(Icons.contacts),
-        onPressed: widget.enabled ? _pickContact : null,
+      suffixIcon: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: context.l10n.qrScan,
+            icon: const Icon(Icons.qr_code_scanner_rounded),
+            onPressed: widget.enabled ? _scanQr : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.contacts),
+            onPressed: widget.enabled ? _pickContact : null,
+          ),
+        ],
       ),
       validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null,
     );

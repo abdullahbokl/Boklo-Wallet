@@ -208,5 +208,22 @@
   "favoritesSection": "Favorites",
   "noFavoritesYet": "Star a contact to pin it here.",
   "transferFormSubtitle": "Enter who should receive the money and how much.",
-  "transferBackendNote": "Transfers are confirmed by the backend before balances update."
+  "transferBackendNote": "Transfers are confirmed by the backend before balances update.",
+  "qrTitle": "My QR code",
+  "qrSubtitle": "Others can scan this code with Boklo to send you money instantly.",
+  "qrYourHandle": "Your Boklo handle",
+  "qrShare": "Share my code",
+  "qrShareText": "Pay me on Boklo! Scan this code or use my handle: {handle}",
+  "@qrShareText": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "qrScan": "Scan QR code",
+  "qrScanHint": "Point the camera at a Boklo pay-me QR code.",
+  "qrInvalidCode": "This is not a Boklo pay-me code.",
+  "qrNoHandle": "Set up your username in your profile to get a pay-me QR code.",
+  "qrTorch": "Toggle flashlight"
 }

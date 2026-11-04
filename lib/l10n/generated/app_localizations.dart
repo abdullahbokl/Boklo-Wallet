@@ -1195,6 +1195,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Transfers are confirmed by the backend before balances update.'**
   String get transferBackendNote;
+
+  /// No description provided for @qrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My QR code'**
+  String get qrTitle;
+
+  /// No description provided for @qrSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Others can scan this code with Boklo to send you money instantly.'**
+  String get qrSubtitle;
+
+  /// No description provided for @qrYourHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Boklo handle'**
+  String get qrYourHandle;
+
+  /// No description provided for @qrShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share my code'**
+  String get qrShare;
+
+  /// No description provided for @qrShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay me on Boklo! Scan this code or use my handle: {handle}'**
+  String qrShareText(String handle);
+
+  /// No description provided for @qrScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR code'**
+  String get qrScan;
+
+  /// No description provided for @qrScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at a Boklo pay-me QR code.'**
+  String get qrScanHint;
+
+  /// No description provided for @qrInvalidCode.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a Boklo pay-me code.'**
+  String get qrInvalidCode;
+
+  /// No description provided for @qrNoHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your username in your profile to get a pay-me QR code.'**
+  String get qrNoHandle;
+
+  /// No description provided for @qrTorch.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle flashlight'**
+  String get qrTorch;
 }
 
 class _AppLocalizationsDelegate

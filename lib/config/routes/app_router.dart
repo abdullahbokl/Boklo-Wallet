@@ -19,10 +19,12 @@ import 'package:boklo/features/payment_requests/presentation/pages/payment_reque
 import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
+import 'package:boklo/features/transfers/presentation/pages/scan_recipient_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_page.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_receipt_page.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
+import 'package:boklo/features/wallet/presentation/pages/qr_pay_me_page.dart';
 import 'package:boklo/features/wallet/presentation/pages/transaction_detail_page.dart';
 import 'package:boklo/features/wallet/presentation/pages/wallet_page.dart';
 import 'package:boklo/shared/extensions/l10n.dart';
@@ -194,6 +196,14 @@ class AppRouter {
           path: '/ledger',
           builder: (context, state) => const LedgerDebugPage(),
         ),
+      GoRoute(
+        path: '/qr',
+        builder: (context, state) => const QrPayMePage(),
+      ),
+      GoRoute(
+        path: '/scan-recipient',
+        builder: (context, state) => const ScanRecipientPage(),
+      ),
       GoRoute(
         path: '/notification-settings',
         builder: (context, state) => const NotificationSettingsPage(),
