@@ -17,6 +17,7 @@ import 'package:boklo/features/notifications/presentation/pages/notifications_pa
 import 'package:boklo/features/payment_requests/presentation/pages/create_payment_request_page.dart';
 import 'package:boklo/features/payment_requests/presentation/pages/payment_request_list_page.dart';
 import 'package:boklo/features/profile/presentation/pages/profile_page.dart';
+import 'package:boklo/features/settings/presentation/pages/help_page.dart';
 import 'package:boklo/features/transfers/domain/entities/transfer_entity.dart';
 import 'package:boklo/features/transfers/domain/repositories/transfer_repository.dart';
 import 'package:boklo/features/transfers/presentation/pages/scan_recipient_page.dart';
@@ -196,6 +197,10 @@ class AppRouter {
           path: '/ledger',
           builder: (context, state) => const LedgerDebugPage(),
         ),
+      GoRoute(
+        path: '/help',
+        builder: (context, state) => const HelpPage(),
+      ),
       GoRoute(
         path: '/qr',
         builder: (context, state) => const QrPayMePage(),

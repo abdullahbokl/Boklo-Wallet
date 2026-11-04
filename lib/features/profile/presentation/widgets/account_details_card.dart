@@ -75,6 +75,13 @@ class AccountDetailsCard extends StatelessWidget {
           Divider(height: 1, color: scheme.outlineVariant),
           const _LanguageSection(),
           Divider(height: 1, color: scheme.outlineVariant),
+          _SettingTile(
+            icon: Icons.help_outline_rounded,
+            title: context.l10n.helpTitle,
+            subtitle: context.l10n.statementExportHint,
+            onTap: () => context.push('/help'),
+          ),
+          Divider(height: 1, color: scheme.outlineVariant),
           const _AppLockSection(),
         ],
       ),

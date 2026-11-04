@@ -208,5 +208,7 @@
   "insightsThisMonth": "هذا الشهر",
   "insightsMoneyIn": "الوارد",
   "insightsMoneyOut": "الصادر",
-  "insightsNoActivity": "لا يوجد نشاط هذا الشهر حتى الآن."
+  "insightsNoActivity": "لا يوجد نشاط هذا الشهر حتى الآن.",
+  "helpFaqLimitsTitle": "ما هي حدود التحويل الخاصة بي؟",
+  "helpDisputeHint": "للإبلاغ عن مشكلة في معاملة معينة، افتح المعاملة واستخدم \"الإبلاغ عن مشكلة\" — يراجع فريقنا كل نزاع."
 }

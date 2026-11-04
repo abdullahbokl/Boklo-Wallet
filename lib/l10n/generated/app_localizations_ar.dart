@@ -669,4 +669,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get insightsNoActivity => 'لا يوجد نشاط هذا الشهر حتى الآن.';
+
+  @override
+  String get helpFaqLimitsTitle => 'ما هي حدود التحويل الخاصة بي؟';
+
+  @override
+  String get helpDisputeHint =>
+      'للإبلاغ عن مشكلة في معاملة معينة، افتح المعاملة واستخدم \"الإبلاغ عن مشكلة\" — يراجع فريقنا كل نزاع.';
 }

@@ -1357,6 +1357,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No activity this month yet.'**
   String get insightsNoActivity;
+
+  /// No description provided for @helpFaqLimitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What are my transfer limits?'**
+  String get helpFaqLimitsTitle;
+
+  /// No description provided for @helpDisputeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To report a problem with a specific transaction, open the transaction and use \"Report a problem\" — our team reviews every dispute.'**
+  String get helpDisputeHint;
 }
 
 class _AppLocalizationsDelegate

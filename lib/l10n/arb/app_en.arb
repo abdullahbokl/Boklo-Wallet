@@ -242,5 +242,7 @@
   "insightsThisMonth": "This month",
   "insightsMoneyIn": "Money in",
   "insightsMoneyOut": "Money out",
-  "insightsNoActivity": "No activity this month yet."
+  "insightsNoActivity": "No activity this month yet.",
+  "helpFaqLimitsTitle": "What are my transfer limits?",
+  "helpDisputeHint": "To report a problem with a specific transaction, open the transaction and use \"Report a problem\" — our team reviews every dispute."
 }

@@ -676,4 +676,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get insightsNoActivity => 'No activity this month yet.';
+
+  @override
+  String get helpFaqLimitsTitle => 'What are my transfer limits?';
+
+  @override
+  String get helpDisputeHint =>
+      'To report a problem with a specific transaction, open the transaction and use \"Report a problem\" — our team reviews every dispute.';
 }
