@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+
 import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/app_lock_service.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/profile/presentation/widgets/account_info_sheet.dart';
 import 'package:boklo/features/settings/presentation/bloc/locale_cubit.dart';
@@ -63,12 +68,7 @@ class AccountDetailsCard extends StatelessWidget {
           Divider(height: 1, color: scheme.outlineVariant),
           const _LanguageSection(),
           Divider(height: 1, color: scheme.outlineVariant),
-          _SettingTile(
-            icon: Icons.security_outlined,
-            title: context.l10n.security,
-            subtitle: context.l10n.securitySubtitle,
-            onTap: () {},
-          ),
+          const _AppLockSection(),
         ],
       ),
     );
@@ -415,6 +415,100 @@ class _LanguageSegment extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AppLockSection extends StatefulWidget {
+  const _AppLockSection();
+
+  @override
+  State<_AppLockSection> createState() => _AppLockSectionState();
+}
+
+class _AppLockSectionState extends State<_AppLockSection> {
+  final AppLockService _service = getIt<AppLockService>();
+
+  bool? _enabled;
+  bool _available = true;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_load());
+  }
+
+  Future<void> _load() async {
+    final enabled = await _service.isEnabled();
+    final available = await _service.canAuthenticate();
+    if (!mounted) return;
+    setState(() {
+      _enabled = enabled;
+      _available = available;
+    });
+  }
+
+  Future<void> _toggle(bool value) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    if (value) {
+      // Confirm the user can actually authenticate before enabling,
+      // otherwise the gate would lock them out permanently.
+      final ok = await _service.authenticate();
+      if (!ok) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.appLockUnavailable)),
+        );
+        return;
+      }
+    }
+    await _service.setEnabled(enabled: value);
+    if (mounted) setState(() => _enabled = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final enabled = _enabled ?? false;
+
+    return Padding(
+      padding: const EdgeInsets.all(AppDimens.lg),
+      child: Row(
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppDimens.sm),
+              child: Icon(Icons.fingerprint_rounded, color: scheme.primary),
+            ),
+          ),
+          const SizedBox(width: AppDimens.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(context.l10n.appLock, style: AppTypography.subtitle),
+                const SizedBox(height: AppDimens.xs4),
+                Text(
+                  _available
+                      ? context.l10n.appLockSubtitle
+                      : context.l10n.appLockUnavailable,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch.adaptive(
+            value: enabled,
+            onChanged: _available ? (value) => unawaited(_toggle(value)) : null,
+          ),
+        ],
       ),
     );
   }

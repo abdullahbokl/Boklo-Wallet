@@ -540,4 +540,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errAlreadyProcessed => 'This transfer was already processed.';
+
+  @override
+  String get appLock => 'App lock';
+
+  @override
+  String get appLockSubtitle =>
+      'Require biometrics or your device PIN to open Boklo.';
+
+  @override
+  String get appLockLockedTitle => 'Boklo is locked';
+
+  @override
+  String get appLockLockedBody => 'Verify that it\'s you to continue.';
+
+  @override
+  String get appLockUnlock => 'Unlock';
+
+  @override
+  String get appLockUnavailable =>
+      'Biometric authentication is not available on this device.';
 }

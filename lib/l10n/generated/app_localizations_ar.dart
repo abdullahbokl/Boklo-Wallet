@@ -535,4 +535,24 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errAlreadyProcessed => 'تمت معالجة هذا التحويل مسبقًا.';
+
+  @override
+  String get appLock => 'قفل التطبيق';
+
+  @override
+  String get appLockSubtitle =>
+      'اطلب المصادقة البيومترية أو رمز قفل جهازك لفتح بوكلو.';
+
+  @override
+  String get appLockLockedTitle => 'بوكلو مقفل';
+
+  @override
+  String get appLockLockedBody => 'تحقّق من هويتك للمتابعة.';
+
+  @override
+  String get appLockUnlock => 'فتح القفل';
+
+  @override
+  String get appLockUnavailable =>
+      'المصادقة البيومترية غير متاحة على هذا الجهاز.';
 }

@@ -193,5 +193,11 @@
   "errWalletNotFound": "Recipient wallet could not be found.",
   "errCurrencyMismatch": "This transfer was blocked: the wallets use different currencies.",
   "errWalletNotMigrated": "This wallet is temporarily unavailable for transfers.",
-  "errAlreadyProcessed": "This transfer was already processed."
+  "errAlreadyProcessed": "This transfer was already processed.",
+  "appLock": "App lock",
+  "appLockSubtitle": "Require biometrics or your device PIN to open Boklo.",
+  "appLockLockedTitle": "Boklo is locked",
+  "appLockLockedBody": "Verify that it's you to continue.",
+  "appLockUnlock": "Unlock",
+  "appLockUnavailable": "Biometric authentication is not available on this device."
 }

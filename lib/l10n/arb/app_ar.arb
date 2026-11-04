@@ -166,5 +166,11 @@
   "errWalletNotFound": "تعذّر العثور على محفظة المستلم.",
   "errCurrencyMismatch": "تم إيقاف هذا التحويل: المحفظتان تستخدمان عملتين مختلفتين.",
   "errWalletNotMigrated": "هذه المحفظة غير متاحة مؤقتًا للتحويلات.",
-  "errAlreadyProcessed": "تمت معالجة هذا التحويل مسبقًا."
+  "errAlreadyProcessed": "تمت معالجة هذا التحويل مسبقًا.",
+  "appLock": "قفل التطبيق",
+  "appLockSubtitle": "اطلب المصادقة البيومترية أو رمز قفل جهازك لفتح بوكلو.",
+  "appLockLockedTitle": "بوكلو مقفل",
+  "appLockLockedBody": "تحقّق من هويتك للمتابعة.",
+  "appLockUnlock": "فتح القفل",
+  "appLockUnavailable": "المصادقة البيومترية غير متاحة على هذا الجهاز."
 }

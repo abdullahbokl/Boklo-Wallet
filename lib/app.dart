@@ -1,6 +1,7 @@
 import 'package:boklo/config/routes/app_router.dart';
 import 'package:boklo/config/theme/app_theme.dart';
 import 'package:boklo/core/di/di_initializer.dart';
+import 'package:boklo/core/services/app_lock_gate.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:boklo/features/settings/presentation/bloc/locale_cubit.dart';
@@ -31,7 +32,9 @@ class MyApp extends StatelessWidget {
                 title: 'Boklo',
                 builder: (context, child) => MediaQuery.withClampedTextScaling(
                   maxScaleFactor: 2,
-                  child: child ?? const SizedBox.shrink(),
+                  child: AppLockGate(
+                    child: child ?? const SizedBox.shrink(),
+                  ),
                 ),
                 scaffoldMessengerKey: snackbarService.scaffoldMessengerKey,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,

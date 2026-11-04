@@ -1105,6 +1105,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This transfer was already processed.'**
   String get errAlreadyProcessed;
+
+  /// No description provided for @appLock.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get appLock;
+
+  /// No description provided for @appLockSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Require biometrics or your device PIN to open Boklo.'**
+  String get appLockSubtitle;
+
+  /// No description provided for @appLockLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Boklo is locked'**
+  String get appLockLockedTitle;
+
+  /// No description provided for @appLockLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify that it\'s you to continue.'**
+  String get appLockLockedBody;
+
+  /// No description provided for @appLockUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get appLockUnlock;
+
+  /// No description provided for @appLockUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric authentication is not available on this device.'**
+  String get appLockUnavailable;
 }
 
 class _AppLocalizationsDelegate

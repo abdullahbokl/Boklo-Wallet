@@ -18,9 +18,7 @@ String localizedTransferError(
     // Legacy failures (pre-errorCode) are matched on their stored English
     // failure text so historical transfers localize too.
     _ =>
-        _matchLegacyMessage(l10n, fallback) ??
-        fallback ??
-        l10n.errTransferFailed,
+      _matchLegacyMessage(l10n, fallback) ?? fallback ?? l10n.errTransferFailed,
   };
 }
 
