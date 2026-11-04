@@ -149,6 +149,8 @@ class _ContactListBodyState extends State<_ContactListBody> {
                   onRemove: () => context.read<ContactCubit>().removeContact(
                     contact.uid,
                   ),
+                  onToggleFavorite: () =>
+                      context.read<ContactCubit>().toggleFavorite(contact),
                 ),
               ),
               if (contacts.isEmpty)

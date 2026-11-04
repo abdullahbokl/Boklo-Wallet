@@ -1141,6 +1141,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Biometric authentication is not available on this device.'**
   String get appLockUnavailable;
+
+  /// No description provided for @contactActionSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send money'**
+  String get contactActionSend;
+
+  /// No description provided for @contactActionRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Request payment'**
+  String get contactActionRequest;
+
+  /// No description provided for @contactActionRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove contact'**
+  String get contactActionRemove;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get addToFavorites;
+
+  /// No description provided for @removeFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get removeFromFavorites;
+
+  /// No description provided for @favoritesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesSection;
+
+  /// No description provided for @noFavoritesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Star a contact to pin it here.'**
+  String get noFavoritesYet;
+
+  /// No description provided for @transferFormSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter who should receive the money and how much.'**
+  String get transferFormSubtitle;
+
+  /// No description provided for @transferBackendNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers are confirmed by the backend before balances update.'**
+  String get transferBackendNote;
 }
 
 class _AppLocalizationsDelegate

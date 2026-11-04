@@ -1,6 +1,7 @@
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/contacts/domain/entity/contact_entity.dart';
+import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_avatar.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class ContactItem extends StatelessWidget {
     this.onSendMoney,
     this.onRequestMoney,
     this.onRemove,
+    this.onToggleFavorite,
     this.isPickMode = false,
   });
 
@@ -21,6 +23,7 @@ class ContactItem extends StatelessWidget {
   final VoidCallback? onSendMoney;
   final VoidCallback? onRequestMoney;
   final VoidCallback? onRemove;
+  final VoidCallback? onToggleFavorite;
   final bool isPickMode;
 
   @override
@@ -60,12 +63,27 @@ class ContactItem extends StatelessWidget {
                 ],
               ),
             ),
-            if (!isPickMode)
+            if (!isPickMode) ...[
+              IconButton(
+                tooltip: contact.isFavorite
+                    ? context.l10n.removeFromFavorites
+                    : context.l10n.addToFavorites,
+                icon: Icon(
+                  contact.isFavorite
+                      ? Icons.star_rounded
+                      : Icons.star_outline_rounded,
+                  color: contact.isFavorite
+                      ? Colors.amber.shade700
+                      : scheme.onSurfaceVariant,
+                ),
+                onPressed: onToggleFavorite,
+              ),
               _ContactActionMenu(
                 onSendMoney: onSendMoney,
                 onRequestMoney: onRequestMoney,
                 onRemove: onRemove,
               ),
+            ],
           ],
         ),
       ),
@@ -94,19 +112,24 @@ class _ContactActionMenu extends StatelessWidget {
         if (value == 'remove') onRemove?.call();
       },
       itemBuilder: (context) => [
-        _buildMenuItem(context, 'send', Icons.send_rounded, 'Send money'),
+        _buildMenuItem(
+          context,
+          'send',
+          Icons.send_rounded,
+          context.l10n.contactActionSend,
+        ),
         _buildMenuItem(
           context,
           'request',
           Icons.request_page_rounded,
-          'Request payment',
+          context.l10n.contactActionRequest,
         ),
         const PopupMenuDivider(),
         _buildMenuItem(
           context,
           'remove',
           Icons.delete_outline_rounded,
-          'Remove contact',
+          context.l10n.contactActionRemove,
           isDestructive: true,
         ),
       ],

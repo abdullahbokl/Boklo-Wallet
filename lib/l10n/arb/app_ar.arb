@@ -172,5 +172,14 @@
   "appLockLockedTitle": "بوكلو مقفل",
   "appLockLockedBody": "تحقّق من هويتك للمتابعة.",
   "appLockUnlock": "فتح القفل",
-  "appLockUnavailable": "المصادقة البيومترية غير متاحة على هذا الجهاز."
+  "appLockUnavailable": "المصادقة البيومترية غير متاحة على هذا الجهاز.",
+  "contactActionSend": "إرسال أموال",
+  "contactActionRequest": "طلب دفعة",
+  "contactActionRemove": "إزالة جهة الاتصال",
+  "addToFavorites": "إضافة إلى المفضلة",
+  "removeFromFavorites": "إزالة من المفضلة",
+  "favoritesSection": "المفضلة",
+  "noFavoritesYet": "أضف نجمة على جهة اتصال لتثبيتها هنا.",
+  "transferFormSubtitle": "أدخل مَن سيستلم المبلغ وكم سيكون.",
+  "transferBackendNote": "يتم تأكيد التحويلات على الخادم قبل تحديث الأرصدة."
 }

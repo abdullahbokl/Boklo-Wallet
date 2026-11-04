@@ -2,6 +2,7 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_amount_input.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_balance_display.dart';
+import 'package:boklo/features/transfers/presentation/widgets/transfer_favorites_row.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_recipient_input.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/shared/extensions/l10n.dart';
@@ -46,8 +47,13 @@ class TransferFormContent extends StatelessWidget {
                 children: [
                   AppSectionHeader(
                     title: context.l10n.transferDetails,
-                    subtitle:
-                        'Enter who should receive the money and how much.',
+                    subtitle: context.l10n.transferFormSubtitle,
+                  ),
+                  const SizedBox(height: AppDimens.lg),
+                  TransferFavoritesRow(
+                    onSelected: (contact) {
+                      recipientController.text = contact.email;
+                    },
                   ),
                   const SizedBox(height: AppDimens.lg),
                   TransferRecipientInput(
@@ -61,8 +67,7 @@ class TransferFormContent extends StatelessWidget {
                   ),
                   const SizedBox(height: AppDimens.lg),
                   Text(
-                    'Transfers are confirmed by the backend before balances  '
-                    'update.',
+                    context.l10n.transferBackendNote,
                     style: AppTypography.bodySmall.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),

@@ -18,6 +18,9 @@ abstract class ContactModel with _$ContactModel {
     )
     required DateTime createdAt,
     @JsonKey(name: 'photoUrl') String? photoUrl,
+    @JsonKey(name: 'isFavorite', defaultValue: false)
+    @Default(false)
+    bool isFavorite,
   }) = _ContactModel;
   const ContactModel._();
 
@@ -40,6 +43,7 @@ abstract class ContactModel with _$ContactModel {
       photoUrl: photoUrl,
       email: email,
       createdAt: createdAt,
+      isFavorite: isFavorite,
     );
   }
 }

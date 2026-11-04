@@ -23,7 +23,7 @@ class ContactCubit extends BaseCubit<ContactState> {
         emitError,
         (data) {
           final current = state.data ?? const ContactState();
-          emitSuccess(current.copyWith(contacts: data));
+          emitSuccess(current.copyWith(contacts: _sorted(data)));
         },
       );
     });
@@ -84,6 +84,41 @@ class ContactCubit extends BaseCubit<ContactState> {
       },
       (_) {
         // Success - stream will confirm
+      },
+    );
+  }
+
+  /// Favorites first, then most recently added.
+  static List<ContactEntity> _sorted(List<ContactEntity> contacts) {
+    final sorted = List<ContactEntity>.of(contacts)
+      ..sort((a, b) {
+        if (a.isFavorite != b.isFavorite) return a.isFavorite ? -1 : 1;
+        return b.createdAt.compareTo(a.createdAt);
+      });
+    return sorted;
+  }
+
+  /// Optimistically toggles a contact's favorite flag, then persists.
+  Future<void> toggleFavorite(ContactEntity contact) async {
+    final current = state.data ?? const ContactState();
+    final updated = contact.copyWith(isFavorite: !contact.isFavorite);
+
+    final updatedList = current.contacts
+        .map((c) => c.uid == contact.uid ? updated : c)
+        .toList();
+    emitSuccess(current.copyWith(contacts: _sorted(updatedList)));
+
+    final result = await _repository.setFavorite(
+      uid: contact.uid,
+      favorite: !contact.isFavorite,
+    );
+    result.fold(
+      (error) {
+        emitError(error);
+        emitSuccess(current);
+      },
+      (_) {
+        // Success - stream will confirm.
       },
     );
   }

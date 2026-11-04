@@ -560,4 +560,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appLockUnavailable =>
       'Biometric authentication is not available on this device.';
+
+  @override
+  String get contactActionSend => 'Send money';
+
+  @override
+  String get contactActionRequest => 'Request payment';
+
+  @override
+  String get contactActionRemove => 'Remove contact';
+
+  @override
+  String get addToFavorites => 'Add to favorites';
+
+  @override
+  String get removeFromFavorites => 'Remove from favorites';
+
+  @override
+  String get favoritesSection => 'Favorites';
+
+  @override
+  String get noFavoritesYet => 'Star a contact to pin it here.';
+
+  @override
+  String get transferFormSubtitle =>
+      'Enter who should receive the money and how much.';
+
+  @override
+  String get transferBackendNote =>
+      'Transfers are confirmed by the backend before balances update.';
 }

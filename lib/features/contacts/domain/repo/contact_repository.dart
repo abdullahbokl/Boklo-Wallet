@@ -11,4 +11,11 @@ abstract class ContactRepository {
     String? username,
   });
   Future<Either<Failure, void>> removeContact(String uid);
+
+  /// Marks (or unmarks) a contact as a favorite. Contact docs are
+  /// owner-writable per Firestore rules, so this is a direct client write.
+  Future<Either<Failure, void>> setFavorite({
+    required String uid,
+    required bool favorite,
+  });
 }

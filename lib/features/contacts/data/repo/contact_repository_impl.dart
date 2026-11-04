@@ -98,4 +98,26 @@ class ContactRepositoryImpl implements ContactRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> setFavorite({
+    required String uid,
+    required bool favorite,
+  }) async {
+    try {
+      final owner = _auth.currentUser?.uid;
+      if (owner == null) {
+        return const Left(UnknownFailure('User not logged in'));
+      }
+      await _firestore
+          .collection('users')
+          .doc(owner)
+          .collection('contacts')
+          .doc(uid)
+          .update({'isFavorite': favorite});
+      return const Right(null);
+    } on Object catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
 }

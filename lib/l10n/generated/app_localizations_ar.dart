@@ -555,4 +555,32 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get appLockUnavailable =>
       'المصادقة البيومترية غير متاحة على هذا الجهاز.';
+
+  @override
+  String get contactActionSend => 'إرسال أموال';
+
+  @override
+  String get contactActionRequest => 'طلب دفعة';
+
+  @override
+  String get contactActionRemove => 'إزالة جهة الاتصال';
+
+  @override
+  String get addToFavorites => 'إضافة إلى المفضلة';
+
+  @override
+  String get removeFromFavorites => 'إزالة من المفضلة';
+
+  @override
+  String get favoritesSection => 'المفضلة';
+
+  @override
+  String get noFavoritesYet => 'أضف نجمة على جهة اتصال لتثبيتها هنا.';
+
+  @override
+  String get transferFormSubtitle => 'أدخل مَن سيستلم المبلغ وكم سيكون.';
+
+  @override
+  String get transferBackendNote =>
+      'يتم تأكيد التحويلات على الخادم قبل تحديث الأرصدة.';
 }

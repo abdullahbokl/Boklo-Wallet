@@ -199,5 +199,14 @@
   "appLockLockedTitle": "Boklo is locked",
   "appLockLockedBody": "Verify that it's you to continue.",
   "appLockUnlock": "Unlock",
-  "appLockUnavailable": "Biometric authentication is not available on this device."
+  "appLockUnavailable": "Biometric authentication is not available on this device.",
+  "contactActionSend": "Send money",
+  "contactActionRequest": "Request payment",
+  "contactActionRemove": "Remove contact",
+  "addToFavorites": "Add to favorites",
+  "removeFromFavorites": "Remove from favorites",
+  "favoritesSection": "Favorites",
+  "noFavoritesYet": "Star a contact to pin it here.",
+  "transferFormSubtitle": "Enter who should receive the money and how much.",
+  "transferBackendNote": "Transfers are confirmed by the backend before balances update."
 }

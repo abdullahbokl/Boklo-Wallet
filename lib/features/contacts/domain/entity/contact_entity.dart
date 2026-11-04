@@ -10,5 +10,6 @@ abstract class ContactEntity with _$ContactEntity {
     required String email,
     required DateTime createdAt,
     String? photoUrl,
+    @Default(false) bool isFavorite,
   }) = _ContactEntity;
 }
