@@ -49,7 +49,7 @@ class NotificationTile extends StatelessWidget {
       direction: DismissDirection.endToStart,
       onDismissed: (_) => onDelete?.call(),
       background: Container(
-        alignment: Alignment.centerRight,
+        alignment: AlignmentDirectional.centerEnd,
         padding: const EdgeInsets.symmetric(horizontal: AppDimens.lg),
         decoration: BoxDecoration(
           color: scheme.error,

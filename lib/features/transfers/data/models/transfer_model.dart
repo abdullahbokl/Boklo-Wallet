@@ -15,6 +15,7 @@ class TransferModel {
     required this.status,
     required this.createdAt,
     this.failureReason,
+    this.errorCode,
     this.reasons,
     this.riskLevel,
     this.riskMode,
@@ -33,6 +34,7 @@ class TransferModel {
       status: entity.status,
       createdAt: entity.createdAt,
       failureReason: entity.failureReason,
+      errorCode: entity.errorCode,
       reasons: entity.reasons,
       riskLevel: entity.riskLevel,
       riskMode: entity.riskMode,
@@ -49,6 +51,7 @@ class TransferModel {
   @TimestampConverter()
   final DateTime createdAt;
   final String? failureReason;
+  final String? errorCode;
   final List<String>? reasons;
   final String? riskLevel;
   final String? riskMode;
@@ -69,6 +72,7 @@ class TransferModel {
       status: status,
       createdAt: createdAt,
       failureReason: failureReason,
+      errorCode: errorCode,
       reasons: reasons,
       riskLevel: riskLevel,
       riskMode: riskMode,

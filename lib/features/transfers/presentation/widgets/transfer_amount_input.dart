@@ -22,10 +22,10 @@ class TransferAmountInput extends StatelessWidget {
       prefixIcon: const Icon(Icons.attach_money),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       validator: (v) {
-        if (v == null || v.isEmpty) return 'Required';
+        if (v == null || v.isEmpty) return context.l10n.required;
         final amount = double.tryParse(v);
-        if (amount == null) return 'Invalid number';
-        if (amount <= 0) return 'Amount must be greater than 0';
+        if (amount == null) return context.l10n.invalidNumber;
+        if (amount <= 0) return context.l10n.amountMustBePositive;
         return null;
       },
     );

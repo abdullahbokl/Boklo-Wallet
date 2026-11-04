@@ -16,6 +16,7 @@ class TransferEntity extends Equatable {
     required this.status,
     required this.createdAt,
     this.failureReason,
+    this.errorCode,
     this.reasons,
     this.riskLevel,
     this.riskMode,
@@ -29,6 +30,10 @@ class TransferEntity extends Equatable {
   final TransferStatus status;
   final DateTime createdAt;
   final String? failureReason;
+
+  /// Machine-readable failure code (e.g. INSUFFICIENT_BALANCE) emitted by the
+  /// backend so clients can localize failure text.
+  final String? errorCode;
   final List<String>? reasons;
   final String? riskLevel;
   final String? riskMode;
@@ -43,6 +48,7 @@ class TransferEntity extends Equatable {
     status,
     createdAt,
     failureReason,
+    errorCode,
     reasons,
     riskLevel,
     riskMode,

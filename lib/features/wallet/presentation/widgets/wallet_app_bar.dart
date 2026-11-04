@@ -22,7 +22,9 @@ class WalletAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       toolbarHeight: AppDimens.appBarHeight,
       leading: Padding(
-        padding: const EdgeInsets.only(left: AppDimens.pageHorizontalPadding),
+        padding: const EdgeInsetsDirectional.only(
+        start: AppDimens.pageHorizontalPadding,
+      ),
         child: BlocBuilder<AuthCubit, BaseState<User?>>(
           builder: (context, authState) {
             final user = authState.maybeWhen(

@@ -178,5 +178,20 @@
   "helpContact": "Contact support",
   "helpContactEmail": "support@boklo.app",
   "selectContact": "Select contact",
-  "notFound": "This item could not be found."
+  "notFound": "This item could not be found.",
+  "themePickLook": "Pick the look you want for Boklo.",
+  "accountDeletedSuccessfully": "Your account has been deleted successfully.",
+  "invalidNumber": "Invalid number",
+  "amountMustBePositive": "Amount must be greater than 0",
+  "language": "Language",
+  "languageSubtitle": "Choose the app language.",
+  "languageSystem": "System default",
+  "languageEnglish": "English",
+  "languageArabic": "العربية",
+  "errTransferFailed": "The transfer could not be completed.",
+  "errInsufficientBalance": "Insufficient balance for this transfer.",
+  "errWalletNotFound": "Recipient wallet could not be found.",
+  "errCurrencyMismatch": "This transfer was blocked: the wallets use different currencies.",
+  "errWalletNotMigrated": "This wallet is temporarily unavailable for transfers.",
+  "errAlreadyProcessed": "This transfer was already processed."
 }

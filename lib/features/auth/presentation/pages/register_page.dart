@@ -38,7 +38,7 @@ class RegisterPage extends StatelessWidget {
           stackChildren: [
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.only(left: AppDimens.xs),
+                padding: const EdgeInsetsDirectional.only(start: AppDimens.xs),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded),
                   onPressed: () => getIt<NavigationService>().pop(),

@@ -491,4 +491,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notFound => 'This item could not be found.';
+
+  @override
+  String get themePickLook => 'Pick the look you want for Boklo.';
+
+  @override
+  String get accountDeletedSuccessfully =>
+      'Your account has been deleted successfully.';
+
+  @override
+  String get invalidNumber => 'Invalid number';
+
+  @override
+  String get amountMustBePositive => 'Amount must be greater than 0';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get languageSubtitle => 'Choose the app language.';
+
+  @override
+  String get languageSystem => 'System default';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageArabic => 'العربية';
+
+  @override
+  String get errTransferFailed => 'The transfer could not be completed.';
+
+  @override
+  String get errInsufficientBalance =>
+      'Insufficient balance for this transfer.';
+
+  @override
+  String get errWalletNotFound => 'Recipient wallet could not be found.';
+
+  @override
+  String get errCurrencyMismatch =>
+      'This transfer was blocked: the wallets use different currencies.';
+
+  @override
+  String get errWalletNotMigrated =>
+      'This wallet is temporarily unavailable for transfers.';
+
+  @override
+  String get errAlreadyProcessed => 'This transfer was already processed.';
 }

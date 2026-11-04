@@ -4,6 +4,7 @@ import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/di/di_initializer.dart';
 import 'package:boklo/core/services/snackbar_service.dart';
+import 'package:boklo/features/transfers/utils/localize_transfer_error.dart';
 import 'package:boklo/features/wallet/domain/entities/transaction_entity.dart';
 import 'package:boklo/features/wallet/domain/repositories/dispute_repository.dart';
 import 'package:boklo/features/wallet/presentation/widgets/transaction_status_chip.dart';
@@ -85,7 +86,14 @@ class TransactionDetailPage extends StatelessWidget {
               transaction.description!.isNotEmpty)
             _Row(
               label: l10n.detailDescription,
-              value: transaction.description!,
+              // Failed transfers store the backend's English failure text;
+              // localize the known codes/messages, show raw otherwise.
+              value: transaction.status == TransactionStatus.failed
+                  ? localizedTransferError(
+                      l10n,
+                      fallback: transaction.description,
+                    )
+                  : transaction.description!,
             ),
           _CopyableRow(label: l10n.detailTransactionId, value: transaction.id),
           const Spacer(),

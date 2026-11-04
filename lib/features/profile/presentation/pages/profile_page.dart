@@ -113,9 +113,8 @@ class ProfilePage extends StatelessWidget {
     final state = context.read<AuthCubit>().state;
     if (state.data == null && !state.isError) {
       getIt<NavigationService>().go('/login');
-      getIt<SnackbarService>().showSuccess(
-        'Your account has been deleted successfully.',
-      );
+      getIt<SnackbarService>()
+          .showSuccess(context.l10n.accountDeletedSuccessfully);
     } else if (state.error != null) {
       getIt<SnackbarService>().showError(state.error!.message);
       await context.read<AuthCubit>().checkAuthStatus();

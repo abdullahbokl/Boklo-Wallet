@@ -9,6 +9,7 @@ import 'package:boklo/features/transfers/presentation/bloc/transfer_state.dart';
 import 'package:boklo/features/transfers/presentation/pages/transfer_receipt_page.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_confirmation_dialog.dart';
 import 'package:boklo/features/transfers/presentation/widgets/transfer_form_content.dart';
+import 'package:boklo/features/transfers/utils/localize_transfer_error.dart';
 import 'package:boklo/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_cubit.dart';
 import 'package:boklo/features/wallet/presentation/bloc/wallet_state.dart';
@@ -137,7 +138,9 @@ class _TransferBlocHandler extends StatelessWidget {
             }
           },
           error: (error) {
-            getIt<SnackbarService>().showError(error.message);
+            getIt<SnackbarService>().showError(
+              localizedTransferError(context.l10n, fallback: error.message),
+            );
           },
         );
       },

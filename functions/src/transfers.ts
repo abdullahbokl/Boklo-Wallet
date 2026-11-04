@@ -317,6 +317,18 @@ export const onTransferCreated = onDocumentCreated("transfers/{transferId}", asy
   }
 });
 
+/**
+ * Machine-readable error codes stamped on failed transfers so clients can
+ * localize failure reasons instead of showing backend English prose.
+ */
+export function transferErrorCode(reason: string): string {
+  if (reason.startsWith("wallet-not-migrated")) return "WALLET_NOT_MIGRATED";
+  if (reason.startsWith("currency-mismatch")) return "CURRENCY_MISMATCH";
+  if (reason === "Insufficient balance") return "INSUFFICIENT_BALANCE";
+  if (reason === "One or both wallets do not exist") return "WALLET_NOT_FOUND";
+  return "TRANSFER_FAILED";
+}
+
 async function updateAsFailed(
   db: admin.firestore.Firestore,
   transferId: string,
@@ -331,6 +343,7 @@ async function updateAsFailed(
         t.update(transferRef, {
             status: "failed",
             failureReason: reason,
+            errorCode: transferErrorCode(reason),
         });
 
         // EMIT: transaction.failed

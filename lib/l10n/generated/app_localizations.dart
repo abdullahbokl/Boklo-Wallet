@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 
 // ignore_for_file: type=lint
@@ -92,7 +93,10 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('ar'),
+    Locale('en'),
+  ];
 
   /// No description provided for @signInToBoklo.
   ///
@@ -1011,6 +1015,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This item could not be found.'**
   String get notFound;
+
+  /// No description provided for @themePickLook.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the look you want for Boklo.'**
+  String get themePickLook;
+
+  /// No description provided for @accountDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted successfully.'**
+  String get accountDeletedSuccessfully;
+
+  /// No description provided for @invalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid number'**
+  String get invalidNumber;
+
+  /// No description provided for @amountMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be greater than 0'**
+  String get amountMustBePositive;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @languageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the app language.'**
+  String get languageSubtitle;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get languageSystem;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languageArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'العربية'**
+  String get languageArabic;
+
+  /// No description provided for @errTransferFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The transfer could not be completed.'**
+  String get errTransferFailed;
+
+  /// No description provided for @errInsufficientBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient balance for this transfer.'**
+  String get errInsufficientBalance;
+
+  /// No description provided for @errWalletNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient wallet could not be found.'**
+  String get errWalletNotFound;
+
+  /// No description provided for @errCurrencyMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This transfer was blocked: the wallets use different currencies.'**
+  String get errCurrencyMismatch;
+
+  /// No description provided for @errWalletNotMigrated.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet is temporarily unavailable for transfers.'**
+  String get errWalletNotMigrated;
+
+  /// No description provided for @errAlreadyProcessed.
+  ///
+  /// In en, this message translates to:
+  /// **'This transfer was already processed.'**
+  String get errAlreadyProcessed;
 }
 
 class _AppLocalizationsDelegate
@@ -1024,7 +1118,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1033,6 +1127,8 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'ar':
+      return AppLocalizationsAr();
     case 'en':
       return AppLocalizationsEn();
   }

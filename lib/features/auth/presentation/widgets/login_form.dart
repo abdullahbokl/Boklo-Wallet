@@ -64,7 +64,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
               const SizedBox(height: AppDimens.md),
               Align(
-                alignment: Alignment.centerRight,
+                alignment: AlignmentDirectional.centerEnd,
                 child: TextButton(
                   onPressed: () => showForgotPasswordDialog(context),
                   child: Text(context.l10n.forgotPassword),
@@ -77,7 +77,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
               const SizedBox(height: AppDimens.lg),
               Align(
-                alignment: Alignment.centerRight,
+                alignment: AlignmentDirectional.centerEnd,
                 child: TextButton(
                   onPressed: isLoading
                       ? null

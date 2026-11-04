@@ -1,7 +1,12 @@
 import 'package:boklo/config/theme/app_colors.dart';
 import 'package:boklo/config/theme/app_dimens.dart';
 import 'package:boklo/config/theme/app_typography.dart';
+import 'package:boklo/core/base/base_state.dart';
+import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:boklo/features/profile/presentation/widgets/account_info_sheet.dart';
+import 'package:boklo/features/settings/presentation/bloc/locale_cubit.dart';
 import 'package:boklo/features/settings/presentation/bloc/theme_cubit.dart';
+import 'package:boklo/l10n/generated/app_localizations.dart';
 import 'package:boklo/shared/extensions/l10n.dart';
 import 'package:boklo/shared/widgets/atoms/app_card.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +21,10 @@ extension on ThemeMode {
     ThemeMode.dark => Icons.dark_mode_rounded,
   };
 
-  String get label => switch (this) {
-    ThemeMode.system => 'System',
-    ThemeMode.light => 'Light',
-    ThemeMode.dark => 'Dark',
+  String label(AppLocalizations l10n) => switch (this) {
+    ThemeMode.system => l10n.themeSystem,
+    ThemeMode.light => l10n.themeLight,
+    ThemeMode.dark => l10n.themeDark,
   };
 
   Color color(ColorScheme scheme) => switch (this) {
@@ -44,7 +49,7 @@ class AccountDetailsCard extends StatelessWidget {
             icon: Icons.person_outline_rounded,
             title: context.l10n.personalInformation,
             subtitle: context.l10n.personalInformationSubtitle,
-            onTap: () {},
+            onTap: () => _showAccountInfoSheet(context),
           ),
           Divider(height: 1, color: scheme.outlineVariant),
           _SettingTile(
@@ -56,6 +61,8 @@ class AccountDetailsCard extends StatelessWidget {
           Divider(height: 1, color: scheme.outlineVariant),
           const _ThemeModeSection(),
           Divider(height: 1, color: scheme.outlineVariant),
+          const _LanguageSection(),
+          Divider(height: 1, color: scheme.outlineVariant),
           _SettingTile(
             icon: Icons.security_outlined,
             title: context.l10n.security,
@@ -64,6 +71,16 @@ class AccountDetailsCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _showAccountInfoSheet(BuildContext context) async {
+    final user = context.read<AuthCubit>().state.data;
+    if (user == null || !context.mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => AccountInfoSheet(user: user),
     );
   }
 }
@@ -107,7 +124,7 @@ class _ThemeModeSection extends StatelessWidget {
                         ),
                         const SizedBox(height: AppDimens.xs4),
                         Text(
-                          'Pick the look you want for Boklo.',
+                          context.l10n.themePickLook,
                           style: AppTypography.bodySmall.copyWith(
                             color: scheme.onSurfaceVariant,
                           ),
@@ -221,7 +238,7 @@ class _ThemeModeSegment extends StatelessWidget {
               ),
               const SizedBox(height: AppDimens.xs),
               Text(
-                mode.label,
+                mode.label(context.l10n),
                 style: AppTypography.bodySmall.copyWith(
                   color: isSelected ? accentColor : scheme.onSurface,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
@@ -241,6 +258,161 @@ class _ThemeModeSegment extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageSection extends StatelessWidget {
+  const _LanguageSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return BlocBuilder<LocaleCubit, Locale?>(
+      builder: (context, locale) {
+        return Padding(
+          padding: const EdgeInsets.all(AppDimens.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: scheme.primaryContainer.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppDimens.sm),
+                      child: Icon(
+                        Icons.language_rounded,
+                        color: scheme.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppDimens.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.l10n.language,
+                          style: AppTypography.subtitle,
+                        ),
+                        const SizedBox(height: AppDimens.xs4),
+                        Text(
+                          context.l10n.languageSubtitle,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppDimens.md),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                  border: Border.all(color: scheme.outlineVariant),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppDimens.xs4),
+                  child: Row(
+                    children: [
+                      _LanguageSegment(
+                        label: context.l10n.languageSystem,
+                        isSelected: locale == null,
+                        onTap: () =>
+                            context.read<LocaleCubit>().setLanguageCode(null),
+                      ),
+                      _LanguageSegment(
+                        label: context.l10n.languageEnglish,
+                        isSelected: locale?.languageCode == 'en',
+                        onTap: () =>
+                            context.read<LocaleCubit>().setLanguageCode('en'),
+                      ),
+                      _LanguageSegment(
+                        label: context.l10n.languageArabic,
+                        isSelected: locale?.languageCode == 'ar',
+                        onTap: () =>
+                            context.read<LocaleCubit>().setLanguageCode('ar'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _LanguageSegment extends StatelessWidget {
+  const _LanguageSegment({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final accentColor = scheme.primary;
+
+    return Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+          onTap: onTap,
+          child: Ink(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimens.xs,
+              vertical: AppDimens.sm,
+            ),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? accentColor.withValues(alpha: 0.12)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(AppDimens.radiusMd),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  label,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: isSelected ? accentColor : scheme.onSurface,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: AppDimens.xs4),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  width: 20,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? accentColor
+                        : scheme.outlineVariant.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(AppDimens.radiusFull),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
