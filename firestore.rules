@@ -141,7 +141,9 @@ service cloud.firestore {
       allow create: if isAuthenticated()
                     && request.resource.data.fromWalletId == request.auth.uid
                     && request.resource.data.status == 'pending'
-                    && request.resource.data.amount is number
+                    // Integer minor units only: floats can never enter
+                    // the ledger through a client-created transfer.
+                    && request.resource.data.amount is int
                     && request.resource.data.amount > 0
                     && request.resource.data.toWalletId is string
                     && request.resource.data.currency is string
