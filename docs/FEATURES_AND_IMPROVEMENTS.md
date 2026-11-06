@@ -545,3 +545,57 @@ Each remains fully specified in §4–§11 above.
 ### Remaining code backlog (specified in §4–§11, not yet implemented)
 
 Arabic/RTL ARB (+ localized backend error codes); app lock (local_auth); help/support pages; favorites; QR pay-me; CSV statements; spending insights; onboarding carousel; amount keypad; session management; scheduled transfers / FX / fees frameworks; Firestore rules emulator tests in CI.
+
+## 14. Execution Status — session 3 (full backlog completion, 2026-11-06)
+
+### 14.1 Implemented and verified (client + backend, all tests green)
+
+| Item | Detail |
+| --- | --- |
+| **Arabic + RTL (5.5)** | Complete `app_ar.arb` (all 168+ keys), LocaleCubit (persisted system/en/ar), RTL audit fixing every hardcoded LTR layout site, localized theme/language/settings UI |
+| **Localized backend errors (5.5)** | Transfer executor stamps machine `errorCode` on failed docs; client maps codes + legacy English text to localized messages |
+| **App lock / biometrics (6.4)** | `local_auth` gate locking on app pause; settings switch verifies auth before enabling (no lockout); consumes the previously-dead `enableBiometrics` flag |
+| **Favorite recipients** | `isFavorite` end-to-end (entity → repo → cubit → star toggle), favorites-first sort, one-tap quick-pick row on the send screen |
+| **QR pay-me** | `boklo://pay?u=<id>` payload codec (unit-tested), QR page + handle share, mobile_scanner page fills the recipient |
+| **CSV statement export** | RFC-4180 builder (unit-tested escaping/money rendering), full-history paged fetch, temp-file share sheet |
+| **Spending insights** | Month-window in/out calculator (boundary-tested), card on the wallet page, export entry point |
+| **Help & support** | FAQ accordion, mailto support contact, dispute-flow pointer, reachable from settings |
+| **Onboarding** | Three-slide first-launch carousel behind a secure-storage flag loaded at bootstrap; router gate |
+| **Amount keypad (5.6)** | Keypad-only money entry: two-decimal cap, leading-zero collapse, read-only field (paste impossible), widget-tested |
+| **Session/device management (6.5)** | `listDevices` + `revokeAllSessions` callables (revokeRefreshTokens + token-doc cleanup), devices page with destructive confirm flow |
+| **Scheduled transfers** | Validated create/cancel callables, hourly sweep spawning idempotent transfer docs, month-clamped next-run math (unit-tested), list page + "Make recurring" on the send screen |
+| **Fees framework (5.4)** | Remote-Config schedule (`transfer_fee_bps`, `transfer_fee_free_below_minor`; default off), server-computed fee inside the execution transaction (balance check covers amount+fee, own tx + platform ledger entry, `feeMinor` on the doc), quote callable + live debounced fee line in the form |
+| **FX foundations** | `fx_rates/{BASE_QUOTE}` docs holding an exact rational rate (rateNum/rateDen — no float money math), integer `convertMinorWithRate` (half-up rounding, unit-tested), advisory-only `getFxQuote` callable. Policy unchanged: live transfers stay strictly same-currency |
+| **Rules emulator tests** | 15 rules-unit-testing tests over every security invariant. **Found + fixed a real gap**: transfer creation accepted float amounts — rule now enforces `amount is int` |
+| **Dead-code sweep** | Removed dead duplicate forgot-password button + empty ThemeConfig; payment-request trigger now marks requests to nonexistent payer wallets INVALID instead of notifying a dead end |
+
+Commits: `6621272` (l10n/RTL), `e3c6540` (app lock), `6853848` (favorites), `ff28fe1` (QR), `af5edb4` (statements+insights), `6d51a70` (help), `fdf9520` (onboarding+keypad), `ebf41d9` (sessions), `17020e0` (fees), `9331e74` (scheduled), `f8d131f` (FX), `eabe6ae` (rules tests), `a93f533` (sweep).
+
+### 14.2 Implemented and deployed
+
+- **Firestore security rules** (deployed 2026-11-06): the int-only transfer amount fix, `scheduled_transfers` (owner-read, no client writes), `fx_rates` (authenticated read, no client writes).
+
+### 14.3 Requires manual owner/Console action
+
+1. **Cloud Functions deploy is BLOCKED by billing/Secret Manager**: every deploy attempt now fails with `secretmanager.googleapis.com 403 — This API method requires billing to be enabled` when listing the `MIGRATION_TOKEN` secret for the already-deployed migration function. Enabling billing on `boklo-wallet` (or restoring Secret Manager API access) is a Console/GCP owner action, then run:
+   `npx firebase-tools deploy --only functions --project boklo-wallet`
+   The new code awaiting deploy: `listDevices`, `revokeAllSessions`, `estimateTransferFee`, `createScheduledTransfer`, `cancelScheduledTransfer`, `processScheduledTransfers`, `getFxQuote`, payer-existence validation, `errorCode` stamping, fee integration. (Type-checked + unit-tested; deploy is purely mechanical once billing is restored.)
+2. **App Check enforcement** (unchanged): Console → App Check → enforce per product after telemetry review.
+3. **Dev/prod Firebase project separation** (unchanged): Console/billing decision, then regenerate options files.
+4. **iOS flavor schemes** (unchanged): requires Xcode.
+5. **Fee activation is a product decision**: the framework is live and safe but disabled (0 bps). Setting `transfer_fee_bps` in Remote Config turns it on; fees are shown pre-send via the live quote line.
+
+### 14.4 Not feasible in current scope (unchanged, by design)
+
+- PSP cash-in/out rails, disputes/refunds v2 (beyond the existing dispute flow), bill/merchant payments, referral program — compliance/partner-gated (§8).
+- Actual multi-currency *conversion in transfers* — deliberately not wired: `currenciesAreCompatible` remains the safety invariant; FX primitives exist and are tested for when the product decision lands.
+
+### 14.5 Final verification (all green, 2026-11-06)
+
+- `dart format --set-exit-if-changed`: clean
+- `flutter analyze`: No issues found
+- `flutter test`: 87 tests passed
+- Functions `tsc --noEmit`: OK
+- Functions `jest`: 20 tests passed
+- Firestore rules suite (emulator): 15 tests passed
+- `git status`: clean
