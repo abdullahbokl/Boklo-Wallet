@@ -56,8 +56,21 @@ export const onPaymentRequestCreated = onDocumentCreated("payment_requests/{requ
         return;
     }
 
-    // TODO: Verify Payer Exists? 
-    // For now, assuming client side checks + later notification failure handles it.
+    // Verify the payer wallet exists before notifying: requests pointed at
+    // a nonexistent wallet can never be accepted and would just notify a
+    // dead end.
+    const payerWallet = await db.collection('wallets').doc(data.payerId).get();
+    if (!payerWallet.exists) {
+        logger.warn("Payment request to nonexistent payer wallet", {
+            requestId,
+            payerId: data.payerId,
+        });
+        await snapshot.ref.update({
+            status: 'INVALID',
+            error: 'Payer wallet does not exist',
+        });
+        return;
+    }
 
     // Emit Event for Notifications
     // We can write to `events` collection to unify notification logic.

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:boklo/config/theme/app_dimens.dart';
-import 'package:boklo/config/theme/app_typography.dart';
 import 'package:boklo/core/base/base_state.dart';
 import 'package:boklo/features/auth/domain/entities/user.dart';
 import 'package:boklo/features/auth/presentation/bloc/auth_cubit.dart';
@@ -45,8 +44,6 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return Form(
       key: _formKey,
       child: BlocBuilder<AuthCubit, BaseState<User?>>(
@@ -74,22 +71,6 @@ class _LoginFormState extends State<LoginForm> {
                 controller: _passwordController,
                 onSubmitted: isLoading ? null : (_) => _onLogin(),
                 enabled: !isLoading,
-              ),
-              const SizedBox(height: AppDimens.lg),
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: TextButton(
-                  onPressed: isLoading
-                      ? null
-                      : () {}, // Forgot password placeholder
-                  child: Text(
-                    'Forgot Password?',
-                    style: AppTypography.label.copyWith(
-                      color: scheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
               ),
               const SizedBox(height: AppDimens.lg),
               AppButton(
